@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include medtech_bpa *.css
+recursive-include medtech_bpa *.csv
+recursive-include medtech_bpa *.html
+recursive-include medtech_bpa *.ico
+recursive-include medtech_bpa *.js
+recursive-include medtech_bpa *.json
+recursive-include medtech_bpa *.md
+recursive-include medtech_bpa *.png
+recursive-include medtech_bpa *.py
+recursive-include medtech_bpa *.svg
+recursive-include medtech_bpa *.txt
+recursive-exclude medtech_bpa *.pyc
