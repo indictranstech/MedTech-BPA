@@ -127,3 +127,5 @@ app_license = "MIT"
 # 	"Task": "medtech_bpa.task.get_dashboard_data"
 # }
 
+fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role', 'Letter Head', 'Print Style', 'Print Settings',
+ 'Workflow', 'Workflow State', 'Workflow Action',"Custom Script","Page","Translation"]

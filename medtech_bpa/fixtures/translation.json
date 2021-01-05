@@ -1,0 +1,16 @@
+[
+ {
+  "contributed_translation_doctype_name": null,
+  "docstatus": 0,
+  "doctype": "Translation",
+  "language": "en",
+  "modified": "2021-01-04 18:14:51.794263",
+  "name": "dd212dd019",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "source_name": "Purchase Order",
+  "status": "Saved",
+  "target_name": "Visual Inspection Report"
+ }
+]
