@@ -1,0 +1,44 @@
+[
+ {
+  "css": ".print-format * {\n\tcolor: #000 !important;\n}\n\n.print-format .alert {\n\tbackground-color: inherit;\n\tborder: 1px dashed #333;\n}\n\n.print-format .table-bordered,\n.print-format .table-bordered > thead > tr > th,\n.print-format .table-bordered > tbody > tr > th,\n.print-format .table-bordered > tfoot > tr > th,\n.print-format .table-bordered > thead > tr > td,\n.print-format .table-bordered > tbody > tr > td,\n.print-format .table-bordered > tfoot > tr > td {\n\tborder: 1px solid #333;\n}\n\n.print-format hr {\n\tborder-top: 1px solid #333;\n}\n\n.print-heading {\n\tborder-bottom: 2px solid #333;\n}\n",
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Print Style",
+  "modified": "2017-08-18 00:44:25.023898",
+  "name": "Monochrome",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "preview": "/assets/frappe/images/help/print-style-monochrome.png",
+  "print_style_name": "Monochrome",
+  "standard": 1
+ },
+ {
+  "css": ".print-heading {\n\ttext-align: right;\n\ttext-transform: uppercase;\n\tcolor: #666;\n\tpadding-bottom: 20px;\n\tmargin-bottom: 20px;\n\tborder-bottom: 1px solid #d1d8dd;\n}\n\n.print-heading h2 {\n\tfont-size: 24px;\n}\n\n.print-format th {\n\tbackground-color: #eee !important;\n\tborder-bottom: 0px !important;\n}\n\n/* modern format: for-test */",
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Print Style",
+  "modified": "2017-08-18 00:44:07.438147",
+  "name": "Modern",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "preview": "/assets/frappe/images/help/print-style-modern.png",
+  "print_style_name": "Modern",
+  "standard": 1
+ },
+ {
+  "css": "/*\n\tcommon style for whole page\n\tThis should include:\n\t+ page size related settings\n\t+ font family settings\n\t+ line spacing settings\n*/\n.print-format div,\n.print-format span,\n.print-format td,\n.print-format h1,\n.print-format h2,\n.print-format h3,\n.print-format h4 {\n\tfont-family: Georgia, serif;\n}\n\n/* classic format: for-test */",
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Print Style",
+  "modified": "2017-08-18 00:43:48.675833",
+  "name": "Classic",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "preview": "/assets/frappe/images/help/print-style-classic.png",
+  "print_style_name": "Classic",
+  "standard": 1
+ }
+]
