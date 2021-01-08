@@ -117,7 +117,7 @@ app_license = "MIT"
 # ------------------------------
 #
 # override_whitelisted_methods = {
-# 	"frappe.desk.doctype.event.event.get_events": "medtech_bpa.event.get_events"
+# 	"frappe.desk.doctype.event.event.get_events": "medtech_bpa.vent.get_events"
 # }
 #
 # each overriding function accepts a `data` argument;
@@ -127,5 +127,22 @@ app_license = "MIT"
 # 	"Task": "medtech_bpa.task.get_dashboard_data"
 # }
 
-fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role', 'Letter Head', 'Print Style', 'Print Settings',
- 'Workflow', 'Workflow State', 'Workflow Action',"Custom Script","Page","Translation"]
+fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role', 
+	'Letter Head', 'Print Style', 'Print Settings',
+ 	'Workflow', 'Workflow State', 'Workflow Action',"Custom Script","Page","Translation"]
+
+doctype_js = {
+	"Purchase Order" : "medtech_bpa/custom_scripts/purchase_order/purchase_order.js",
+	"Purchase Receipt" : "medtech_bpa/custom_scripts/purchase_receipt/purchase_receipt.js"	
+}
+
+
+doc_events = {
+	
+	"Purchase Receipt":{
+		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.validate"
+	},
+	"Quality Inspection":{
+		"validate":"medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.validate"
+	}
+}
