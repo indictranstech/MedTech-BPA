@@ -1,6 +1,38 @@
 [
  {
   "default_value": null,
+  "doc_type": "Supplier",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "naming_series",
+  "modified": "2021-01-08 11:34:04.798211",
+  "name": "Supplier-naming_series-options",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "options",
+  "property_type": "Text",
+  "value": "SUP-.YYYY.-"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Quality Inspection",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "modified": "2021-01-08 12:37:00.959404",
+  "name": "Quality Inspection-quick_entry",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "quick_entry",
+  "property_type": "Check",
+  "value": "0"
+ },
+ {
+  "default_value": null,
   "doc_type": "Sales Order",
   "docstatus": 0,
   "doctype": "Property Setter",
@@ -1564,6 +1596,22 @@
   "parentfield": null,
   "parenttype": null,
   "property": "in_list_view",
+  "property_type": "Check",
+  "value": "0"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocType",
+  "field_name": null,
+  "modified": "2021-01-11 12:43:09.670957",
+  "name": "Item-quick_entry",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "quick_entry",
   "property_type": "Check",
   "value": "0"
  }
