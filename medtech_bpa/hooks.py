@@ -133,7 +133,8 @@ fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role',
 
 doctype_js = {
 	"Purchase Order" : "medtech_bpa/custom_scripts/purchase_order/purchase_order.js",
-	"Purchase Receipt" : "medtech_bpa/custom_scripts/purchase_receipt/purchase_receipt.js"	
+	"Purchase Receipt" : "medtech_bpa/custom_scripts/purchase_receipt/purchase_receipt.js",
+	"Item":	"medtech_bpa/custom_scripts/item/item.js"
 }
 
 
@@ -144,5 +145,8 @@ doc_events = {
 	},
 	"Quality Inspection":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.validate"
-	}
+	},
+	# "item":{
+	# 	"validate":"medtech_bpa.medtech_bpa.custom_scripts.item.item.validate"
+	# },
 }
