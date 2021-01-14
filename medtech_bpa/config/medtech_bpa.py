@@ -14,6 +14,19 @@ def get_data():
 					"onboard": 1
 				}
 			]
+		},
+		{
+			"label": _("Report"),
+			"icon": "fa fa-star",
+			"items": [
+				{
+					"type": "report",
+					"name": "Visual Inspection Report",
+					"doctype": "Purchase Receipt",
+					"onboard":1,
+					"is_query_report": True
+				}
+			]
 		}
 		
 	]
