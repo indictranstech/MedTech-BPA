@@ -141,10 +141,12 @@ doctype_js = {
 doc_events = {
 	
 	"Purchase Receipt":{
-		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.validate"
+		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.validate",
+		"before_save":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.before_save"
 	},
 	"Quality Inspection":{
-		"validate":"medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.validate"
+		"validate":"medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.validate",
+		"on_submit": "medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.on_submit"
 	},
 	# "item":{
 	# 	"validate":"medtech_bpa.medtech_bpa.custom_scripts.item.item.validate"
