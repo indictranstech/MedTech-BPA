@@ -15,7 +15,7 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "ok-sign",
-  "modified": "2021-01-04 17:07:35.527129",
+  "modified": "2021-01-14 17:35:41.992267",
   "name": "Approved",
   "parent": null,
   "parentfield": null,
@@ -39,18 +39,6 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2021-01-07 16:28:32.054960",
-  "name": "Draft",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "style": "",
-  "workflow_state_name": "Draft"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
   "modified": "2021-01-07 16:29:05.012445",
   "name": "Send for QC",
   "parent": null,
@@ -63,24 +51,24 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2021-01-07 16:32:16.906099",
+  "modified": "2021-01-14 17:35:09.634165",
   "name": "For QC",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "style": "",
+  "style": "Primary",
   "workflow_state_name": "For QC"
  },
  {
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2021-01-07 16:33:38.208015",
+  "modified": "2021-01-14 17:35:33.073623",
   "name": "For Receipt",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "style": "",
+  "style": "Info",
   "workflow_state_name": "For Receipt"
  },
  {
@@ -94,5 +82,29 @@
   "parenttype": null,
   "style": "",
   "workflow_state_name": "Submitted"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-01-14 17:39:11.499293",
+  "name": "Cancelled",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "Danger",
+  "workflow_state_name": "Cancelled"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-01-07 16:28:32.054960",
+  "name": "Draft",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Draft"
  }
 ]
