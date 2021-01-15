@@ -71,7 +71,7 @@ def get_data(filters):
 			INNER JOIN `tabPurchase Order Item` poi ON po.name = poi.parent and pri.item_name = poi.item_name
 		where {0} and pr.is_return != 1 AND pr.docstatus = 1
 		order by pr.creation
-			""".format(validate_filters(filters)),debug=1)
+			""".format(validate_filters(filters)))
 	return query_data
 
 def validate_filters(filters):
@@ -89,32 +89,40 @@ def get_columns():
 			"fieldname": "pri_item_name",
 			"label": _("Item Name"),
 			"fieldtype": "Data",
-			"options": "Purchae Receipt"
+			"width": 226
 		},
 		{
 			"fieldname": "pr_supplier",
 			"label": _("Supplier Name"),
-			"fieldtype": "Data"
+			"fieldtype": "Link",
+			"options": "Supplier",
+			"width": 190
 		},
 		{
 			"fieldname": "po_no",
 			"label": _("PO No."),
-			"fieldtype": "Data"
+			"fieldtype": "Link",
+			"options": "Purchase Order",
+			"width": 141
 		},
 		{
 			"fieldname": "vir_no",
 			"label": _("VIR No."),
-			"fieldtype": "Data"
+			"fieldtype": "Link",
+			"options": "Purchase Receipt",
+			"width": 153
 		},
 		{
 			"fieldname": "supplier_bill_no",
 			"label": _("Supplier Bill No."),
-			"fieldtype": "Data"
+			"fieldtype": "Data",
+			"width": 112
 		},
 		{
 			"fieldname": "po_qty",
 			"label": _("PO Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 80
 		},
 		{
 			"fieldname": "po_date",
@@ -126,79 +134,91 @@ def get_columns():
 			"fieldname": "req_by_date",
 			"label": _("Required By Date"),
 			"fieldtype": "Date",
-			"width": 80
+			"width": 121
 		},
 		{
 			"fieldname": "exp_deli_date",
 			"label": _("Expected Delivery Date"),
 			"fieldtype": "Date",
-			"width": 80
+			"width": 159
 		},
 		{
 			"fieldname": "vir_date",
 			"label": _("VIR Date"),
 			"fieldtype": "Date",
-			"width": 80
+			"width": 100
 		},
 		{
 			"fieldname": "received_qty",
 			"label": _("Received Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "excess_qty",
 			"label": _("Excess Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "short_qty",
 			"label": _("Short Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "rej_qty",
 			"label": _("Rejected Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "accepted_qty",
 			"label": _("Accepted Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "diff",
 			"label": _("Diffrence (Bill Vs Accept)"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 163
 		},
 		{
 			"fieldname": "purchase_rtn_qty",
 			"label": _("Purchase Return Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 140
 		},
 		{
 			"fieldname": "",
 			"label": _("Credit Note Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 112
 		},
 		{
 			"fieldname": "debit_note_qty",
 			"label": _("Debit Note Qty"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 110
 		},
 		{
 			"fieldname": "",
 			"label": _("Deviation"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "bill_booked",
 			"label": _("Bill Booked"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "pending_for_payment",
 			"label": _("Pending for Payment"),
-			"fieldtype": "Data"
+			"fieldtype": "Float",
+			"width": 140
 		}
 		
 	]
