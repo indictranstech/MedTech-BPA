@@ -4,6 +4,12 @@
 
 frappe.query_reports["Tracking Report and Export"] = {
 	"filters": [
-
+		{
+			"label": __("Visual Inspection Report"),
+			"fieldname":"purchase_receipt",
+			"fieldtype": "Link",
+			"options": "Purchase Receipt"
+		}
+		
 	]
 };
