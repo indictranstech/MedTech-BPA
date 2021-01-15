@@ -22,9 +22,10 @@ def validate(doc, method):
 					item.excess_quantity = diff
 					item.short_quantity =  0
 
-				# accepted_qty = item.received_qty - abs(item.short_quantity) + item.excess_quantity - item.rejected_qty
+				accepted_qty = item.received_qty - abs(item.short_quantity) + item.excess_quantity - item.rejected_qty
 				# accepted_qty = item.received_qty -  item.rejected_qty
 				# item.qty = accepted_qty
+				item.accepted_stock_qty = accepted_qty
 			
 def before_save(doc,method):
 	if doc.is_return != 1:

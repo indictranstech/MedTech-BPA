@@ -25,8 +25,10 @@ frappe.ui.form.on("Purchase Receipt Item", {
 			frm.refresh_field("excess_quantity");
 		}
 		var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
-		// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);
+		// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);		
 		// frm.refresh_field("qty");
+		frappe.model.set_value(cdt, cdn, 'accepted_stock_qty', accepted_qty);		
+		frm.refresh_field("accepted_stock_qty");
 	},
 	
 	received_qty :function(frm,cdt,cdn){
@@ -49,6 +51,8 @@ frappe.ui.form.on("Purchase Receipt Item", {
 		var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
 		// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);
 		// frm.refresh_field("qty");
+		frappe.model.set_value(cdt, cdn, 'accepted_stock_qty', accepted_qty);		
+		frm.refresh_field("accepted_stock_qty");
 	},
 
 	quality_inspection:function(frm,cdt,cdn) {

@@ -25,6 +25,13 @@ def get_data():
 					"doctype": "Purchase Receipt",
 					"onboard":1,
 					"is_query_report": True
+				},
+					{
+					"type": "report",
+					"name": "Tracking Report and Export",
+					"doctype": "Purchase Receipt",
+					"onboard":1,
+					"is_query_report": True
 				}
 			]
 		}
