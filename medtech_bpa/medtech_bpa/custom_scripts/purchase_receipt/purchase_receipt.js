@@ -7,11 +7,47 @@ frappe.ui.form.on("Purchase Receipt", {
 });
 
 frappe.ui.form.on("Purchase Receipt Item", {
+	billed_qty :function(frm,cdt,cdn){
+		var row = locals[cdt][cdn]
+		var short_quantity = 0.0
+		var excess_quantity = 0.0
+		// var diff = flt(row.physically_verified_quantity - row.received_qty)
+
+		var diff = flt(row.physically_verified_quantity - row.billed_qty)
+
+		if (diff < 0){
+			frappe.model.set_value(cdt, cdn, 'short_quantity', Math.abs(diff));
+			frappe.model.set_value(cdt, cdn, 'excess_quantity', 0);
+			frm.refresh_field("short_quantity");
+			frm.refresh_field("excess_quantity");
+		}
+		else if(diff >= 0){
+			frappe.model.set_value(cdt, cdn, 'excess_quantity', Math.abs(diff));
+			frappe.model.set_value(cdt, cdn, 'short_quantity', 0);
+			frm.refresh_field("short_quantity");
+			frm.refresh_field("excess_quantity");
+		}
+		// var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
+
+		// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);		
+		var received_qty =  row.billed_qty + row.rejected_qty
+		frappe.model.set_value(cdt, cdn, 'received_qty', received_qty);
+		frm.refresh_field("received_qty");
+		frappe.model.set_value(cdt, cdn, 'qty', row.billed_qty);
+		frm.refresh_field("qty");
+		var accepted_qty = row.billed_qty - row.short_quantity + row.excess_quantity - row.rejected_qty
+		// console.log("---accepted_qty-----",accepted_qty)
+		frappe.model.set_value(cdt, cdn, 'actual_accepted_qty', accepted_qty);		
+		frm.refresh_field("actual_accepted_qty");
+	},
 	physically_verified_quantity :function(frm,cdt,cdn){
 		var row = locals[cdt][cdn]
 		var short_quantity = 0.0
 		var excess_quantity = 0.0
-		var diff = flt(row.physically_verified_quantity - row.received_qty)
+		// var diff = flt(row.physically_verified_quantity - row.received_qty)
+
+		var diff = flt(row.physically_verified_quantity - row.billed_qty)
+
 		if (diff < 0){
 			frappe.model.set_value(cdt, cdn, 'short_quantity', Math.abs(diff));
 			frappe.model.set_value(cdt, cdn, 'excess_quantity', 0);
@@ -24,18 +60,26 @@ frappe.ui.form.on("Purchase Receipt Item", {
 			frm.refresh_field("short_quantity");
 			frm.refresh_field("excess_quantity");
 		}
-		var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
+		// var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
+
 		// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);		
-		// frm.refresh_field("qty");
-		frappe.model.set_value(cdt, cdn, 'accepted_stock_qty', accepted_qty);		
-		frm.refresh_field("accepted_stock_qty");
+		var received_qty =  row.billed_qty + row.rejected_qty
+		frappe.model.set_value(cdt, cdn, 'received_qty', received_qty);
+		frm.refresh_field("received_qty");
+		frappe.model.set_value(cdt, cdn, 'qty', row.billed_qty);
+		frm.refresh_field("qty");
+		var accepted_qty = row.billed_qty - row.short_quantity + row.excess_quantity - row.rejected_qty
+		frappe.model.set_value(cdt, cdn, 'actual_accepted_qty', accepted_qty);		
+		frm.refresh_field("actual_accepted_qty");
 	},
-	
-	received_qty :function(frm,cdt,cdn){
+	rejected_qty:function(rm,cdt,cdn){
 		var row = locals[cdt][cdn]
 		var short_quantity = 0.0
 		var excess_quantity = 0.0
-		var diff = flt(row.physically_verified_quantity - row.received_qty)
+		// var diff = flt(row.physically_verified_quantity - row.received_qty)
+
+		var diff = flt(row.physically_verified_quantity - row.billed_qty)
+
 		if (diff < 0){
 			frappe.model.set_value(cdt, cdn, 'short_quantity', Math.abs(diff));
 			frappe.model.set_value(cdt, cdn, 'excess_quantity', 0);
@@ -48,13 +92,43 @@ frappe.ui.form.on("Purchase Receipt Item", {
 			frm.refresh_field("short_quantity");
 			frm.refresh_field("excess_quantity");
 		}
-		var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
-		// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);
-		// frm.refresh_field("qty");
-		frappe.model.set_value(cdt, cdn, 'accepted_stock_qty', accepted_qty);		
-		frm.refresh_field("accepted_stock_qty");
-	},
+		// var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
 
+		// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);		
+		var received_qty =  row.billed_qty + row.rejected_qty
+		frappe.model.set_value(cdt, cdn, 'received_qty', received_qty);
+		frm.refresh_field("received_qty");
+		frappe.model.set_value(cdt, cdn, 'qty', row.billed_qty);
+		frm.refresh_field("qty");
+		var accepted_qty = row.billed_qty - row.short_quantity + row.excess_quantity - row.rejected_qty
+		frappe.model.set_value(cdt, cdn, 'actual_accepted_qty', accepted_qty);		
+		frm.refresh_field("actual_accepted_qty");
+
+	},
+	// received_qty :function(frm,cdt,cdn){
+	// 	var row = locals[cdt][cdn]
+	// 	var short_quantity = 0.0
+	// 	var excess_quantity = 0.0
+	// 	var diff = flt(row.physically_verified_quantity - row.received_qty)
+	// 	if (diff < 0){
+	// 		frappe.model.set_value(cdt, cdn, 'short_quantity', Math.abs(diff));
+	// 		frappe.model.set_value(cdt, cdn, 'excess_quantity', 0);
+	// 		frm.refresh_field("short_quantity");
+	// 		frm.refresh_field("excess_quantity");
+	// 	}
+	// 	else if(diff >= 0){
+	// 		frappe.model.set_value(cdt, cdn, 'excess_quantity', Math.abs(diff));
+	// 		frappe.model.set_value(cdt, cdn, 'short_quantity', 0);
+	// 		frm.refresh_field("short_quantity");
+	// 		frm.refresh_field("excess_quantity");
+	// 	}
+	// 	// var accepted_qty = row.received_qty - short_quantity + excess_quantity - row.rejected_qty
+	// 	var accepted_qty = row.qty - short_quantity + excess_quantity - row.rejected_qty
+	// 	// frappe.model.set_value(cdt, cdn, 'qty', accepted_qty);
+	// 	// frm.refresh_field("qty");
+	// 	frappe.model.set_value(cdt, cdn, 'actual_accepted_qty', accepted_qty);		
+	// 	frm.refresh_field("actual_accepted_qty");
+	// },
 	quality_inspection:function(frm,cdt,cdn) {
 		var row = locals[cdt][cdn]
 		if (row.quality_inspection){
