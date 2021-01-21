@@ -1,0 +1,58 @@
+{
+ "creation": "2021-01-21 11:40:32.482681",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_1",
+  "fg_item_group",
+  "section_break_3",
+  "fg_warehouse_group"
+ ],
+ "fields": [
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_1",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "fg_item_group",
+   "fieldtype": "Table",
+   "label": "FG Item Group",
+   "options": "FG Item Group"
+  },
+  {
+   "collapsible": 1,
+   "fieldname": "section_break_3",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "fg_warehouse_group",
+   "fieldtype": "Table",
+   "label": "FG Warehouse Group",
+   "options": "FG Warehouse Group"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2021-01-21 11:46:28.996984",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "MedTech Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
