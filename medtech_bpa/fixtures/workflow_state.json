@@ -51,18 +51,6 @@
   "docstatus": 0,
   "doctype": "Workflow State",
   "icon": "",
-  "modified": "2021-01-14 17:35:09.634165",
-  "name": "For QC",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "style": "Primary",
-  "workflow_state_name": "For QC"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
   "modified": "2021-01-14 17:35:33.073623",
   "name": "For Receipt",
   "parent": null,
@@ -94,6 +82,18 @@
   "parenttype": null,
   "style": "Danger",
   "workflow_state_name": "Cancelled"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-01-14 17:35:09.634165",
+  "name": "For QC",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "Primary",
+  "workflow_state_name": "For QC"
  },
  {
   "docstatus": 0,
