@@ -1,0 +1,55 @@
+{
+ "creation": "2021-01-20 19:53:23.046318",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "buying_settings_section",
+  "doc_no",
+  "rev_no",
+  "rev_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "buying_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Buying Settings"
+  },
+  {
+   "fieldname": "doc_no",
+   "fieldtype": "Data",
+   "label": "Doc No"
+  },
+  {
+   "fieldname": "rev_no",
+   "fieldtype": "Data",
+   "label": "Rev No"
+  },
+  {
+   "fieldname": "rev_date",
+   "fieldtype": "Date",
+   "label": "Rev Date"
+  }
+ ],
+ "issingle": 1,
+ "modified": "2021-01-20 19:54:22.295084",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "MedTech Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}

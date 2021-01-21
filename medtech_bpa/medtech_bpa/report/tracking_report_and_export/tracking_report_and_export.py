@@ -83,7 +83,7 @@ def get_columns():
 	return [
 		{
 			"fieldname": "vis",
-			"label": _("VIS"),
+			"label": _("VIR"),
 			"fieldtype": "Link",
 			"options": "Purchase Receipt",
 			"width": 200

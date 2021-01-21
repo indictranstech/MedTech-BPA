@@ -25,12 +25,12 @@ def get_data(filters):
 			poi.schedule_date as "req_by_date",
 			poi.expected_delivery_date as "exp_deli_date",
 			pr.posting_date as "vir_date",
-			pri.received_qty as "received_qty",
+			pri.physically_verified_quantity as "received_qty",
 			pri.excess_quantity as "excess_qty",
 			pri.short_quantity as "short_qty",
 			pri.rejected_qty as "rej_qty",
-			pri.qty as "accepted_qty",
-			(pri.received_qty- pri.qty) as diff,
+			pri.actual_accepted_qty as "accepted_qty",
+			(pri.physically_verified_quantity- pri.actual_accepted_qty) as diff,
 			if((select 
 				sum(pris.received_qty) 
 				from `tabPurchase Receipt` prs 
@@ -54,7 +54,7 @@ def get_data(filters):
 				from `tabPurchase Invoice` pi 
 				LEFT JOIN `tabPurchase Invoice Item` pii ON pi.name = pii.parent 
 				where pi.is_return !=1 and pi.docstatus = 1 and pii.purchase_receipt = pr.name and pii.item_name = pri.item_name)) as "bill_booked",
-			(pri.received_qty-if((select  
+			(pri.physically_verified_quantity-if((select  
 				sum(pii.qty) 
 				from `tabPurchase Invoice` pi 
 				LEFT JOIN `tabPurchase Invoice Item` pii ON pi.name = pii.parent 

@@ -1,0 +1,122 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.809108",
+  "name": "Material Issue",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Issue"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.819794",
+  "name": "Material Receipt",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Receipt"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.826662",
+  "name": "Material Transfer",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Transfer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.833461",
+  "name": "Manufacture",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Manufacture"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.840025",
+  "name": "Repack",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Repack"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.846826",
+  "name": "Send to Subcontractor",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Send to Subcontractor"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.855234",
+  "name": "Material Transfer for Manufacture",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Transfer for Manufacture"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.861816",
+  "name": "Material Consumption for Manufacture",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Consumption for Manufacture"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.868760",
+  "name": "Send to Warehouse",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Send to Warehouse"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-04 18:04:17.875445",
+  "name": "Receive at Warehouse",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Receive at Warehouse"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-21 16:53:31.820890",
+  "name": "Material Short From Supplier",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Issue"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-21 16:54:35.004555",
+  "name": "Material Excess From Supplier",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Receipt"
+ }
+]
