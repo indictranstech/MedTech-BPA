@@ -1,15 +1,39 @@
-{
- "creation": "2021-01-21 11:40:32.482681",
+
+ "creation": "2021-01-20 19:53:23.046318",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
- "field_order": [
+ "field_order": [  
+  "buying_settings_section",
+  "doc_no",
+  "rev_no",
+  "rev_date",
   "section_break_1",
   "fg_item_group",
   "section_break_3",
   "fg_warehouse_group"
  ],
  "fields": [
+  {
+   "fieldname": "buying_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Buying Settings"
+  },
+  {
+   "fieldname": "doc_no",
+   "fieldtype": "Data",
+   "label": "Doc No"
+  },
+  {
+   "fieldname": "rev_no",
+   "fieldtype": "Data",
+   "label": "Rev No"
+  },
+  {
+   "fieldname": "rev_date",
+   "fieldtype": "Date",
+   "label": "Rev Date"
+  },
   {
    "collapsible": 1,
    "fieldname": "section_break_1",
@@ -51,7 +75,6 @@
    "write": 1
   }
  ],
- "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1

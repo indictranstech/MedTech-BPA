@@ -7,17 +7,14 @@ from frappe import _
 
 def validate(doc, method):
 	if doc.items:
-		qc_disable_items = get_qc_disable_items(doc.supplier)
-		# print("-------------------qc_disable_items------",qc_disable_items)
-		qc_required_items =[]
+		if doc.is_return != 1 and doc.get('__islocal')!= 1:
+			qc_disable_items = get_qc_disable_items(doc.supplier)
+			qc_required_items =[]
+			for item in doc.items:
+				if item.item_code not in qc_disable_items and not item.quality_inspection and doc.workflow_state =="For Receipt":
+					frappe.throw(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
+					qc_required_items.append(item.item_code)
 		for item in doc.items:
-			if item.item_code not in qc_disable_items:
-				# print("--- item.item_code ------------", item.item_code )
-				frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
-				qc_required_items.append(item.item_code)
-		
-		for item in doc.items:
-
 			if item.quality_inspection:
 				quality_inspection_data  = frappe.db.get_value("Quality Inspection", item.quality_inspection, ["rejected_quantity","rejected_warehouse"],as_dict=1)
 				item.rejected_qty = quality_inspection_data.get('rejected_quantity')
@@ -141,6 +138,7 @@ def map_pr_qty_to_po_qty(doc):
 			'cost_center':item.get('cost_center'),
 			'stock_uom': item.get('stock_uom'),
 			'qty':  item.get('qty'),
+			'billed_qty':  item.get('qty'),
 			'physically_verified_quantity':item.get('physically_verified_quantity'),
 			'received_qty':item.get('received_qty'),
 			'purchase_order' : item.get('purchase_order'),
@@ -173,9 +171,58 @@ def on_submit(doc, method):
 			excess_qty_items.append(item)
 		elif item.short_quantity > 0:
 			short_qty_items.append(item)
-	print("--------excess_qty_items----",excess_qty_items)
-	print("--------short_qty_items----",short_qty_items)
+	if len(excess_qty_items) > 0:
+		make_material_receipt(excess_qty_items,doc)
+	if len(short_qty_items) > 0:
+		make_material_issue(short_qty_items,doc)
 
-
-
-
+@frappe.whitelist()
+def make_material_receipt(items,doc):
+	current_date = frappe.utils.today()
+	if items:
+		stock_entry = frappe.new_doc("Stock Entry")
+		if stock_entry:
+			stock_entry.posting_date = current_date
+			stock_entry.stock_entry_type = "Material Excess From Supplier"
+			stock_entry.purchase_receipt = doc.name
+			for item in items:
+				stock_entry.append("items",{
+					'item_code': item.get('item_code'),
+					'item_name': item.get('item_name'),
+					'item_group':item.get('item_group'),
+					'description': item.get('description'),
+					'uom': item.get('uom'),
+					'qty':flt(item.get('actual_accepted_qty') - item.get('billed_qty')),
+					't_warehouse': item.get('warehouse'),
+					'basic_rate' : item.get('rate')
+				})
+			stock_entry.save(ignore_permissions = True)
+			stock_entry.submit()		
+	
+@frappe.whitelist()
+def make_material_issue(items,doc):
+	try:
+		current_date = frappe.utils.today()
+		if items:
+			stock_entry = frappe.new_doc("Stock Entry")
+			if stock_entry:
+				stock_entry.posting_date = current_date
+				stock_entry.stock_entry_type = "Material Short From Supplier"
+				stock_entry.purchase_receipt = doc.name
+				for item in items:
+					stock_entry.append("items",{
+						'item_code': item.get('item_code'),
+						'item_name': item.get('item_name'),
+						'item_group':item.get('item_group'),
+						'description': item.get('description'),
+						'uom': item.get('uom'),
+						'qty':flt( item.get('billed_qty')- item.get('actual_accepted_qty')),
+						's_warehouse': item.get('warehouse'),
+						'basic_rate' : item.get('rate')
+					})
+				stock_entry.save(ignore_permissions = True)
+				stock_entry.submit()
+				frappe.db.commit()				
+	except Exception as e:
+		raise e
+				

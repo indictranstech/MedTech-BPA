@@ -129,28 +129,22 @@ app_license = "MIT"
 
 fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role', 
 	'Letter Head', 'Print Style', 'Print Settings',
- 	'Workflow', 'Workflow State', 'Workflow Action',"Custom Script","Page","Translation"]
+ 	'Workflow', 'Workflow State', 'Workflow Action',"Custom Script","Page","Translation","Stock Entry Type"]
 
 doctype_js = {
-	"Purchase Order" : "medtech_bpa/custom_scripts/purchase_order/purchase_order.js",
 	"Purchase Receipt" : "medtech_bpa/custom_scripts/purchase_receipt/purchase_receipt.js",
 	"Item":	"medtech_bpa/custom_scripts/item/item.js"
 }
 
 
 doc_events = {
-	
 	"Purchase Receipt":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.validate",
 		"before_save":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.before_save",
 		"on_submit": "medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.on_submit"
-
 	},
 	"Quality Inspection":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.validate",
 		"on_submit": "medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.on_submit"
 	},
-	# "item":{
-	# 	"validate":"medtech_bpa.medtech_bpa.custom_scripts.item.item.validate"
-	# },
 }
