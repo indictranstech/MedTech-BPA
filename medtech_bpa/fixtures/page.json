@@ -590,5 +590,32 @@
   "style": null,
   "system_page": 1,
   "title": "Setup Wizard"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": null,
+  "modified": "2021-01-21 13:52:27.696810",
+  "module": "MedTech-BPA",
+  "name": "planning-screen",
+  "page_name": "Planning Screen",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "planning-screen",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Administrator"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": "Planning Screen"
  }
 ]
