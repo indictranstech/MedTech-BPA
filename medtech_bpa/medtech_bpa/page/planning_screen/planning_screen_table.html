@@ -1,0 +1,78 @@
+<style media="screen">
+  .po_report{
+    font-size: 15px;
+    text-align: center;
+    letter-spacing: .4px;
+    border-color:#0579ce;
+    border-color:#e0dede;
+  }
+  .row_po_report{
+    font-size: 15px;
+    letter-spacing: .4px;
+    border-color:#0579ce;
+    border-color:#e0dede;
+  }
+  tbody tr td{
+    width:100px;
+  }.po_report_row{height: 40px;font-weight: 500;font-size: 25px;}
+</style>
+<div class="order_table">
+    <table id="updates">
+        <span>
+            <table id="updates" style="margin-top:10px;">
+                    <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center;">
+                        <td class="po_report_row">PO NO</td>
+                        <td class="po_report_row">PO Date</td>
+                        <td class="po_report_row">Part Code</td>
+                        <td class="po_report_row">Part Description</td>
+                        <td class="po_report_row">Job No</td>
+                        <td class="po_report_row">Supplier Name</td>
+                        <td class="po_report_row">Part Qty</td>
+                        <td class="po_report_row">Received Qty</td>
+                        <td class="po_report_row">Balanced Qty</td>
+                        <td class="po_report_row">Rate</td>
+                        <td class="po_report_row">Amount</td>
+                        <td class="po_report_row">Lead Time</td>
+                        <td class="po_report_row">Remark</td>
+                        <td class="po_report_row">Item Category</td>
+                        <td class="po_report_row">Inventory On Hand</td>
+                        <td class="po_report_row">TOG</td>
+                        <td class="po_report_row">Occurance</td>
+                        <td class="po_report_row">Nett Balance Quantity</td>
+                        <td class="po_report_row">On Order</td>
+                        <td class="po_report_row">On Hand plus On Order</td>
+                        <td class="po_report_row">Order Color</td>
+                    </tr>
+
+                    {%for tbl_data in data%}
+                        <tr class="row_po_report"  >
+                            {% po_link = "desk#Form/Purchase%20Order/" + tbl_data["po_no"] %}
+                            {% project_link = "desk#Form/Project/" + tbl_data["job_no"] %}
+                            {% item_link = "desk#Form/Item/" + tbl_data["part_code"] %}
+                            <td style="color:black;" align="left"><a  href= {{po_link}}> {{ tbl_data["po_no"] }}</a></td>
+                            <td style="color:black;" align="left"> {{ tbl_data["po_date"] }}</td>
+                            <td style="color:black;" align="left"><a href= {{item_link}}> {{ tbl_data["part_code"] }}</a></td>
+                            <td style="color:black;" align="left"> {{ tbl_data["part_description"] }}</td>
+                            <td style="color:black;" align="left"><a  href= {{project_link}}> {{ tbl_data["job_no"] }}</a></td>
+                            <td style="color:black;" align="left"> {{ tbl_data["supplier_name"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["po_qty"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["received_qty"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["bal_qty"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["rate"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["amount"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["lead_time"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["remark"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["item_category"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["inventory_on_hand"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["tog"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["occurance"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["net_balance_qty"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["on_order"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["on_hand_plus_order"] }}</td>
+                            <td style="color:black;" align="left"> {{ tbl_data["order_color"] }}</td>
+                        </tr>
+                    {%endfor%}  
+            </table>
+        </span>
+    </table>
+</div> 

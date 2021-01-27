@@ -1,0 +1,52 @@
+<style media="screen">
+  .po_report{
+    font-size: 15px;
+    text-align: center;
+    letter-spacing: .4px;
+    border-color:#0579ce;
+    border-color:#e0dede;
+  }
+  .row_po_report{
+    font-size: 15px;
+    letter-spacing: .4px;
+    border-color:#0579ce;
+    border-color:#e0dede;
+  }
+  tbody tr td{
+    width:100px;
+  }.po_report_row{height: 40px;font-weight: 500;font-size: 25px;}
+</style>
+<div class="order_table">
+    <table id="updates">
+        <span>
+            <table id="updates" style="margin-top:10px;">
+                    <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center;">
+                        <td class="po_report_row">Sr No</td>
+                        <td class="po_report_row">Item Code</td>
+                        <td class="po_report_row">UOM</td>
+                        <td class="po_report_row">BOM</td>
+
+                        {%for date in data.header_list%}
+                        <td  class="po_report_row" id = {{date}}> {{ date }}</td>
+                        {%endfor%}
+                    </tr> 
+
+
+                    {% count = 1 %}
+                    {%for tbl_data in data.item_data%}
+                        <tr class="row_po_report"  >
+                            <td style="color:black;" align="left">{{ count }}</td>
+                            <td style="color:black;" align="left">{{ tbl_data["item_code"] }}</td>
+                            <td style="color:black;" align="left">{{ tbl_data["stock_uom"] }}</td>
+                            <td style="color:black;" align="left"  contenteditable="true">{{ tbl_data["bom"] }}</td>
+
+                            {%for date in data.header_list%}
+                                <td style="color:black;" align="left"  contenteditable="true"></td>
+                            {%endfor%}
+                            {% count = count + 1 %}
+                        </tr>
+                    {%endfor%}  
+            </table>
+        </span>
+    </table>
+</div> 
