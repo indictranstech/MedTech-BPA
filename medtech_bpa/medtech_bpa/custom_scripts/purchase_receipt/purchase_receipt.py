@@ -37,7 +37,12 @@ def validate(doc, method):
 				item.actual_accepted_qty = accepted_qty
 			
 def before_save(doc,method):
-	if doc.is_return != 1 and doc.get('__islocal'):
+	po_ref = 0
+	for item in doc.items:
+		if item.purchase_order:
+			po_ref = 1
+			break;
+	if doc.is_return != 1 and doc.get('__islocal') and po_ref == 0:
 		map_pr_qty_to_po_qty(doc)
 		
 @frappe.whitelist()
@@ -150,7 +155,7 @@ def map_pr_qty_to_po_qty(doc):
 def get_purchase_order(supplier):
 	query = '''SELECT pi.name as pi_name,pi.item_code,pi.qty, po.name,pi.received_qty,pi.returned_qty, ((pi.qty - pi.received_qty) +pi.returned_qty) as remaining_qty, pi.warehouse 
 			from `tabPurchase Order Item` pi join `tabPurchase Order` po on pi.parent = po.name 
-			where po.supplier = '{0}' and ((pi.qty - pi.received_qty) +pi.returned_qty) > 0 and po.docstatus = 1 and po.status not in ('Closed', 'Completed', 'To Bill') 
+			where po.supplier = '{0}' and ((pi.qty - pi.received_qty) - pi.returned_qty) > 0 and po.docstatus = 1 and po.status not in ('Closed', 'Completed', 'To Bill') 
 			order by po.transaction_date,po.modified asc'''.format(supplier)
 	po_list = frappe.db.sql(query, as_dict=1)
 	return po_list
@@ -171,13 +176,16 @@ def on_submit(doc, method):
 			excess_qty_items.append(item)
 		elif item.short_quantity > 0:
 			short_qty_items.append(item)
+	get_warehouse = frappe.get_single('MedTech Settings')
 	if len(excess_qty_items) > 0:
-		make_material_receipt(excess_qty_items,doc)
+		target_warehouse = get_warehouse.excess_warehouse
+		make_material_receipt(excess_qty_items,doc, target_warehouse)
 	if len(short_qty_items) > 0:
-		make_material_issue(short_qty_items,doc)
+		target_warehouse = get_warehouse.short_warehouse
+		make_material_issue(short_qty_items,doc, target_warehouse)
 
 @frappe.whitelist()
-def make_material_receipt(items,doc):
+def make_material_receipt(items,doc, target_warehouse):
 	current_date = frappe.utils.today()
 	if items:
 		stock_entry = frappe.new_doc("Stock Entry")
@@ -193,14 +201,15 @@ def make_material_receipt(items,doc):
 					'description': item.get('description'),
 					'uom': item.get('uom'),
 					'qty':flt(item.get('actual_accepted_qty') - item.get('billed_qty')),
-					't_warehouse': item.get('warehouse'),
+					's_warehouse': item.get('warehouse'),
+					't_warehouse': target_warehouse,
 					'basic_rate' : item.get('rate')
 				})
 			stock_entry.save(ignore_permissions = True)
 			stock_entry.submit()		
 	
 @frappe.whitelist()
-def make_material_issue(items,doc):
+def make_material_issue(items,doc, target_warehouse):
 	try:
 		current_date = frappe.utils.today()
 		if items:
@@ -218,6 +227,7 @@ def make_material_issue(items,doc):
 						'uom': item.get('uom'),
 						'qty':flt( item.get('billed_qty')- item.get('actual_accepted_qty')),
 						's_warehouse': item.get('warehouse'),
+						't_warehouse': target_warehouse,
 						'basic_rate' : item.get('rate')
 					})
 				stock_entry.save(ignore_permissions = True)

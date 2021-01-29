@@ -8,6 +8,9 @@
   "doc_no",
   "rev_no",
   "rev_date",
+  "column_break_5",
+  "short_warehouse",
+  "excess_warehouse",
   "section_break_1",
   "fg_item_group",
   "section_break_3",
@@ -55,10 +58,26 @@
    "fieldtype": "Table",
    "label": "FG Warehouse Group",
    "options": "FG Warehouse Group"
+  },
+  {
+   "fieldname": "column_break_5",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "short_warehouse",
+   "fieldtype": "Link",
+   "label": "Short Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "excess_warehouse",
+   "fieldtype": "Link",
+   "label": "Excess Warehouse",
+   "options": "Warehouse"
   }
  ],
  "issingle": 1,
- "modified": "2021-01-27 18:35:23.957721",
+ "modified": "2021-01-29 10:29:21.011044",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "MedTech Settings",
@@ -75,6 +94,7 @@
    "write": 1
   }
  ],
+ "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1
