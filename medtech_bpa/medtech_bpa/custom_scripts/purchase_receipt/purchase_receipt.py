@@ -11,13 +11,15 @@ def validate(doc, method):
 			qc_disable_items = get_qc_disable_items(doc.supplier)
 			qc_required_items =[]
 			for item in doc.items:
-				if item.item_code not in qc_disable_items and not item.quality_inspection and doc.workflow_state =="For Receipt":
+				if item.item_code not in qc_disable_items and not item.quality_inspection and doc.workflow_state =="For Receipt" and doc.is_return == 1:
 					frappe.throw(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
 					qc_required_items.append(item.item_code)
 		for item in doc.items:
 			if item.quality_inspection:
 				quality_inspection_data  = frappe.db.get_value("Quality Inspection", item.quality_inspection, ["rejected_quantity","rejected_warehouse"],as_dict=1)
+
 				item.rejected_qty = quality_inspection_data.get('rejected_quantity')
+				item.custom_rejected_qty = quality_inspection_data.get('rejected_quantity')
 				item.rejected_warehouse = quality_inspection_data.get('rejected_warehouse')
 
 			if item.physically_verified_quantity and item.billed_qty:
@@ -29,10 +31,12 @@ def validate(doc, method):
 					item.excess_quantity = diff
 					item.short_quantity =  0
 
-				# accepted_qty = item.received_qty - abs(item.short_quantity) + item.excess_quantity - item.rejected_qty
+				# accepted_qty = item.received_qty - abs(item.short_quantity) + item.excess_quantity - item.custom_rejected_qty
 				item.qty = item.billed_qty
-				accepted_qty = item.qty - abs(item.short_quantity) + item.excess_quantity - item.rejected_qty
-				item.received_qty = item.qty + item.rejected_qty
+				accepted_qty = item.qty - abs(item.short_quantity) + item.excess_quantity - item.custom_rejected_qty
+
+				item.rejected_qty = item.custom_rejected_qty
+				item.received_qty = item.qty + item.custom_rejected_qty
 				# item.qty = accepted_qty
 				item.actual_accepted_qty = accepted_qty
 			
@@ -160,6 +164,7 @@ def get_purchase_order(supplier):
 	po_list = frappe.db.sql(query, as_dict=1)
 	return po_list
 
+
 @frappe.whitelist()
 def get_qc_disable_items(supplier):
 	query = '''SELECT qd.item_code  from `tabQC Disable Supplier` qds join `tabQC Disable` qd 
@@ -167,15 +172,23 @@ def get_qc_disable_items(supplier):
 	qc_disable_items = frappe.db.sql(query, as_dict=1,debug=1)
 	qc_disable_items = [ item.get('item_code') for item in qc_disable_items]
 	return qc_disable_items
+
+
 @frappe.whitelist()
 def on_submit(doc, method):
 	excess_qty_items = []
 	short_qty_items =[]
+	rejected_qty_items = []
+
 	for item in doc.items:
+		if item.custom_rejected_qty > 0:
+			rejected_qty_items.append(item)
+
 		if item.excess_quantity > 0:
 			excess_qty_items.append(item)
 		elif item.short_quantity > 0:
 			short_qty_items.append(item)
+
 	get_warehouse = frappe.get_single('MedTech Settings')
 	if len(excess_qty_items) > 0:
 		target_warehouse = get_warehouse.excess_warehouse
@@ -183,6 +196,9 @@ def on_submit(doc, method):
 	if len(short_qty_items) > 0:
 		target_warehouse = get_warehouse.short_warehouse
 		make_material_issue(short_qty_items,doc, target_warehouse)
+	if len(rejected_qty_items) > 0:
+		target_warehouse = get_warehouse.rejected_warehouse
+		make_material_transfer(rejected_qty_items,doc, target_warehouse)
 
 @frappe.whitelist()
 def make_material_receipt(items,doc, target_warehouse):
@@ -226,6 +242,36 @@ def make_material_issue(items,doc, target_warehouse):
 						'description': item.get('description'),
 						'uom': item.get('uom'),
 						'qty':flt( item.get('billed_qty')- item.get('actual_accepted_qty')),
+						's_warehouse': item.get('warehouse'),
+						't_warehouse': target_warehouse,
+						'basic_rate' : item.get('rate')
+					})
+				stock_entry.save(ignore_permissions = True)
+				stock_entry.submit()
+				frappe.db.commit()				
+	except Exception as e:
+		raise e
+				
+
+
+@frappe.whitelist()
+def make_material_transfer(items,doc, target_warehouse):
+	try:
+		current_date = frappe.utils.today()
+		if items:
+			stock_entry = frappe.new_doc("Stock Entry")
+			if stock_entry:
+				stock_entry.posting_date = current_date
+				stock_entry.stock_entry_type = "Material Short From Supplier"
+				stock_entry.purchase_receipt = doc.name
+				for item in items:
+					stock_entry.append("items",{
+						'item_code': item.get('item_code'),
+						'item_name': item.get('item_name'),
+						'item_group':item.get('item_group'),
+						'description': item.get('description'),
+						'uom': item.get('uom'),
+						'qty': item.get('custom_rejected_qty'),
 						's_warehouse': item.get('warehouse'),
 						't_warehouse': target_warehouse,
 						'basic_rate' : item.get('rate')

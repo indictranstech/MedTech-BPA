@@ -133,7 +133,8 @@ fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role',
 
 doctype_js = {
 	"Purchase Receipt" : "medtech_bpa/custom_scripts/purchase_receipt/purchase_receipt.js",
-	"Item":	"medtech_bpa/custom_scripts/item/item.js"
+	"Item":	"medtech_bpa/custom_scripts/item/item.js",
+	"Quality Inspection": "medtech_bpa/custom_scripts/quality_inspection/quality_inspection.js"
 }
 
 
