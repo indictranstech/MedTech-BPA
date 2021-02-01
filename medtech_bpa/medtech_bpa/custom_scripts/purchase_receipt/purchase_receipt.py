@@ -6,6 +6,17 @@ from frappe import _
 
 
 def validate(doc, method):
+	if doc.is_return:
+		setting_doc = frappe.get_single('MedTech Settings')
+		if setting_doc.get('rejected_warehouse') == doc.set_warehouse:
+			doc.return_for_warehouse = "Rejected Warehouse"
+		elif setting_doc.get('short_warehouse') == doc.set_warehouse:
+			doc.return_for_warehouse = "Short Warehouse"
+		elif setting_doc.get('excess_warehouse') == doc.set_warehouse:
+			doc.return_for_warehouse = "Excess Warehouse"
+		else:
+			doc.return_for_warehouse = ''
+
 	if doc.items:
 		if doc.is_return != 1 and doc.get('__islocal')!= 1:
 			qc_disable_items = get_qc_disable_items(doc.supplier)
