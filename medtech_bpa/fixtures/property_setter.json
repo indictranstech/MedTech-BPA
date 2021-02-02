@@ -1,6 +1,22 @@
 [
  {
   "default_value": null,
+  "doc_type": "Purchase Receipt Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "rejected_qty",
+  "modified": "2021-01-29 15:58:20.532398",
+  "name": "Purchase Receipt Item-rejected_qty-hidden",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "hidden",
+  "property_type": "Check",
+  "value": "1"
+ },
+ {
+  "default_value": null,
   "doc_type": "Supplier",
   "docstatus": 0,
   "doctype": "Property Setter",
