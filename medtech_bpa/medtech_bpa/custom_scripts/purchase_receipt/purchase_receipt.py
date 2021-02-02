@@ -6,6 +6,7 @@ from frappe import _
 
 
 def validate(doc, method):
+	print("-------------------++++++---------------------->  validaate")
 	if doc.is_return:
 		setting_doc = frappe.get_single('MedTech Settings')
 		if setting_doc.get('rejected_warehouse') == doc.set_warehouse:
@@ -29,7 +30,6 @@ def validate(doc, method):
 			if item.quality_inspection:
 				quality_inspection_data  = frappe.db.get_value("Quality Inspection", item.quality_inspection, ["rejected_quantity","rejected_warehouse"],as_dict=1)
 
-				item.rejected_qty = quality_inspection_data.get('rejected_quantity')
 				item.custom_rejected_qty = quality_inspection_data.get('rejected_quantity')
 				item.rejected_warehouse = quality_inspection_data.get('rejected_warehouse')
 
@@ -46,32 +46,37 @@ def validate(doc, method):
 				item.qty = item.billed_qty
 				accepted_qty = item.qty - abs(item.short_quantity) + item.excess_quantity - item.custom_rejected_qty
 
-				item.rejected_qty = item.custom_rejected_qty
-				item.received_qty = item.qty + item.custom_rejected_qty
+				# erp
+				# item.received_qty = item.qty + item.custom_rejected_qty
 				# item.qty = accepted_qty
 				item.actual_accepted_qty = accepted_qty
 			
+
 def before_save(doc,method):
+	print("---------------------+++++-------------------->  before_save")
 	po_ref = 0
 	for item in doc.items:
 		if item.purchase_order:
 			po_ref = 1
 			break;
+
 	if doc.is_return != 1 and doc.get('__islocal') and po_ref == 0:
 		map_pr_qty_to_po_qty(doc)
+
 		
 @frappe.whitelist()
 def map_pr_qty_to_po_qty(doc):
+	print("------------------+++++----------------------->  map_pr_qty_to_po_qty")
 	po_list_data = get_purchase_order(doc.supplier)
 
 	item_list = []
 	for item in doc.items:
 		item_temp_qty = item.qty
+		print("for--=====-->", item.item_code, item_temp_qty)
 		for po in po_list_data:
 			po_temp_qty = po.get("remaining_qty")
 			if po.get("item_code") == item.item_code and po_temp_qty > 0 and item_temp_qty > 0:
 				if item_temp_qty > po_temp_qty:
-					
 					temp = {
 						'item_code': item.item_code,
 						'item_name': item.item_name,
@@ -172,6 +177,8 @@ def get_purchase_order(supplier):
 			from `tabPurchase Order Item` pi join `tabPurchase Order` po on pi.parent = po.name 
 			where po.supplier = '{0}' and ((pi.qty - pi.received_qty) - pi.returned_qty) > 0 and po.docstatus = 1 and po.status not in ('Closed', 'Completed', 'To Bill') 
 			order by po.transaction_date,po.modified asc'''.format(supplier)
+	print(query)
+	print('++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 	po_list = frappe.db.sql(query, as_dict=1)
 	return po_list
 
@@ -180,7 +187,7 @@ def get_purchase_order(supplier):
 def get_qc_disable_items(supplier):
 	query = '''SELECT qd.item_code  from `tabQC Disable Supplier` qds join `tabQC Disable` qd 
 		on qds.parent = qd.name  where qds.supplier = '{0}' '''.format(supplier)
-	qc_disable_items = frappe.db.sql(query, as_dict=1,debug=1)
+	qc_disable_items = frappe.db.sql(query, as_dict=1)
 	qc_disable_items = [ item.get('item_code') for item in qc_disable_items]
 	return qc_disable_items
 
@@ -273,7 +280,7 @@ def make_material_transfer(items,doc, target_warehouse):
 			stock_entry = frappe.new_doc("Stock Entry")
 			if stock_entry:
 				stock_entry.posting_date = current_date
-				stock_entry.stock_entry_type = "Material Short From Supplier"
+				stock_entry.stock_entry_type = "Material Transfer"
 				stock_entry.purchase_receipt = doc.name
 				for item in items:
 					stock_entry.append("items",{
