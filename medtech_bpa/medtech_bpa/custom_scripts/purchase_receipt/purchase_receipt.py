@@ -6,7 +6,6 @@ from frappe import _
 
 
 def validate(doc, method):
-	print("-------------------++++++---------------------->  validaate")
 	if doc.is_return:
 		setting_doc = frappe.get_single('MedTech Settings')
 		if setting_doc.get('rejected_warehouse') == doc.set_warehouse:
@@ -53,7 +52,6 @@ def validate(doc, method):
 			
 
 def before_save(doc,method):
-	print("---------------------+++++-------------------->  before_save")
 	po_ref = 0
 	for item in doc.items:
 		if item.purchase_order:
@@ -66,13 +64,11 @@ def before_save(doc,method):
 		
 @frappe.whitelist()
 def map_pr_qty_to_po_qty(doc):
-	print("------------------+++++----------------------->  map_pr_qty_to_po_qty")
 	po_list_data = get_purchase_order(doc.supplier)
 
 	item_list = []
 	for item in doc.items:
 		item_temp_qty = item.qty
-		print("for--=====-->", item.item_code, item_temp_qty)
 		for po in po_list_data:
 			po_temp_qty = po.get("remaining_qty")
 			if po.get("item_code") == item.item_code and po_temp_qty > 0 and item_temp_qty > 0:
@@ -177,8 +173,6 @@ def get_purchase_order(supplier):
 			from `tabPurchase Order Item` pi join `tabPurchase Order` po on pi.parent = po.name 
 			where po.supplier = '{0}' and ((pi.qty - pi.received_qty) - pi.returned_qty) > 0 and po.docstatus = 1 and po.status not in ('Closed', 'Completed', 'To Bill') 
 			order by po.transaction_date,po.modified asc'''.format(supplier)
-	print(query)
-	print('++++++++++++++++++++++++++++++++++++++++++++++++++++++')
 	po_list = frappe.db.sql(query, as_dict=1)
 	return po_list
 
@@ -234,7 +228,7 @@ def make_material_receipt(items,doc, target_warehouse):
 					'item_group':item.get('item_group'),
 					'description': item.get('description'),
 					'uom': item.get('uom'),
-					'qty':flt(item.get('actual_accepted_qty') - item.get('billed_qty')),
+					'qty':flt(item.get('excess_quantity')),
 					's_warehouse': item.get('warehouse'),
 					't_warehouse': target_warehouse,
 					'basic_rate' : item.get('rate')
@@ -259,7 +253,7 @@ def make_material_issue(items,doc, target_warehouse):
 						'item_group':item.get('item_group'),
 						'description': item.get('description'),
 						'uom': item.get('uom'),
-						'qty':flt( item.get('billed_qty')- item.get('actual_accepted_qty')),
+						'qty':flt(item.get('short_quantity')),
 						's_warehouse': item.get('warehouse'),
 						't_warehouse': target_warehouse,
 						'basic_rate' : item.get('rate')
@@ -280,7 +274,7 @@ def make_material_transfer(items,doc, target_warehouse):
 			stock_entry = frappe.new_doc("Stock Entry")
 			if stock_entry:
 				stock_entry.posting_date = current_date
-				stock_entry.stock_entry_type = "Material Transfer"
+				stock_entry.stock_entry_type = "Rejected Material Transfer"
 				stock_entry.purchase_receipt = doc.name
 				for item in items:
 					stock_entry.append("items",{

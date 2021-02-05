@@ -102,7 +102,6 @@ frappe.ui.form.on("Purchase Receipt Item", {
 					},
 				callback: function(r) {
 					if (r.message) {
-						console.log(r.message[0]['rejected_warehouse'],r.message[0]['rejected_quantity'])
 						frappe.model.set_value(cdt, cdn, 'rejected_warehouse', r.message[0]['rejected_warehouse']);
 						frappe.model.set_value(cdt, cdn, 'custom_rejected_qty',r.message[0]['rejected_quantity']);
 						frm.refresh_field("rejected_warehouse");
@@ -124,9 +123,9 @@ frappe.ui.form.on("Purchase Receipt Item", {
 							frm.refresh_field("short_quantity");
 							frm.refresh_field("excess_quantity");
 						}
-						var received_qty =  row.billed_qty + row.custom_rejected_qty
-						frappe.model.set_value(cdt, cdn, 'received_qty', received_qty);
-						frm.refresh_field("received_qty");
+						// var received_qty =  row.billed_qty + row.custom_rejected_qty
+						// frappe.model.set_value(cdt, cdn, 'received_qty', received_qty);
+						// frm.refresh_field("received_qty");
 						frappe.model.set_value(cdt, cdn, 'qty', row.billed_qty);
 						frm.refresh_field("qty");
 						var accepted_qty = row.billed_qty - row.short_quantity + row.excess_quantity - row.custom_rejected_qty
