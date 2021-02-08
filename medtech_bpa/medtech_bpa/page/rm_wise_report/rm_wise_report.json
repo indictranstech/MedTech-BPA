@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2021-02-05 15:12:56.546549",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2021-02-05 15:12:56.546549",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "rm-wise-report",
+ "owner": "Administrator",
+ "page_name": "RM Wise Report",
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "RM Wise Report"
+}

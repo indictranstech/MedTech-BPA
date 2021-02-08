@@ -3,6 +3,126 @@
   "content": null,
   "docstatus": 0,
   "doctype": "Page",
+  "icon": null,
+  "modified": "2020-01-30 15:16:23.273733",
+  "module": "Desk",
+  "name": "translation-tool",
+  "page_name": "Translation Tool",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "translation-tool",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "System Manager"
+   },
+   {
+    "parent": "translation-tool",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Translator"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 1,
+  "title": "Translation Tool"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": "icon-th",
+  "modified": "2020-02-27 15:07:57.124916",
+  "module": "Core",
+  "name": "workspace",
+  "page_name": "workspace",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "workspace",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "All"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": null
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": null,
+  "modified": "2020-07-23 21:45:45.540055",
+  "module": "Healthcare",
+  "name": "patient-progress",
+  "page_name": "patient-progress",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": "Healthcare",
+  "roles": [
+   {
+    "parent": "patient-progress",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "System Manager"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": "Patient Progress"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": null,
+  "modified": "2020-11-25 11:07:54.056208",
+  "module": "Stock",
+  "name": "warehouse-capacity-summary",
+  "page_name": "Warehouse Capacity Summary",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "warehouse-capacity-summary",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Stock User"
+   },
+   {
+    "parent": "warehouse-capacity-summary",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Stock Manager"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": "Warehouse Capacity Summary"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
   "icon": "fa fa-th",
   "modified": "2014-08-08 05:59:33.045012",
   "module": "Accounts",
@@ -617,5 +737,32 @@
   "style": null,
   "system_page": 0,
   "title": "Planning Screen"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": null,
+  "modified": "2021-02-05 15:12:56.546549",
+  "module": "MedTech-BPA",
+  "name": "rm-wise-report",
+  "page_name": "RM Wise Report",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "rm-wise-report",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Administrator"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": "RM Wise Report"
  }
 ]

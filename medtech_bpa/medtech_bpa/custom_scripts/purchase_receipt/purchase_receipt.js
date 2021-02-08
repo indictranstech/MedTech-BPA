@@ -9,7 +9,17 @@ frappe.ui.form.on("Purchase Receipt", {
 			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'quality_inspection', cur_frm.doc.name);
 			df.hidden = 0
 		}
+		if(frm.doc.is_return == 1){
+			frm.set_df_property('set_warehouse', 'reqd', 1)
+			refresh_field('set_warehouse')
+		}
 	},
+	set_warehouse: function(frm){
+		if(frm.doc.is_return == 1){
+			frm.set_df_property('set_warehouse', 'reqd', 1)
+			refresh_field('set_warehouse')
+		}
+	}
 });
 
 

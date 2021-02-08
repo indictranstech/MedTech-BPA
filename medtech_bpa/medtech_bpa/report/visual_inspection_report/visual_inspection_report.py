@@ -28,7 +28,7 @@ def get_data(filters):
 			pri.physically_verified_quantity as "received_qty",
 			pri.excess_quantity as "excess_qty",
 			pri.short_quantity as "short_qty",
-			pri.rejected_qty as "rej_qty",
+			pri.custom_rejected_qty as "rej_qty",
 			pri.actual_accepted_qty as "accepted_qty",
 			(pri.physically_verified_quantity- pri.actual_accepted_qty) as diff,
 			if((select 
