@@ -142,6 +142,7 @@ doc_events = {
 	"Purchase Receipt":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.validate",
 		"before_save":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.before_save",
+		"before_submit":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.before_submit",
 		"on_submit": "medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.on_submit"
 	},
 	"Quality Inspection":{

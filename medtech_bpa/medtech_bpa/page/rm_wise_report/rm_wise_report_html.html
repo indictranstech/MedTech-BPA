@@ -1,0 +1,152 @@
+<style>
+  .order_table{
+    overflow: auto;
+    padding-bottom: 35px;
+  }
+  .order_table table{
+    width: 100%;
+    border-collapse: collapse;
+    /* margin-bottom: 10px; */
+  }
+  .order_table table,
+  .order_table table th,
+  .order_table table td{
+    border:1px solid;
+   }
+  .order_table table th,
+  .order_table table td{
+    padding:6px 12px;
+    line-height: 1.3;
+  }
+  .order_table table th{
+    background: #ff9933;
+    color: #fff;
+    font-size: 50px;
+    text-align: center;
+    letter-spacing: .4px;
+    border-color:#0579ce;
+  }
+  .order_table table td{
+    font-size: 13px;
+    border-color:#e0dede;
+  }
+  .order_date .form-group{
+    display: flex;
+    margin: 24px auto 0;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .order_date .form-group label{
+    margin-right: 8px;
+    font-size: 14px;
+    vertical-align: middle;
+    margin-top: -8px;
+  }
+  .btn-sm{
+    padding:3px 8px !important;
+  }
+  .btn-orange{ background: #217b04;color:white;}
+  .btn-orange1{ background: #129198;color:white;}
+
+  .btn-info{ background: #234d7b;}
+  .d-flex{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-align:right;
+  }
+  .ml-2{
+    margin-left:8px;
+  }
+  .ml-3{
+    margin-left:16px;
+  }
+
+.flex-grow{
+  flex-grow:1;
+}
+
+  .noDisplay{
+    display:none;
+  }.d-flex{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    text-align:left;
+    white-space:nowrap;
+    word-break: unset;
+    white-space: nowrap;
+  }.all_data{
+    display: flex;
+    text-align: center;
+  }label{
+    vertical-align: middle;
+    line-height: 2;
+    margin-right: 10px;
+  }
+  table td{
+    white-space: nowrap;
+    word-break: unset;
+    word-spacing: unset;
+}.input-group span{margin-top: -10px;}
+.input-group input,
+.input-group select{width:250px;}
+.input-group{display: flex;
+    height: 28px;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 11px;
+}
+.clearfix-none .clearfix{
+  display: none;
+}.status{
+  height: 40px;
+  width:220px;
+}.btn:hover {opacity: 10}
+.planning_master{margin-right: 10px;height: 40px;}
+.height_fix{}
+.btn-success{text-align:center;}
+div .report_container{
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+ text-align: center;
+ padding: 10px;
+}
+.box-shadow {
+  padding: 15px !important;
+    border-radius: 9px;
+    margin: 15px auto;
+    border-width: 1px 2px 2px 1px;
+    border-style: solid;
+    border-color: #e4e4e4;
+    min-height: 60vh;
+}
+.border-bottom{
+      border-bottom: 2px solid #e6e6e6;
+}
+</style>
+<div class=""style="margin-top:10px;">
+
+</div>
+
+<div class="container"><div class="box-shadow">
+  <div class="d-flex clearfix-none ">
+    
+    <span><label for="planning_master">Planning Master</label></span>
+        <div style="width: 160px;" class="planning_master" id = "planning_master" required></div>
+        <div style="width: 160px;" class="from_date" id = "from_date"></div>
+        <div style="width: 160px;" class="to_date" id = "to_date"></div>
+
+     <div  class="flex-grow input-group"></div>
+            <div class="input-group" >
+                <span><button type="button" class="btn btn-primary export ml-2 height_fix" style="">Export</button></span>
+            </div>
+            <div class="input-group" >
+                <span><button type="button" class="btn btn-primary ml-2 refresh" style="" onClick="window.location.reload();">Reload</button></span>
+            </div>
+  </div>
+    <div class="order_table rm_wise_report">
+    </div>
+    <div class="order_table">
+    </div>
+</div>
+</div>

@@ -22,9 +22,13 @@ def validate(doc, method):
 			qc_disable_items = get_qc_disable_items(doc.supplier)
 			qc_required_items =[]
 			for item in doc.items:
-				if item.item_code not in qc_disable_items and not item.quality_inspection and doc.workflow_state =="For Receipt" and doc.is_return == 1:
-					frappe.throw(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
-					qc_required_items.append(item.item_code)
+				if item.item_code not in qc_disable_items and not item.quality_inspection and doc.workflow_state =="For Receipt" and doc.is_return != 1:
+					action = frappe.get_doc('Stock Settings').action_if_quality_inspection_is_not_submitted
+					if action == 'Warn':
+						frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
+					else:
+						frappe.throw(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
+						qc_required_items.append(item.item_code)
 		for item in doc.items:
 			if item.quality_inspection:
 				quality_inspection_data  = frappe.db.get_value("Quality Inspection", item.quality_inspection, ["rejected_quantity","rejected_warehouse"],as_dict=1)
@@ -49,7 +53,18 @@ def validate(doc, method):
 				# item.received_qty = item.qty + item.custom_rejected_qty
 				# item.qty = accepted_qty
 				item.actual_accepted_qty = accepted_qty
-			
+	
+
+def before_submit(doc, method):
+	warehouse = ''
+	for item in doc.items:
+		if item.quality_inspection:
+			warehouse = 'RM Store - MT'
+			break
+		else:
+			warehouse = 'QC Store - MT'
+	doc.set_warehouse = warehouse
+
 
 def before_save(doc,method):
 	po_ref = 0
@@ -166,7 +181,8 @@ def map_pr_qty_to_po_qty(doc):
 			'purchase_order_item' : item.get('purchase_order_item'),
 			'warehouse' : item.get('warehouse')
 		})
-			
+
+
 @frappe.whitelist()
 def get_purchase_order(supplier):
 	query = '''SELECT pi.name as pi_name,pi.item_code,pi.qty, po.name,pi.received_qty,pi.returned_qty, ((pi.qty - pi.received_qty) +pi.returned_qty) as remaining_qty, pi.warehouse 
