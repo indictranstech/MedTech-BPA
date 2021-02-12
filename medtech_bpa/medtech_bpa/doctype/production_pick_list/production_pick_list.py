@@ -17,6 +17,8 @@ from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note a
 class ProductionPickList(Document):
 	def before_save(self):
 		work_order_doc = frappe.get_doc("Work Order",self.work_order)
+		prod_pick_list = frappe.get_all("Production Pick List",'name')
+		production_pick_list = [item.name for item in prod_pick_list]
 		for item in self.locations:
 			if item.picked_qty > 0 :
 				stock_entry = frappe.new_doc("Stock Entry")
@@ -24,7 +26,7 @@ class ProductionPickList(Document):
 					stock_entry.stock_entry_type = 'Material Transfer for Manufacture'
 					stock_entry.company = self.company
 					stock_entry.work_order = self.work_order
-					# stock_entry.pick_list = self.name
+					stock_entry.production_pick_list = self.name if self.name in production_pick_list else None
 					stock_entry.from_warehouse = item.warehouse
 					stock_entry.to_warehouse = work_order_doc.wip_warehouse
 					stock_entry.append("items",{
@@ -38,11 +40,15 @@ class ProductionPickList(Document):
 					actual_balance = frappe.db.get_value("Work Order Item",{'parent':self.work_order,'item_code':item.item_code
 						},'transferred_qty')
 					item.check_balance = (item.check_balance + item.picked_qty)
-					item.balance_qty = item.qty - item.check_balance
+					item.balance_qty = item.qty - actual_balance
 					item.picked_qty = 0
 					actual_stock = get_available_item_locations_for_other_item(item.item_code,item.warehouse,item.qty,self.company)
 					item.stock_qty = actual_stock[0].get("qty")
-
+		# recalculate balance qty according to total transferred for all items
+		for item in self.locations:
+			actual_balance = frappe.db.get_value("Work Order Item",{'parent':self.work_order,'item_code':item.item_code
+						},'transferred_qty')
+			item.balance_qty = item.qty - actual_balance	
 	def set_item_locations(self, save=False):
 		items = self.aggregate_item_qty()
 		self.item_location_map = frappe._dict()
@@ -71,7 +77,8 @@ class ProductionPickList(Document):
 				location = item_doc.as_dict()
 				qty_to_be_issued = frappe.db.get_value("Work Order Item",{'parent':self.work_order,'item_code':location.get("item_code")},'qty_to_be_issued')
 				row.update({
-					'qty': qty_to_be_issued
+					'qty': qty_to_be_issued,
+					'balance_qty':qty_to_be_issued
 				})
 				location.update(row)
 				self.append('locations', location)
@@ -184,8 +191,11 @@ def get_available_item_locations(item_code, from_warehouses, required_qty, compa
 
 def get_available_item_locations_for_other_item(item_code, from_warehouses, required_qty, company):
 	# gets all items available in different warehouses
+	wip_warehouse = frappe.db.get_single_value("Manufacturing Settings", 'default_wip_warehouse')
 	warehouses = [x.get('name') for x in frappe.get_list("Warehouse", {'company': company}, "name")]
-
+	if wip_warehouse in warehouses:
+		warehouses.remove(wip_warehouse)
+	
 	filters = frappe._dict({
 		'item_code': item_code,
 		'warehouse': ['in', warehouses],
@@ -193,6 +203,8 @@ def get_available_item_locations_for_other_item(item_code, from_warehouses, requ
 	})
 
 	if from_warehouses:
+		if wip_warehouse in from_warehouses:
+			from_warehouses.remove(wip_warehouse)
 		filters.warehouse = ['in', from_warehouses]
 
 	item_locations = frappe.get_all('Bin',
@@ -282,3 +294,8 @@ def create_pick_list(source_name, target_doc=None, for_qty=None):
 def get_work_orders(production_plan,item):
 	work_order = frappe.db.get_value("Work Order",{'production_plan':production_plan,'production_item':item},'name')
 	return work_order
+@frappe.whitelist()
+def get_items_from_production_plan(production_plan):
+	items = frappe.get_list("Production Plan Item",{'parent':production_plan},'item_code')
+	item_list = [item.item_code for item in items]
+	return item_list

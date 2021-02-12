@@ -11,9 +11,13 @@ def on_submit(doc,method):
 	for row in production_plan_doc.mr_items:
 		for item in doc.required_items:
 			if item.item_code == row.item_code:
-				item.qty_to_be_issued = item.required_qty - item.available_qty_at_wip_warehouse
+				actual_qty = get_available_item_qty_in_wip(item.item_code,doc.wip_warehouse,doc.company)
+				if len(actual_qty) > 0:
+					item.qty_to_be_issued = item.required_qty - actual_qty[0].get("qty")
+				else:
+					item.qty_to_be_issued = item.required_qty
 	doc.save()
-	
+	doc.submit()
 @frappe.whitelist()
 def create_pick_list(source_name, target_doc=None, for_qty=None):
 	for_qty = for_qty or json.loads(target_doc).get('for_qty')

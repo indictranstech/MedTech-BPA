@@ -21,7 +21,6 @@ frappe.ui.form.on('Production Pick List', {
 				}
 			};
 		});
-
 		frm.set_query('work_order', () => {
 			return {
 				query: 'erpnext.stock.doctype.pick_list.pick_list.get_pending_work_orders',
@@ -33,6 +32,29 @@ frappe.ui.form.on('Production Pick List', {
 		frm.set_query('item_code', 'locations', () => {
 			return erpnext.queries.item({ "is_stock_item": 1 });
 		});
+	},
+	production_plan:function(frm){
+		if(frm.doc.production_plan){
+			frappe.call({
+				"method":"medtech_bpa.medtech_bpa.doctype.production_pick_list.production_pick_list.get_items_from_production_plan",
+				args:{
+					'production_plan':frm.doc.production_plan
+				},
+				callback:function(r){
+					if(r.message){
+						cur_frm.fields_dict['item'].get_query = function(doc, cdt, cdn) {
+			return {
+				filters: [
+					['Item','name', 'in', r.message]
+				]
+			}
+		}
+						}
+					}
+							
+				
+			})
+		}
 	},
 	item:function(frm){
 		if(frm.doc.production_plan){
@@ -61,9 +83,7 @@ frappe.ui.form.on('Production Pick List', {
 	set_item_locations:(frm, save) => {
 		if (!(frm.doc.locations && frm.doc.locations.length)) {
 			frappe.msgprint(__('Add items in the Item Locations table'));
-		} else {
-			frm.call('set_item_locations', {save: save});
-		}
+		} 
 	},
 	get_item_locations: (frm) => {
 		// Button on the form
