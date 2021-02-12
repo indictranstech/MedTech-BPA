@@ -1,8 +1,7 @@
-
 <style>
   .order_table{
     overflow: auto;
-    padding-bottom: 35px;
+    padding-bottom: 200px;
   }
   .order_table table{
     width: 100%;
@@ -125,26 +124,34 @@ div .report_container{
       border-bottom: 2px solid #e6e6e6;
 }
 </style>
+
 <div>
     <div class="">
     </div>
     <div class="d-flex clearfix-none ">
     
-        <span style="margin-right: 26px;"><label for="from_date">From Date</label></span>
+        <span style="margin-right: 2px;"><label for="from_date">From Date</label></span>
             <div style="width: 150px;padding-top: 5.5px;"  class="new_from_date" id = "new_to_date" ></div>
 
         <span style="margin-left: 10px;"><label for="to_date"> To Date</label></span>
             <div style="width: 150px;padding-top: 5.5px;" class="new_to_date" id = "new_to_date"></div>
 
-
+        <span style="margin-left: 10px;"><label for="planning_master">Planning Master</label></span>
+             <div style="width:150px;padding-top: 5.5px;" class="planning_master" id = "planning_master"></div>
          <div  class="flex-grow input-group"></div>
                 <div class="input-group" >
                     <span><button type="button" class="btn btn-primary create ml-2 " style="" >Create</button></span>
             </div>
 
-         <div  class="flex-grow input-group"></div>
                 <div class="input-group" >
-                    <span><button type="button" class="btn btn-primary ml-2 refresh" style="" onClick="window.location.reload();">Save</button></span>
+                    <span><button type="button" class="btn btn-primary update ml-2 " style="" >Update</button></span>
+            </div>
+         
+                <div class="input-group" >
+                    <span><button type="button" class="btn btn-primary delete ml-2 " style="" >Delete</button></span>
+            </div>
+                <div class="input-group" >
+                    <span><button type="button" class="btn btn-primary save_new ml-2 " style="" onClick="">Save</button></span>
             </div>
     </div>
     <div class="create_new_table">

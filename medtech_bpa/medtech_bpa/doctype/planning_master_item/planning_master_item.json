@@ -1,6 +1,6 @@
 {
  "actions": [],
- "autoname": "{title}",
+ "autoname": "planning_master_parent./.####",
  "creation": "2021-01-21 11:22:05.427519",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -12,6 +12,7 @@
   "uom",
   "bom",
   "date",
+  "amount",
   "planning_master_parent"
  ],
  "fields": [
@@ -64,11 +65,16 @@
    "label": "Planning Master Parent",
    "options": "Planning Master",
    "reqd": 1
+  },
+  {
+   "fieldname": "amount",
+   "fieldtype": "Float",
+   "label": "Quantity"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-08 12:42:43.325713",
+ "modified": "2021-02-11 18:22:35.766050",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Planning Master Item",

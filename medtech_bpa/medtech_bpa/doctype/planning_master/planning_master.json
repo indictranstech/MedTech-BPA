@@ -1,5 +1,6 @@
 {
- "autoname": "{title}",
+ "actions": [],
+ "autoname": "PM./.YYYY./.####",
  "creation": "2021-01-21 11:12:45.180439",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -32,7 +33,9 @@
    "reqd": 1
   }
  ],
- "modified": "2021-01-21 11:23:02.614202",
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2021-02-11 18:23:13.907448",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Planning Master",
