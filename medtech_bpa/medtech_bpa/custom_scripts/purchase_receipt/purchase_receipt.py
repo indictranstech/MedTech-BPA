@@ -63,6 +63,7 @@ def before_submit(doc, method):
 			else:
 				item.warehouse = get_warehouse.qc_warehouse
 		doc.set_warehouse = get_warehouse.rm_warehouse if qc_check == 1 else get_warehouse.qc_warehouse
+		
 
 def set_po_item_rate(doc):
 	if doc.items:

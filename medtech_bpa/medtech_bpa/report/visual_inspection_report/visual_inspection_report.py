@@ -25,25 +25,35 @@ def get_data(filters):
 			poi.schedule_date as "req_by_date",
 			poi.expected_delivery_date as "exp_deli_date",
 			pr.posting_date as "vir_date",
-			pri.physically_verified_quantity as "received_qty",
+			pri.billed_qty as "billed_qty",
 			pri.excess_quantity as "excess_qty",
 			pri.short_quantity as "short_qty",
 			pri.custom_rejected_qty as "rej_qty",
 			pri.actual_accepted_qty as "accepted_qty",
-			(pri.physically_verified_quantity- pri.actual_accepted_qty) as diff,
+			(pri.billed_qty- pri.actual_accepted_qty) as diff,
 			if((select 
 				sum(pris.received_qty) 
 				from `tabPurchase Receipt` prs 
 				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
-				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse = 'Rejected Warehouse'
 				) is null,0,(select 
 				sum(pris.received_qty) 
 				from `tabPurchase Receipt` prs 
 				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
-				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse = 'Rejected Warehouse'
 				)) as "purchase_rtn_qty",
 			pr.name,
-			if ((select  sum(piiss.qty)  from `tabPurchase Invoice` piss  INNER JOIN `tabPurchase Invoice Item` piiss ON piss.name = piiss.parent where piss.is_return=1 and piiss.docstatus = 1 and piiss.purchase_receipt = pr.name and piiss.item_name = pri.item_name) is null ,0,(select  sum(piiss.qty)  from `tabPurchase Invoice` piss  INNER JOIN `tabPurchase Invoice Item` piiss ON piss.name = piiss.parent where piss.is_return=1 and piiss.docstatus = 1 and piiss.purchase_receipt = pr.name and piiss.item_name = pri.item_name)) as "debit_note_qty",
+			if((select 
+				sum(pris.received_qty) 
+				from `tabPurchase Receipt` prs 
+				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse in ('Short Warehouse', 'Excess Warehouse')
+				) is null,0,(select 
+				sum(pris.received_qty) 
+				from `tabPurchase Receipt` prs 
+				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse in ('Short Warehouse', 'Excess Warehouse')
+				)) as "debit_note_qty",
 			pr.name,
 			if((select  
 				sum(pii.qty) 
@@ -149,8 +159,8 @@ def get_columns():
 			"width": 100
 		},
 		{
-			"fieldname": "received_qty",
-			"label": _("Received Qty"),
+			"fieldname": "billed_qty",
+			"label": _("Billed Qty"),
 			"fieldtype": "Float",
 			"width": 100
 		},
