@@ -102,21 +102,31 @@
  {
   "docstatus": 0,
   "doctype": "Stock Entry Type",
-  "modified": "2021-01-21 16:53:31.820890",
+  "modified": "2021-02-05 11:49:39.660441",
   "name": "Material Short From Supplier",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "purpose": "Material Issue"
+  "purpose": "Material Transfer"
  },
  {
   "docstatus": 0,
   "doctype": "Stock Entry Type",
-  "modified": "2021-01-21 16:54:35.004555",
+  "modified": "2021-02-05 11:50:15.145042",
   "name": "Material Excess From Supplier",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "purpose": "Material Receipt"
+  "purpose": "Material Transfer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-02-05 11:50:50.536289",
+  "name": "Rejected Material Transfer",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Transfer"
  }
 ]

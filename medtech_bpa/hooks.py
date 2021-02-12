@@ -133,7 +133,10 @@ fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role',
 
 doctype_js = {
 	"Purchase Receipt" : "medtech_bpa/custom_scripts/purchase_receipt/purchase_receipt.js",
-	"Item":	"medtech_bpa/custom_scripts/item/item.js"
+	"Item":	"medtech_bpa/custom_scripts/item/item.js",
+	"Quality Inspection": "medtech_bpa/custom_scripts/quality_inspection/quality_inspection.js",
+	"Production Plan":"medtech_bpa/custom_scripts/production_plan/production_plan.js",
+	"Stock Entry":"medtech_bpa/custom_scripts/stock_entry/stock_entry.js"
 }
 
 
@@ -141,10 +144,24 @@ doc_events = {
 	"Purchase Receipt":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.validate",
 		"before_save":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.before_save",
+		"before_submit":"medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.before_submit",
 		"on_submit": "medtech_bpa.medtech_bpa.custom_scripts.purchase_receipt.purchase_receipt.on_submit"
 	},
 	"Quality Inspection":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.validate",
 		"on_submit": "medtech_bpa.medtech_bpa.custom_scripts.quality_inspection.quality_inspection.on_submit"
+	},
+	"Production Plan":{
+	"validate":"medtech_bpa.medtech_bpa.custom_scripts.production_plan.production_plan.validate",
+	"on_submit":"medtech_bpa.medtech_bpa.custom_scripts.production_plan.production_plan.on_submit"
+	},
+	"Work Order":{
+	"on_submit":"medtech_bpa.medtech_bpa.custom_scripts.work_order.work_order.on_submit"
+	},
+	"Stock Entry":{
+		"validate" : "medtech_bpa.medtech_bpa.custom_scripts.stock_entry.stock_entry.after_insert"
+	},
+	"Purchase Invoice":{
+		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_invoice.purchase_invoice.validate"
 	},
 }

@@ -8,6 +8,7 @@ def validate(doc, method):
 		doc.status ='Accepted'
 	else:
 		doc.status ='Rejected'
+		
 def on_submit(doc,method):
 	doc.submission_date = nowdate()
 

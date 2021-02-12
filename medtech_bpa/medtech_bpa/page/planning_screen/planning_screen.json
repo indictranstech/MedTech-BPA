@@ -1,0 +1,23 @@
+{
+ "content": null,
+ "creation": "2021-01-21 13:52:27.696810",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2021-01-21 13:52:27.696810",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "planning-screen",
+ "owner": "Administrator",
+ "page_name": "Planning Screen",
+ "roles": [
+  {
+   "role": "Administrator"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Planning Screen"
+}
