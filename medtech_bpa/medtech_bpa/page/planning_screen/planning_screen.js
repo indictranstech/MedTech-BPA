@@ -23,6 +23,7 @@ frappe.planning_screen = Class.extend({
 
 
                 $(".update_view").click(function(){
+                  me.update_values=[]
                   $('.planning_screen').html($(frappe.render_template('create_new')));
                   $('label[for="from_date"]').hide()
                   $('label[for="to_date"]').hide()
@@ -31,12 +32,17 @@ frappe.planning_screen = Class.extend({
                   $('.create').hide()
                   $('.save_new').hide()
                   $('.planning_master').show()
-                  $("label[for=planning_master]").css({'display': 'inline-block','width': '90%','text-align': 'right'})
+                  $("label[for=planning_master]").css({'float':'left','margin-right':'2px'})
                   me.planning_master()
 
 
        $(document).on('keydown', '.date_class' ,function(event)
                 {
+ if ($('.save_new').is(':visible')) {
+              
+  $('.save_new').hide();
+}
+
   var code = event.keyCode;
   var key = event.key;
     if (code== 32){
@@ -62,13 +68,14 @@ frappe.planning_screen = Class.extend({
                 });
                 
                 //collecting values to be updated in array
+                
                 $(document).on('focusout', '.date_class' ,function()
-                {   
+                {   if ($('.create').is(':hidden')){
                   if($(this)[0].innerHTML != $(this).data().initial)
                 {
                  
                  me.update_values.push([$(this).attr("class").split(' ')[1],$(this)[0].innerHTML,$(this).data().initial])
-                }
+                }}
                 });
                 
                 $(".update").click(function(){
@@ -126,6 +133,11 @@ frappe.planning_screen = Class.extend({
                           me.get_data();
        $(document).on('keydown', '.date_class' ,function(event)
                 {
+                
+                if ($('.save_new').is(':hidden') && $('.planning_master').is(':hidden')) {
+              
+  $('.save_new').show();
+}
   var code = event.keyCode;
   var key = event.key;
   if (code== 32){
