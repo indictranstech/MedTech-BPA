@@ -139,7 +139,8 @@ def update_data(update_data):
                     if '<br>' in i[values]:
                         i[values]=i[values][0:-4]
                         i[values] = 0 if i[values] == '' else i[values]
-
+                    if '.' == i[values]:
+                        i[values]=0
             doc = frappe.get_doc("Planning Master Item" ,i[0])
             #if doc.amount== int(i[2]):
             try:

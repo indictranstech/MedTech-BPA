@@ -16,7 +16,7 @@ def execute(filters=None):
 def get_data(filters):
 	if filters:
 		purchase_receipt = filters.get("purchase_receipt")
-		query ='''SELECT pr.name as pr_name,pri.item_code,pri.qty, pri.name,pri.received_qty,pri.rejected_qty, pr.posting_date, 
+		query ='''SELECT pr.name as pr_name,pri.item_code,pri.qty, pri.name,pri.received_qty,pri.custom_rejected_qty, pr.posting_date, 
 			CASE
 				WHEN  pri.quality_inspection IS NULL  THEN  'Pending'
 				WHEN  pri.quality_inspection IS NOT NULL  
@@ -42,12 +42,12 @@ def get_data(filters):
 				data['days'] = abs((getdate(data.get('posting_date')) - getdate(data.get('days'))).days)
 			temp = [ 
 					data.get('pr_name'),data.get('item_code'),data.get('qty'),data.get('received_qty'),
-					data.get('rejected_qty'),data.get('posting_date'),data.get('status'),data.get('days')
+					data.get('custom_rejected_qty'),data.get('posting_date'),data.get('status'),data.get('days')
 			]
 			result_list.append(temp)
 		return result_list
 	else:
-		query ='''SELECT pr.name as pr_name,pri.item_code,pri.qty,pri.received_qty,pri.rejected_qty, pr.posting_date, 
+		query ='''SELECT pr.name as pr_name,pri.item_code,pri.qty,pri.received_qty,pri.custom_rejected_qty, pr.posting_date, 
 			CASE
 				WHEN  pri.quality_inspection IS NULL  THEN  'Pending'
 				WHEN  pri.quality_inspection IS NOT NULL  
@@ -73,7 +73,7 @@ def get_data(filters):
 				data['days'] = abs((getdate(data.get('posting_date')) - getdate(data.get('days'))).days)
 			temp = [ 
 					data.get('pr_name'),data.get('item_code'),data.get('qty'),data.get('received_qty'),
-					data.get('rejected_qty'),data.get('posting_date'),data.get('status'),data.get('days')
+					data.get('custom_rejected_qty'),data.get('posting_date'),data.get('status'),data.get('days')
 			]
 			result_list.append(temp)
 		return result_list
@@ -107,7 +107,7 @@ def get_columns():
 			"width": 100
 		},
 		{
-			"fieldname": "rejected_qty",
+			"fieldname": "custom_rejected_qty",
 			"label": _("Rejected Qty"),
 			"fieldtype": "float",
 			"width": 100
