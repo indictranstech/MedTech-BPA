@@ -1,4 +1,5 @@
 {
+ "actions": [],
  "creation": "2021-01-21 11:40:32.482681",
  "doctype": "DocType",
  "editable_grid": 1,
@@ -12,6 +13,8 @@
   "short_warehouse",
   "excess_warehouse",
   "rejected_warehouse",
+  "rm_warehouse",
+  "qc_warehouse",
   "section_break_1",
   "fg_item_group",
   "section_break_3",
@@ -81,10 +84,24 @@
    "fieldtype": "Link",
    "label": "Rejected Warehouse",
    "options": "Warehouse"
+  },
+  {
+   "fieldname": "rm_warehouse",
+   "fieldtype": "Link",
+   "label": "RM Warehouse",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "qc_warehouse",
+   "fieldtype": "Link",
+   "label": "QC Warehouse",
+   "options": "Warehouse"
   }
  ],
+ "index_web_pages_for_search": 1,
  "issingle": 1,
- "modified": "2021-01-29 16:47:24.651310",
+ "links": [],
+ "modified": "2021-02-11 11:07:07.249764",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "MedTech Settings",

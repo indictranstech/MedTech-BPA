@@ -157,5 +157,8 @@ doc_events = {
 	},
 	"Work Order":{
 	"on_submit":"medtech_bpa.medtech_bpa.custom_scripts.work_order.work_order.on_submit"
+	},
+	"Stock Entry":{
+		"validate" : "medtech_bpa.medtech_bpa.custom_scripts.stock_entry.stock_entry.after_insert"
 	}
 }

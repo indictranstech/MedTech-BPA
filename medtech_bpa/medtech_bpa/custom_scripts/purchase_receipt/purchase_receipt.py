@@ -4,7 +4,6 @@ import frappe
 from frappe.utils import flt,today
 from frappe import _
 
-
 def validate(doc, method):
 	if doc.is_return:
 		setting_doc = frappe.get_single('MedTech Settings')
@@ -23,11 +22,10 @@ def validate(doc, method):
 			qc_required_items =[]
 			for item in doc.items:
 				if item.item_code not in qc_disable_items and not item.quality_inspection and doc.workflow_state =="For Receipt" and doc.is_return != 1:
-					action = frappe.get_doc('Stock Settings').action_if_quality_inspection_is_not_submitted
-					if action == 'Warn':
-						frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
-					else:
-						frappe.throw(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
+					# action = frappe.get_doc('Stock Settings').action_if_quality_inspection_is_not_submitted
+					# if action == 'Warn':
+					# 	frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
+					frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
 						qc_required_items.append(item.item_code)
 		for item in doc.items:
 			if item.quality_inspection:
@@ -56,14 +54,18 @@ def validate(doc, method):
 	
 
 def before_submit(doc, method):
-	warehouse = ''
+	qc_disable_items = get_qc_disable_items(doc.supplier)
+	get_warehouse = frappe.get_single('MedTech Settings')
+	qc_check = 0
 	for item in doc.items:
-		if item.quality_inspection:
-			warehouse = 'RM Store - MT'
-			break
+		if item.item_code in qc_disable_items:
+			item.warehouse = get_warehouse.rm_warehouse
+		elif item.quality_inspection:
+			item.warehouse = get_warehouse.rm_warehouse
+			qc_check = 1
 		else:
-			warehouse = 'QC Store - MT'
-	doc.set_warehouse = warehouse
+			item.warehouse = get_warehouse.qc_warehouse
+	doc.set_warehouse = get_warehouse.rm_warehouse if qc_check == 1 else get_warehouse.qc_warehouse
 
 
 def before_save(doc,method):
