@@ -26,7 +26,7 @@ def validate(doc, method):
 					# if action == 'Warn':
 					# 	frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
 					frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
-						qc_required_items.append(item.item_code)
+					qc_required_items.append(item.item_code)
 		for item in doc.items:
 			if item.quality_inspection:
 				quality_inspection_data  = frappe.db.get_value("Quality Inspection", item.quality_inspection, ["rejected_quantity","rejected_warehouse"],as_dict=1)
