@@ -217,7 +217,6 @@ def on_submit(doc, method):
 	for item in doc.items:
 		if item.custom_rejected_qty > 0:
 			rejected_qty_items.append(item)
-
 		if item.excess_quantity > 0:
 			excess_qty_items.append(item)
 		elif item.short_quantity > 0:
@@ -258,6 +257,7 @@ def make_material_receipt(items,doc, target_warehouse):
 			stock_entry.save(ignore_permissions = True)
 			stock_entry.submit()		
 	
+
 @frappe.whitelist()
 def make_material_issue(items,doc, target_warehouse):
 	try:

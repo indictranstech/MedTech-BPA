@@ -79,7 +79,7 @@ def get_pm_details(planning_master):
 
 
 def get_item_details(planning_master):
-	query = frappe.db.sql("select mri.parent, mri.item_code, mri.quantity, mri.uom from `tabMaterial Request Plan Item` mri join `tabProduction Plan` pp on mri.parent = pp.name join `tabProduction Plan Item` ppi on pp.name = ppi.parent join `tabPlanning Master Item` pmi on ppi.item_code = pmi.item_code where pp.docstatus = 1 and pp.status in ('Not Started', 'Submitted', 'In Process') and pmi.planning_master_parent = '{0}' group by mri.item_code, mri.parent".format(planning_master), as_dict =1, debug=1)
+	query = frappe.db.sql("select mri.parent, mri.item_code, case when pp.posting_date < '{0}' then mri.quantity end, mri.uom from `tabMaterial Request Plan Item` mri join `tabProduction Plan` pp on mri.parent = pp.name join `tabProduction Plan Item` ppi on pp.name = ppi.parent join `tabPlanning Master Item` pmi on ppi.item_code = pmi.item_code where pp.docstatus = 1 and pp.status in ('Not Started', 'Submitted', 'In Process') and pmi.planning_master_parent = '{1}' group by mri.item_code, mri.parent".format(planning_master), as_dict =1, debug=1)
 	return query
 
 
