@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from frappe.model.document import Document
 import frappe
-from frappe.utils import flt,today
+from frappe.utils import flt,today, get_link_to_form
 from frappe import _
 
 def validate(doc, method):
@@ -16,15 +16,15 @@ def validate(doc, method):
 		else:
 			doc.return_for_warehouse = ''
 
+	# fix variable rate
+	set_po_item_rate(doc)
+
 	if doc.items:
 		if doc.is_return != 1 and doc.get('__islocal')!= 1:
 			qc_disable_items = get_qc_disable_items(doc.supplier)
 			qc_required_items =[]
 			for item in doc.items:
 				if item.item_code not in qc_disable_items and not item.quality_inspection and doc.workflow_state =="For Receipt" and doc.is_return != 1:
-					# action = frappe.get_doc('Stock Settings').action_if_quality_inspection_is_not_submitted
-					# if action == 'Warn':
-					# 	frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
 					frappe.msgprint(_("Create Quality Inspection for Item {0}").format(frappe.bold(item.item_code)))
 					qc_required_items.append(item.item_code)
 		for item in doc.items:
@@ -43,13 +43,9 @@ def validate(doc, method):
 					item.excess_quantity = diff
 					item.short_quantity =  0
 
-				# accepted_qty = item.received_qty - abs(item.short_quantity) + item.excess_quantity - item.custom_rejected_qty
 				item.qty = item.billed_qty
 				accepted_qty = item.qty - abs(item.short_quantity) + item.excess_quantity - item.custom_rejected_qty
 
-				# erp
-				# item.received_qty = item.qty + item.custom_rejected_qty
-				# item.qty = accepted_qty
 				item.actual_accepted_qty = accepted_qty
 	
 
@@ -66,6 +62,14 @@ def before_submit(doc, method):
 		else:
 			item.warehouse = get_warehouse.qc_warehouse
 	doc.set_warehouse = get_warehouse.rm_warehouse if qc_check == 1 else get_warehouse.qc_warehouse
+
+def set_po_item_rate(doc):
+	if doc.items:
+		for item in doc.items:
+			if item.purchase_order_item:
+				rate = frappe.db.get_value('Purchase Order Item', item.purchase_order_item, 'rate')
+				if item.maintain_fix_rate == 1 and rate != item.rate:
+					frappe.throw('Not allowed to change the rate for <b>Row {0}</b> as <b>Maintain Fix Rate</b> is checked on the purchase order {1}'.format(item.idx, get_link_to_form('Purchase Order', item.purchase_order)))
 
 
 def before_save(doc,method):
