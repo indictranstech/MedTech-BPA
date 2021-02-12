@@ -22,3 +22,13 @@ def get_qc_disable_items(supplier):
 	qc_disable_items = frappe.db.sql(query, as_dict=1)
 	qc_disable_items = [ item.get('item_code') for item in qc_disable_items]
 	return qc_disable_items
+
+@frappe.whitelist()
+def get_work_orders(production_plan,item):
+	work_order = frappe.db.get_value("Work Order",{'production_plan':production_plan,'production_item':item},'name')
+	return work_order
+@frappe.whitelist()
+def get_items_from_production_plan(production_plan):
+	items = frappe.get_list("Production Plan Item",{'parent':production_plan},'item_code')
+	item_list = [item.item_code for item in items]
+	return item_list
