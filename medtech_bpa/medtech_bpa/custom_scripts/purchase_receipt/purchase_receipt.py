@@ -53,15 +53,16 @@ def before_submit(doc, method):
 	qc_disable_items = get_qc_disable_items(doc.supplier)
 	get_warehouse = frappe.get_single('MedTech Settings')
 	qc_check = 0
-	for item in doc.items:
-		if item.item_code in qc_disable_items:
-			item.warehouse = get_warehouse.rm_warehouse
-		elif item.quality_inspection:
-			item.warehouse = get_warehouse.rm_warehouse
-			qc_check = 1
-		else:
-			item.warehouse = get_warehouse.qc_warehouse
-	doc.set_warehouse = get_warehouse.rm_warehouse if qc_check == 1 else get_warehouse.qc_warehouse
+	if doc.is_return == 0:
+		for item in doc.items:
+			if item.item_code in qc_disable_items:
+				item.warehouse = get_warehouse.rm_warehouse
+			elif item.quality_inspection:
+				item.warehouse = get_warehouse.rm_warehouse
+				qc_check = 1
+			else:
+				item.warehouse = get_warehouse.qc_warehouse
+		doc.set_warehouse = get_warehouse.rm_warehouse if qc_check == 1 else get_warehouse.qc_warehouse
 
 def set_po_item_rate(doc):
 	if doc.items:
