@@ -2,6 +2,46 @@
  {
   "docstatus": 0,
   "doctype": "Stock Entry Type",
+  "modified": "2020-12-25 18:24:04.261771",
+  "name": "Process Rejections",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Transfer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-01-05 16:23:56.995564",
+  "name": "Supplier Rejection",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Transfer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-02-05 15:13:54.031595",
+  "name": "Rejection Inward",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Receipt"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
+  "modified": "2021-02-05 15:14:38.836907",
+  "name": "Rejection Outward",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "purpose": "Material Issue"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Stock Entry Type",
   "modified": "2021-01-04 18:04:17.809108",
   "name": "Material Issue",
   "parent": null,

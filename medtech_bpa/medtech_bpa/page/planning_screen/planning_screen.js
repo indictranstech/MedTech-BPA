@@ -261,7 +261,7 @@ update_data:function(){
                   callback: function(r){
                   me.update_values.forEach(function(element){
                   $('.'+element[0].split("/").join(`\\/`)).data('initial',(element[1] != '<br>') ? element[1] : 0)
-                  if (element[1]=='<br>'){
+                  if (element[1]=='<br>' || element[1]=='.<br>'){
                   $('.'+element[0].split("/").join(`\\/`)).html(0)}
                   })
                   me.update_values=[]
@@ -275,7 +275,7 @@ update_data:function(){
                   if (r.message[0]=='1')
                   {
                   
-                    frappe.msgprint(__("Planning Master {0} updated successfully",[r.message[1]]))
+                    frappe.msgprint(__(" Updated successfully"))
                   }
                   
                   }
@@ -295,7 +295,12 @@ save_data:function(){
                   var values= [];
                   if (element != "bom"){
                   $('tr:not(:first-child) td[id*= '+element+'  ]').each(function(i,el){
-                    
+                      if (el.innerHTML=="<br>" || el.innerHTML == ".<br>"){
+                     
+                      $(this).html(0)
+                      
+                      }
+                      
                       values.push(el.innerHTML)
                       
                   })}
@@ -307,8 +312,8 @@ save_data:function(){
                   }
                       dict[element]=values
                   })
-                  
-                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined)
+                    
+                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined &&  !jQuery.isEmptyObject(dict))
                   {frappe.call({
                   method:"medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.save_items_data",
                   async:false,
@@ -327,12 +332,15 @@ save_data:function(){
                     'text-align':'center',
                     'width':'150px', 'padding-top': '3px','height':'30px','border-radius':'3px','top':'0'})
                     $('label[for="planning_master"]').show()
+                    $(".create").hide()
                   frappe.msgprint(__("Planning Master {0} is created.",[r.message[1]]))
                   
                   }
                   
                   }
-                  });}
+                  });}else{
+                  $(".save_new").show()
+                  }
                 
         },
 
