@@ -1,12 +1,3 @@
-// frappe.pages['supplier-wise-rm-wis'].on_page_load = function(wrapper) {
-// 	var page = frappe.ui.make_app_page({
-// 		parent: wrapper,
-// 		title: 'Supplier wise RM wise Pending PO against Shortage Report',
-// 		single_column: true
-// 	});
-// }
-
-
 frappe.pages['supplier_wise_rm_wis'].on_page_load = function(wrapper) {
 	frappe.supplier_wise_rm_wis_data = new frappe.supplier_wise_rm_wis(wrapper);
 }

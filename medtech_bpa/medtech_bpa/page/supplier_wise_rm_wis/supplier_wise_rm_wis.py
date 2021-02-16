@@ -14,7 +14,7 @@ def get_planing_master_details(filters=None):
 	planning_master=frappe.db.sql("""SELECT name, from_date, to_date from `tabPlanning Master` where {0} """.format(get_filters_codition(filters)), as_dict=1)
 
 	planning_item = frappe.db.get_value("Planning Master Item", {'planning_master_parent':planning_master[0].get('name')}, 'bom')
-
+	print("========", planning_item)
 	bom_data = frappe.db.sql("""SELECT item_code, item_name, bom_no from `tabBOM Item` where parent='{0}'""".format(planning_item), as_dict=1, )
 
 
@@ -50,8 +50,8 @@ def get_planing_master_details(filters=None):
 			if row.item_code == poqty.item_code:
 				row['po_qty']+=poqty.qty
 				supplier.append(poqty.supplier)
+				row['supplier']=(list(set(supplier)))
 		row['consider_po_qty']=row.current_stock+row.po_qty
-		row['supplier']=(list(set(supplier)))
 
 	path = 'medtech_bpa/medtech_bpa/page/supplier_wise_rm_wis/supplier_wise_rm_wis.html'
 	html=frappe.render_template(path,{'data':data})

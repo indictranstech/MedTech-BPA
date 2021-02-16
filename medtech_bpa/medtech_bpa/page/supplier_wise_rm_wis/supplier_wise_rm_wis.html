@@ -40,6 +40,7 @@
             <td class="center">{{row.current_stock or ""}}</td>
             <td class="center">{{row.po_qty or ""}}</td>
         </tr>
+        {% if(row.supplier) %}
         {% for po in row.supplier %}
         <tr>
             <td class="center"></td>
@@ -49,6 +50,7 @@
             <td class="center"></td>
         </tr>
         {% endfor %}
+        {% endif %}
         {% endfor %}
     </tbody>
 </table>
