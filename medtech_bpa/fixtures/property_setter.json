@@ -1531,23 +1531,6 @@
  },
  {
   "default_value": null,
-  "doc_type": "Purchase Order",
-  "docstatus": 0,
-  "doctype": "Property Setter",
-  "doctype_or_field": "DocField",
-  "field_name": "naming_series",
-  "modified": "2021-02-04 17:32:08.758881",
-  "name": "Purchase Order-naming_series-options",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "property": "options",
-  "property_type": "Text",
-  "row_name": null,
-  "value": "PUR-ORD-.YYYY.-"
- },
- {
-  "default_value": null,
   "doc_type": "Quality Inspection",
   "docstatus": 0,
   "doctype": "Property Setter",
@@ -2633,5 +2616,22 @@
   "property_type": "Check",
   "row_name": null,
   "value": "0"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Purchase Order",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "naming_series",
+  "modified": "2021-02-16 10:33:27.568320",
+  "name": "Purchase Order-naming_series-options",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "options",
+  "property_type": "Text",
+  "row_name": null,
+  "value": "PUR-ORD-.YYYY.-\nMLPL-.YYYY.-PO"
  }
 ]
