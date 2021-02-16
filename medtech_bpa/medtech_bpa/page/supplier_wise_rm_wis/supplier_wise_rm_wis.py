@@ -39,7 +39,7 @@ def get_planing_master_details(filters=None):
 		where item_code='{0}' """.format(row.item_code), as_dict=1)
 		row['current_stock'] = actual_qty[0].get("qty")
 
-		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code, b.qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1 and a.schedule_date<='{0}' and b.item_code='{1}'""".format(row.from_date, row.item_code), as_dict=1)
+		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code, b.qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1 and a.schedule_date<='{0}' and b.item_code='{1}'""".format(row.to_date, row.item_code), as_dict=1)
 
 		for po in po_details:
 			if not frappe.db.get_value("Purchase Receipt Item", {'purchase_order':po.get('name')}, 'purchase_order'):
@@ -77,7 +77,6 @@ def get_child_boms(bom_item,bom_childs):
 				item = frappe.db.get_value("BOM", {"name":row.get("parent")}, "item")
 				row['parent_bomname'] = item
 
-			
 			bom_childs += childs
 
 			if len(childs)>0:
