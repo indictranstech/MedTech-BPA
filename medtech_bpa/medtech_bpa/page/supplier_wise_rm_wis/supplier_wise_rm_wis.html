@@ -37,7 +37,7 @@
             <td class="center">{{row.item_code}}</td>
             <td class="center"></td>
             <td class="center">{{row.consider_po_qty or ""}}</td>
-            <td class="center">{{row.current_stock or ""}}</td>
+            <td class="center">{{row.no_consider_po_qty or ""}}</td>
             <td class="center">{{row.po_qty or ""}}</td>
         </tr>
         {% if(row.supplier) %}
