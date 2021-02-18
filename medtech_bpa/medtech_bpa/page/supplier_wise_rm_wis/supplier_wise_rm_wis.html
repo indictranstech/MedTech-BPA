@@ -1,0 +1,57 @@
+<style type="text/css">
+	.bcolor{background-color: #70c1fb}
+	.center{text-align: center;}
+    .top{vertical-align: top;}
+</style>
+
+
+<div class="conatiner">
+  	<table class="table table-bordered" width="100%">
+    <thead>
+      <tr>
+          <th colspan="12" class="bcolor center">Supplier wise RM wise Pending PO against Shortage Report</th>
+      </tr>
+      <tr>
+          <th colspan="12" class="bcolor center">Select Period for Planning</th>
+      </tr>   
+      <tr>
+        <th width="40%" class="bcolor" colspan="2">From Date : {{data[0].from_date}}</th>
+        <th width="20%" class="bcolor center"></th>
+        <th width="20%" class="bcolor center">To Date</th>
+        <th width="20%" class="bcolor center">{{data[0].to_date}}</th>
+      </tr>
+      <tr>
+        <th width="20%" class="bcolor center" style="vertical-align: top" rowspan="2">Item Name</th>
+        <th width="20%" class="bcolor center top" style="vertical-align: top" rowspan="2">Supplier</th>
+        <th width="40%" class="bcolor center" colspan="2">Shortage Qty</th>
+        <th width="20%" class="bcolor center top" style="vertical-align: top" rowspan="2">Pending PO</th>
+      </tr>
+      <tr>
+        <th width="20%" class="bcolor center">Considered PO</th>
+        <th width="20%" class="bcolor center">Not Consider PO</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            <td class="center">{{row.item_code}}</td>
+            <td class="center"></td>
+            <td class="center">{{row.consider_po_qty or ""}}</td>
+            <td class="center">{{row.no_consider_po_qty or ""}}</td>
+            <td class="center">{{row.po_qty or ""}}</td>
+        </tr>
+        {% if(row.supplier) %}
+        {% for po in row.supplier %}
+        <tr>
+            <td class="center"></td>
+            <td class="center">{{po or ""}}</td>
+            <td class="center"></td>
+            <td class="center"></td>
+            <td class="center"></td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+</div>
