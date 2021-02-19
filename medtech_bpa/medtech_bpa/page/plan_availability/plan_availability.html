@@ -45,7 +45,7 @@
                    <td>{{item.item_code }}</td>
                    <td>{{item.stock_uom}}</td>
                    {% for row in data.date_data %}
-                   <td>{{item.req_qty}}</td>
+                   <td>{{item.get(row.date)}}</td>
                    {% endfor %}
                 </tr>
                 {% endfor %}
