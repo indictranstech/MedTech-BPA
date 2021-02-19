@@ -1,0 +1,101 @@
+<style type="text/css">
+	.bcolor{background-color: #70c1fb}
+	.center{text-align: center;}
+    /*.bgcolor{background-color: :#70c1fb;}*/
+</style>
+<div class="conatiner">
+    <table class="table table-bordered" width="100%">
+         {% if data %}
+        <thead>
+
+            <tr>
+                <th width="14%" class=" center">FG Items</th>
+                <th width="14%" class=" center">FG Item Name</th>
+                <th width="14%" class=" center">UOM</th>
+                <th width="14%" class=" center">FG Qty</th>
+                <th width="14%" class=" center">BOM Items</th>
+                <th width="14%" class=" center">BOM UOM</th>
+                {% for row in data.date_data %}
+                <th width="5%" class=" center">{{frappe.utils.formatdate(row.date,"dd-mm-yyyy") or ""}}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+           {% for row in data.planning_data %}
+            <tr>
+                <td colspan="6" class="bcolor center">Qty To Manufacture</td>
+                {% for item in data.date_data_with_amount %}
+                {% if item.item_code == row.item_code %}
+                <td width="5%" class="bcolor center">{{item.amount}}</td>
+                {% endif %}
+                {% endfor %}
+
+            </tr>  
+            <tr>
+                <td width="14%" class="center">{{row.item_code}}</td>
+                <td width="14%" class="center">{{row.item_name}}</td>
+                <td width="14%" class="center">{{row.uom}}</td>
+                <td width="14%" class="center">{{row.amount}}</td>
+                {% for item in row.bom_data %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                   <td>{{item.item_code }}</td>
+                   <td>{{item.stock_uom}}</td>
+                   {% for row in data.date_data %}
+                   <td>{{item.req_qty}}</td>
+                   {% endfor %}
+                </tr>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+           
+        </tbody>
+         {% endif %}
+    </table>
+</div>
+
+<!-- <div class="conatiner">
+  	<table class="table table-bordered" width="100%">
+         {% if data %}
+    	<thead>
+
+	       	<tr>
+	       		<th width="14%" class="bcolor center">FG Items</th>
+	       		<th width="14%" class="bcolor center">UOM</th>
+	       		<th width="14%" class="bcolor center">FG Qty</th>
+	       		<th width="14%" class="bcolor center">BOM Items</th>
+	       		<th width="14%" class="bcolor center">BOM UOM</th>
+                {% for row in data %}
+                <th>{{row.date}}</th>
+                {% endfor %}
+	      	</tr>
+    	</thead>
+    	<tbody>
+           
+            <tr>
+                <td colspan="5">Qty To Manufacture</td>
+            </tr>
+    		{% for row in data %}
+    		<tr>
+    			<td width="14%" class="center">{{row.item_code}}</td>
+    			<td width="14%" class="center">{{row.uom}}</td>
+    			<td width="14%" class="center">{{row.amount}}</td>
+                {% for item in row.bom_data %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                   <td>{{item.item_code }}</td>
+                   <td>{{item.stock_uom}}</td>
+                </tr>
+                {% endfor %}
+    		</tr>
+    		{% endfor %}
+           
+    	</tbody>
+         {% endif %}
+  	</table>
+</div> -->
