@@ -47,7 +47,21 @@
                             <td>{{row.item_code}}</td>
                             <td>{{row.stock_uom}}</td>
                             <td>{{row.planned_qty}}</td>
+                            <td>{{row.pending_qty}}</td>
+                            <td>{{row.ohs_qty}}</td>
                             {% count = count + 1 %}
+
+
+                            {%for date in data.date_list%}
+                            <!-- {{row[date][required_qty]}} -->
+
+                                <!-- {%for qty_details in row[date]%} -->
+                                    <td class="po_report_row" ></td>
+                                    <td class="po_report_row" ></td>
+                                    <td class="po_report_row" ></td>
+                                    <td class="po_report_row" ></td>
+                                <!-- {%endfor%} -->
+                            {%endfor%}
                         </tr>
                     {%endfor%}
             </table>
