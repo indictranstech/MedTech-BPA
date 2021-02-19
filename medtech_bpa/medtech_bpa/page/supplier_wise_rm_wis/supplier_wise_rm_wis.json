@@ -4,13 +4,20 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2021-02-16 11:37:22.533620",
+ "modified": "2021-02-19 10:49:39.786883",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "supplier-wise-rm-wis",
  "owner": "Administrator",
  "page_name": "Supplier wise RM wise Pending PO against Shortage Report",
- "roles": [],
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Administrator"
+  }
+ ],
  "script": null,
  "standard": "Yes",
  "style": null,
