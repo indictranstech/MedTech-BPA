@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2021-02-15 13:30:52.523060",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2021-02-15 13:30:52.523060",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "plan_availability",
+ "owner": "Administrator",
+ "page_name": "plan_availability",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Administrator"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Planning Vs Availability Report"
+}
