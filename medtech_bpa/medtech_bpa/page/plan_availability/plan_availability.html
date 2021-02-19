@@ -1,7 +1,116 @@
 <style type="text/css">
-	.bcolor{background-color: #70c1fb}
+	/*.bcolor{background-color: #70c1fb}*/
 	.center{text-align: center;}
     /*.bgcolor{background-color: :#70c1fb;}*/
+
+    .table {
+        background-color: white;
+        margin: auto;
+        border-collapse: separate;
+        display: block;
+        overflow-x: scroll;
+    }
+
+    thead, tbody {
+        display: inline-block;
+    }
+
+    .sticky {
+        position: sticky;
+        top: 5px;
+        z-index: 3;
+    }
+
+    tbody {
+        height: 500px;
+    }
+
+    th {
+        background-color: #1E90FF;
+    }
+
+    td,th {
+        /*min-width: 153px;
+        max-width: 153px;*/
+        word-wrap: break-word;
+    }
+
+    .fixed {
+        position: sticky;
+        width: 5em;
+        left: 0;
+        top: auto;
+        z-index: 2;
+    }
+
+    /*td:not(.fixed) {
+        z-index: 0;
+    }*/
+
+    .col2 {
+        position: sticky;
+        left: 9em;
+        top: auto;
+        min-width: 120px;
+        max-width: 120px;
+        text-align: center;
+    }
+    .col3 {
+        position: sticky;
+        left: 18em;
+        top: auto;
+        min-width: 120px;
+        max-width: 120px;
+        text-align: center;
+    }
+    .col4 {
+        position: sticky;
+        left: 27em;
+        top: auto;
+        min-width: 120px;
+        max-width: 120px;
+        text-align: center;
+    }
+    .col5 {
+        position: sticky;
+        left: 36em;
+        top: auto;
+        min-width: 120px;
+        max-width: 120px;
+        text-align: center;
+        background-color: lightgrey;
+    }
+    .col6 {
+        position: sticky;
+        left: 45em;
+        top: auto;
+        min-width: 120px;
+        max-width: 120px;
+        text-align: center;
+        background-color: lightgrey;
+    }
+    .col7 {
+        position: sticky;
+        left: 54em;
+        top: auto;
+        min-width: 120px;
+        max-width: 120px;
+        text-align: center;
+        background-color: lightgrey;
+    }   
+    .ta{
+        text-align: center;
+        word-wrap: break-word;
+        min-width: 126px;
+        max-width: 126px;
+    }
+    .tdate{
+        min-width: 120px;
+        max-width: 120px;
+    }
+    .fixcolor{
+        background-color: #f5f7fa;
+    }
 </style>
 <div class="conatiner">
     <table class="table table-bordered" width="100%">
@@ -9,47 +118,47 @@
         <thead>
 
             <tr>
-                <th width="14%" class=" center">FG Items</th>
-                <th width="14%" class=" center">FG Item Name</th>
-                <th width="14%" class=" center">UOM</th>
-                <th width="14%" class=" center">FG Qty</th>
-                <th width="14%" class=" center">BOM Items</th>
-                <th width="14%" class=" center">BOM UOM</th>
+                <th  class=" center fixed sticky ta">FG Items</th>
+                <th  class=" center fixed ta col2">FG Item Name</th>
+                <th  class=" center ta col3">UOM</th>
+                <th  class=" center ta col4">FG Qty</th>
+                <th  class=" center ta col5" style="background: #1E90FF">BOM Items</th>
+                <th  class=" center ta col6" style="background: #1E90FF">BOM UOM</th>
                 {% for row in data.date_data %}
-                <th width="5%" class=" center">{{frappe.utils.formatdate(row.date,"dd-mm-yyyy") or ""}}</th>
+                <th class=" center tdate">{{frappe.utils.formatdate(row.date,"dd-mm-yyyy") or ""}}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
            {% for row in data.planning_data %}
             <tr>
-                <td colspan="6" class="bcolor center">Qty To Manufacture</td>
+                <td  class="center fixed sticky ta fixcolor">{{row.item_code}}</td>
+                <td  class="center fixed ta col2 fixcolor">{{row.item_name}}</td>
+                <td  class="center ta col3 fixcolor">{{row.uom}}</td>
+                <td  class="center ta col4 fixcolor">{{row.amount}}</td>
+                <td class="center ta col5 fixcolor"></td>
+                <td class="center ta col6 fixcolor"></td>
                 {% for item in data.date_data_with_amount %}
                 {% if item.item_code == row.item_code %}
-                <td width="5%" class="bcolor center">{{item.amount}}</td>
+                <td class="bcolor center tdate">{{item.amount}}</td>
                 {% endif %}
                 {% endfor %}
-
-            </tr>  
-            <tr>
-                <td width="14%" class="center">{{row.item_code}}</td>
-                <td width="14%" class="center">{{row.item_name}}</td>
-                <td width="14%" class="center">{{row.uom}}</td>
-                <td width="14%" class="center">{{row.amount}}</td>
-                {% for item in row.bom_data %}
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                   <td>{{item.item_code }}</td>
-                   <td>{{item.stock_uom}}</td>
+               
+               
+            </tr>
+            {% for item in row.bom_data %}
+             <tr>
+                    <td class="fixed sticky ta fixcolor"></td>
+                    <td class="fixed ta col2 fixcolor"></td>
+                    <td class="ta col3 fixcolor"></td>
+                    <td class="ta col4 fixcolor"></td>
+                   <td class="ta col5 fixcolor">{{item.item_code }}</td>
+                   <td class="ta col6 fixcolor">{{item.stock_uom}}</td>
                    {% for row in data.date_data %}
-                   <td>{{item.get(row.date)}}</td>
+                   <td width="5%">{{item.get(row.date)}}</td>
                    {% endfor %}
                 </tr>
                 {% endfor %}
-            </tr>
             {% endfor %}
            
         </tbody>
@@ -63,8 +172,8 @@
     	<thead>
 
 	       	<tr>
-	       		<th width="14%" class="bcolor center">FG Items</th>
-	       		<th width="14%" class="bcolor center">UOM</th>
+	       		<th  class="bcolor center">FG Items</th>
+	       		<th  class="bcolor center">UOM</th>
 	       		<th width="14%" class="bcolor center">FG Qty</th>
 	       		<th width="14%" class="bcolor center">BOM Items</th>
 	       		<th width="14%" class="bcolor center">BOM UOM</th>
