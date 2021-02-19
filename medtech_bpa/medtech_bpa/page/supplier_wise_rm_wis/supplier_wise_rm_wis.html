@@ -15,10 +15,17 @@
           <th colspan="12" class="bcolor center">Select Period for Planning</th>
       </tr>   
       <tr>
-        <th width="40%" class="bcolor" colspan="2">From Date : {{data[0].from_date}}</th>
+        <th width="40%" class="bcolor" colspan="2">From Date : 
+          {% if data %}
+            {{data[0].from_date}}
+          {% endif %}
+        </th>
         <th width="20%" class="bcolor center"></th>
         <th width="20%" class="bcolor center">To Date</th>
-        <th width="20%" class="bcolor center">{{data[0].to_date}}</th>
+        <th width="20%" class="bcolor center">
+          {% if data %} 
+            {{data[0].to_date}}</th>
+          {% endif %}
       </tr>
       <tr>
         <th width="20%" class="bcolor center" style="vertical-align: top" rowspan="2">Item Name</th>
@@ -44,10 +51,10 @@
         {% for po in row.supplier %}
         <tr>
             <td class="center"></td>
-            <td class="center">{{po or ""}}</td>
+            <td class="center">{{po.supplier or ""}}</td>
             <td class="center"></td>
             <td class="center"></td>
-            <td class="center"></td>
+            <td class="center">{{po.qty or ""}}</td>
         </tr>
         {% endfor %}
         {% endif %}

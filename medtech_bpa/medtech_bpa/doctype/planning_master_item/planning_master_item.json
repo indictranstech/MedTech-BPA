@@ -69,12 +69,13 @@
   {
    "fieldname": "amount",
    "fieldtype": "Float",
-   "label": "Quantity"
+   "label": "Quantity",
+   "precision": "3"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-11 18:22:35.766050",
+ "modified": "2021-02-19 18:50:04.950865",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Planning Master Item",
