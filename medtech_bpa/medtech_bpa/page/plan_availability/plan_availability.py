@@ -38,8 +38,8 @@ def get_planning_master_data(filters=None):
 						current_stock = frappe.db.sql("""SELECT item_code,sum(actual_qty) as qty from `tabBin` where item_code = '{0}' and warehouse in {1}""".format(item.item_code,fg_warehouse_list),as_dict=1)
 						stock_expected = frappe.db.sql("""SELECT i.item_code,sum((i.qty-i.received_qty)) as qty from `tabPurchase Order Item` i join `tabPurchase Order` p on p.name = i.parent where i.item_code = '{0}' and p.schedule_date = '{1}' """.format(item.item_code,col.date),as_dict=1)
 						virtual_stock = flt(current_stock[0].get('qty')) + flt(stock_expected[0].get("qty")) if stock_expected else 0 
-						actual_qty_req = flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty)
-						item.update({col.date:actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty })
+						actual_qty_req = flt(flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty),3)
+						item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty) })
 		row.update({'bom_data':bom_data})
 
 	data.update({'planning_data':planning_data})
