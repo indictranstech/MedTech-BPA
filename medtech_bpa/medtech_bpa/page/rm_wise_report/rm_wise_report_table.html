@@ -22,10 +22,10 @@
             <table id="updates" style="margin-top:10px;">
                     <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center;">
                         <td class="po_report_row" rowspan="2">Sr NO</td>
-                        <td class="po_report_row" rowspan="2">RM Name</td>
+                        <td class="po_report_row" rowspan="2" style="word-wrap: break-word; width: 20%;">RM Name</td>
                         <td class="po_report_row" rowspan="2">UOM</td>
-                        <td class="po_report_row" rowspan="2">Total Planned till from date</td>
-                        <td class="po_report_row" rowspan="2">Pending till from date</td>
+                        <td class="po_report_row" rowspan="2">Total Planned</td>
+                        <td class="po_report_row" rowspan="2">Pending PO</td>
                         <td class="po_report_row" rowspan="2">Current Stock</td>
                         {%for date in data.date_list%}
                             <td class="po_report_row" colspan="4">{{date}}</td>
@@ -34,9 +34,9 @@
                     <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center;">
                         {%for date in data.date_list%}     
                             <td class="po_report_row">Required</td>
-                            <td class="po_report_row">Expected PO</td>
-                            <td class="po_report_row">Short/Access With PO</td>
-                            <td class="po_report_row">Short/Access Without PO</td>
+                            <td class="po_report_row">Exp PO</td>
+                            <td class="po_report_row">Srt/exs PO</td>
+                            <td class="po_report_row">Srt/exs wt PO</td>
                         {%endfor%}
                     </tr>
 
@@ -44,7 +44,7 @@
                     {%for row in data.table_data%}
                         <tr>
                             <td>{{count}}</td>
-                            <td>{{row.item_code}}</td>
+                            <td style="word-wrap: break-word; width: 20%;">{{row.item_code}}</td>
                             <td>{{row.stock_uom}}</td>
                             <td>{{row.planned_qty}}</td>
                             <td>{{row.pending_qty}}</td>
@@ -53,14 +53,10 @@
 
 
                             {%for date in data.date_list%}
-                            <!-- {{row[date][required_qty]}} -->
-
-                                <!-- {%for qty_details in row[date]%} -->
-                                    <td class="po_report_row" ></td>
-                                    <td class="po_report_row" ></td>
-                                    <td class="po_report_row" ></td>
-                                    <td class="po_report_row" ></td>
-                                <!-- {%endfor%} -->
+                                <td class="po_report_row" >{{row[date].required_qty}}</td>
+                                <td class="po_report_row" >{{row[date].expected_po}}</td>
+                                <td class="po_report_row" >{{row[date].with_po}}</td>
+                                <td class="po_report_row" >{{row[date].with_out_po}}</td>
                             {%endfor%}
                         </tr>
                     {%endfor%}

@@ -33,6 +33,7 @@ def get_rm_report_details(planning_master= ''):
 	pm_from_date = frappe.db.get_value('Planning Master', {'name' : planning_master}, 'from_date')
 	# date list
 	pm_date_list = [(pmi.get('date')).strftime('%d-%m-%Y') for pmi in pm_dates]
+	pm_date_ll = [pmi.get('date') for pmi in pm_dates]
 	# item_detail
 	item_data = get_item_details(planning_master)
 	# pp detail
@@ -43,8 +44,9 @@ def get_rm_report_details(planning_master= ''):
 	ohs_detail = get_ohs_qty()
 	# required qty
 	req_qty = get_required_qty_date_wise(planning_master)
+	# date wise po
+	po_date_wise = get_po_qty_date_wise(planning_master)
 
-	# po_date_wise = get_po_qty_date_wise(planning_master)
 
 	table_data = []
 	final_dict = dict()
@@ -58,14 +60,29 @@ def get_rm_report_details(planning_master= ''):
 				'pending_qty' : po_qty_detail.get(item) or 0,
 				'ohs_qty' : ohs_detail.get(item)
 			}
-		update_dict = final_dict.get(item)
-		for date in pm_date_list:
-			update_dict[date] = {
-				'required_qty' : req_qty.get(item).get(date)
-			}
+			count = 1
+			for date in pm_date_ll:
+				update_dict = final_dict.get(item)
+				if count == 1:
+					with_po = (update_dict.get('ohs_qty') + update_dict.get('pending_qty') + po_date_wise.get(item).get(date)) - (update_dict.get('planned_qty') + req_qty.get(item).get(date))
+					with_out_po = (update_dict.get('ohs_qty')) - (update_dict.get('planned_qty') + req_qty.get(item).get(date))
+				else:
+					with_po = (prev_with_po + po_date_wise.get(item).get(date)) - req_qty.get(item).get(date)
+					with_out_po = prev_with_out_po - req_qty.get(item).get(date)
+				prev_with_po = with_po
+				prev_with_out_po = with_out_po
+				count = count + 1
+				update_dict[date.strftime('%d-%m-%Y')] = {
+					'required_qty' : req_qty.get(item).get(date),
+					'expected_po' : po_date_wise.get(item).get(date),
+					'with_po' : with_po,
+					'with_out_po' : with_out_po
+				}
+
 
 		for row in final_dict:
 			table_data.append(final_dict.get(row))
+
 
 	data = dict()
 	data['date_list'] = pm_date_list
@@ -106,7 +123,7 @@ def get_production_planning_details(planning_master, pm_from_date):
 
 
 def get_po_qty_detail(planning_master, pm_from_date):
-	query = frappe.db.sql("select pi.parent, pi.name, pi.item_code, case when po.schedule_date < '{0}' then (pi.qty - pi.received_qty) end as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100  and pmi.planning_master_parent = '{1}' group by pi.item_code, pi.parent order by pi.name".format(pm_from_date, planning_master), as_dict =1)
+	query = frappe.db.sql("select pi.parent, pi.name, pi.item_code, case when pi.expected_delivery_date < '{0}' then (pi.qty - pi.received_qty) end as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100  and pmi.planning_master_parent = '{1}' group by pi.item_code, pi.parent order by pi.name".format(pm_from_date, planning_master), as_dict =1)
 	item_dict = dict()
 	for item in query:
 		if item.item_code in item_dict:
@@ -139,8 +156,7 @@ def get_ohs_qty():
 
 
 def get_required_qty_date_wise(planning_master):
-	print('++++++++++++++++++++++++++++++++req_dictttttt+++++++++++++++++++++++++++++++')
-	required_date_wise = frappe.db.sql("select bi.item_code, pmi.date, bi.stock_qty, sum(pmi.amount), (bi.stock_qty * sum(pmi.amount)) as cal_qty from `tabBOM Explosion Item` bi join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where pmi.planning_master_parent = '{0}' group by pmi.date, bi.item_code".format(planning_master), as_dict = 1)
+	required_date_wise = frappe.db.sql("select bi.item_code, pmi.date, bi.stock_qty, sum(pmi.amount), (bi.stock_qty * sum(pmi.amount)) as cal_qty from `tabBOM Explosion Item` bi join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where pmi.planning_master_parent = '{0}' group by pmi.date, bi.item_code".format(planning_master), as_dict = 1, debug=1)
 	req_dict = dict()
 	for item in required_date_wise:
 		if item.item_code in req_dict:
@@ -150,114 +166,39 @@ def get_required_qty_date_wise(planning_master):
 			req_dict[item.item_code] = {
 				item.date : item.cal_qty
 			}
-
 	return req_dict
-
 
 
 def get_po_qty_date_wise(planning_master):
-	query = frappe.db.sql("select pi.parent, po.schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100  and pmi.planning_master_parent = '{0}' group by po.schedule_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1, debug =1)
+	query = frappe.db.sql("select pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1, debug =1)
 	req_dict = dict()
+
+	item_list = get_item_details(planning_master)
 	for item in query:
 		if item.item_code in req_dict:
 			update_dict = req_dict.get(item.item_code)
-			print(update_dict)
-			print(update_dict[item.date],' = ', update_dict.get(item.date),' + ', item.cal_qty)
-			if item.date in update_dict:
-				update_dict[item.date] = update_dict.get(item.date) + item.cal_qty
+			if item.schedule_date in update_dict:
+				update_dict[item.schedule_date] = update_dict.get(item.schedule_date) + item.quantity
+			else:
+				update_dict[item.schedule_date] = item.quantity
 		else:
 			req_dict[item.item_code] = {
-				item.date : item.cal_qty
+				item.schedule_date : item.quantity
 			}
-	print('*************************************************************')
-	print(req_dict)
-	print("*************************************************************")
+
+	pm_date_list = get_pm_details(planning_master)
+	date_list = [pmi.get('date') for pmi in pm_date_list]
+	for item in item_list:
+		if item in req_dict:
+			data = req_dict.get(item)
+			for date in date_list:
+				if date not in data:
+					data[date] = 0
+		else:
+			req_dict[item] = dict()
+			data = req_dict.get(item)
+			for date in date_list:
+				data[date] = 0
 	return req_dict
 
 
-
-
-# @frappe.whitelist()
-# def create_file(project= '', from_date = '', to_date= '', po = '', item= '', po_toc_status = ''):
-# 	data = get_po_report_details(project, from_date, to_date, po, item, po_toc_status)
-# 	file = str(time.time())
-# 	now = datetime.now()
-# 	fname = "PO_Report_" + now.strftime("%H:%M:%S") + ".xlsx"
-# 	file_name = make_xlsx_csv(data, fname)
-# 	return file_name
-
-# def make_xlsx_csv(data, fname):
-# 	# Create a workbook and add a worksheet.
-# 	file = frappe.utils.get_site_path("public")+"/"+ fname
-# 	workbook = xlsxwriter.Workbook(file)
-# 	worksheet = workbook.add_worksheet()
-# 	bold = workbook.add_format({'bold': True})
-# 	worksheet.set_column('A:BE', 18)
-# 	headers_list = ["PO NO","PO Date","Part Code","Part Description","Job No","Supplier Name","Part Qty","Received Qty","Balanced Qty","Rate","Amount","Lead Time","Remark","Item Category","Inventory On Hand","TOG","Occurance","Nett Balance Quantity","On Order","On Hand plus On Order","Order Color"]
-
-# 	col = 0
-# 	for header_data in headers_list:
-# 		cell_Style_format = workbook.add_format({'bold': True, 'font_color': "#FFFFFF", 'bg_color': "#5e64ff", 'align': 'center','border':1})
-# 		worksheet.write(1, col, header_data, cell_Style_format)
-# 		col = col + 1
-
-# 	final_data_list = []
-# 	all_data_details = data
-# 	for details in all_data_details:
-# 		temp = []
-# 		temp.append(details.get("po_no"))
-# 		temp.append(details.get("po_date"))
-# 		temp.append(details.get("part_code"))
-# 		temp.append(details.get("part_description"))
-# 		temp.append(details.get("job_no"))
-# 		temp.append(details.get("supplier_name"))
-# 		temp.append(details.get("po_qty"))
-# 		temp.append(details.get("received_qty"))
-# 		temp.append(details.get("bal_qty"))
-# 		temp.append(details.get("rate"))
-# 		temp.append(details.get("amount"))
-# 		temp.append(details.get("lead_time"))
-# 		temp.append(details.get("remark"))
-# 		temp.append(details.get("item_category"))
-# 		temp.append(details.get("inventory_on_hand"))
-# 		temp.append(details.get("tog"))
-# 		temp.append(details.get("occurance"))
-# 		temp.append(details.get("net_balance_qty"))
-# 		temp.append(details.get("on_order"))
-# 		temp.append(details.get("on_hand_plus_order"))
-# 		temp.append(details.get("order_color"))
-# 		final_data_list.append(temp)
-# 	row_cnt = 2
-# 	col_cnt = 0
-# 	for final_data in final_data_list:
-# 		col_cnt = 0
-# 		for value in final_data:
-# 			format2 = workbook.add_format({'border':1,'border_color':'#000000'})
-# 			worksheet.write(row_cnt, col_cnt, value,format2)
-# 			col_cnt += 1
-# 		row_cnt += 1
-
-# 	workbook.close()
-# 	return fname
-
-
-# # ---------- Export Function API to Download created file
-# @frappe.whitelist()
-# def download_xlsx(name):
-# 	import openpyxl
-# 	file_path = frappe.utils.get_site_path("public")
-# 	wb = openpyxl.load_workbook(file_path+'/'+name)
-# 	xlsx_file = io.BytesIO()
-# 	wb.save(xlsx_file)
-# 	xlsx_file.seek(0)
-# 	frappe.local.response.filecontent=xlsx_file.getvalue()
-# 	frappe.local.response.type = "download"
-# 	filename = name
-# 	frappe.local.response.filename = filename
-# 	return filename
-
-# @frappe.whitelist()
-# def get_buffer_levels():
-# 	buffer_levels_timeline_terms = data = frappe.db.sql("SELECT terms FROM `tabBuffer Levels` where buffer_type = 'Timeline'", as_list = 1)
-# 	buffer_levels_timeline_terms.insert(0, "")
-# 	return buffer_levels_timeline_terms
