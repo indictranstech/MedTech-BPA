@@ -79,7 +79,6 @@ def get_rm_report_details(planning_master= ''):
 					'with_out_po' : with_out_po
 				}
 
-
 		for row in final_dict:
 			table_data.append(final_dict.get(row))
 

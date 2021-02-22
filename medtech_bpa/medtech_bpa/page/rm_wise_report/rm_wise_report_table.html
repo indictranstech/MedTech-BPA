@@ -14,7 +14,10 @@
   }
   tbody tr td{
     width:100px;
-  }.po_report_row{height: 40px;font-weight: 500;font-size: 25px;}
+  }
+  .po_report_row{height: 40px;font-weight: 500;font-size: 25px;}
+
+  
 </style>
 <div class="order_table">
     <table id="updates">
@@ -24,8 +27,8 @@
                         <td class="po_report_row" rowspan="2">Sr NO</td>
                         <td class="po_report_row" rowspan="2" style="word-wrap: break-word; width: 20%;">RM Name</td>
                         <td class="po_report_row" rowspan="2">UOM</td>
-                        <td class="po_report_row" rowspan="2">Total Planned</td>
-                        <td class="po_report_row" rowspan="2">Pending PO</td>
+                        <td class="po_report_row" rowspan="2">Total Production Planned Till From Date</td>
+                        <td class="po_report_row" rowspan="2">Pending PO Qty till From Date</td>
                         <td class="po_report_row" rowspan="2">Current Stock</td>
                         {%for date in data.date_list%}
                             <td class="po_report_row" colspan="4">{{date}}</td>
@@ -34,9 +37,9 @@
                     <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center;">
                         {%for date in data.date_list%}     
                             <td class="po_report_row">Required</td>
-                            <td class="po_report_row">Exp PO</td>
-                            <td class="po_report_row">Srt/exs PO</td>
-                            <td class="po_report_row">Srt/exs wt PO</td>
+                            <td class="po_report_row">Expected PO</td>
+                            <td class="po_report_row">Short/Excess with PO</td>
+                            <td class="po_report_row">Short/Excess without PO</td>
                         {%endfor%}
                     </tr>
 
