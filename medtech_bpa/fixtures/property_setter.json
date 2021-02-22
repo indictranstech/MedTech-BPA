@@ -2667,5 +2667,22 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Purchase Order Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "expected_delivery_date",
+  "modified": "2021-02-22 19:56:28.731857",
+  "name": "Purchase Order Item-expected_delivery_date-allow_on_submit",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "allow_on_submit",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "0"
  }
 ]
