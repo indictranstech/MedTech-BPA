@@ -16,7 +16,7 @@ frappe.rm_wise_report = Class.extend({
 		$(frappe.render_template('rm_wise_report_html')).appendTo(this.page);
 		me.base_data()		
 		me.planning_master()
-		// me.from_date()
+		me.from_date()
 		// me.to_date()
 		// me.po()
 		// me.item()
@@ -68,14 +68,7 @@ frappe.rm_wise_report = Class.extend({
 						async :false,
 						callback: function(r) {
 							if(r.message){
-								console.log("------------------------------")
-								console.log(r.message)
-								console.log("------------------------------")
-								// $("#from_date").val(planning_master.get_value())
-								// $("#to_date").val(planning_master.get_value())
-								// frappe.query_report.set_filter_value('item_category', r.message['item_category']);
-								// frappe.query_report.set_filter_value('item_type', r.message['item_type']);
-								// frappe.query_report.set_filter_value('cladding_required', r.message['cladding_required']);
+								$("[data-fieldname=from_date]").val(r.message['from_date'])
 							}
 						}
 					});
