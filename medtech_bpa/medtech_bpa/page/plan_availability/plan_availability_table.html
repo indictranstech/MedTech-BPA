@@ -1,0 +1,119 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  .order_table{
+    overflow: auto;
+  }
+  .order_table table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+  }
+  .order_table table,
+  .order_table table th,
+  .order_table table td{
+    border:1px solid;
+   }
+  .order_table table th,
+  .order_table table td{
+    padding:6px 12px;
+    line-height: 1.3;
+  }
+  .order_table table th{
+    background: #0095ff;
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+    letter-spacing: .4px;
+    border-color:#0579ce;
+  }
+  .order_table table td{
+    font-size: 13px;
+    border-color:#e0dede;
+  }
+  .order_date .form-group{
+    display: flex;
+    margin: 24px auto 0;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .order_date .form-group label{
+    margin-right: 8px;
+    font-size: 14px;
+    vertical-align: middle;
+    margin-top: -8px;
+  }
+  .btn-sm{
+    padding:3px 8px !important;
+  }
+  .btn-orange{ background: #217b04;color:white;}
+  .btn-orange1{ background: #129198;color:white;}
+
+  .btn-info{ background: #234d7b;}
+  .d-flex{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  .ml-2{
+    margin-left:8px;
+  }
+  .noDisplay{
+    display:none;
+  }
+  .btn-info{ background: #234d7b;}
+</style>
+<div class="row border">
+  
+
+<div class="col-md-12 ">
+  <div class="order_table">
+    <table id="updates">
+  <thead>
+    <th>FG Item</th>
+    <th>FG Item Name</th>
+    <th>UOM</th>
+    <th>FG Qty</th>
+    <th>BOM Items</th>
+   <th >BOM UOM</th>
+    {% for row in data.date_data %}
+                <th width="5%" class=" center">{{frappe.utils.formatdate(row.date,"dd-mm-yyyy") or ""}}</th>
+                {% endfor %}
+  </thead>
+  <tbody>
+{% for row in data.planning_data %}
+            <tr>
+                <td colspan="6" class="bcolor center">Qty To Manufacture</td>
+                {% for item in data.date_data_with_amount %}
+                {% if item.item_code == row.item_code %}
+                <td width="5%" class="bcolor center">{{item.amount}}</td>
+                {% endif %}
+                {% endfor %}
+
+            </tr>  
+            <tr>
+                <td width="14%" class="center">{{row.item_code}}</td>
+                <td width="14%" class="center">{{row.item_name}}</td>
+                <td width="14%" class="center">{{row.uom}}</td>
+                <td width="14%" class="center">{{row.amount}}</td>
+                {% for item in row.bom_data %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                   <td>{{item.item_code }}</td>
+                   <td>{{item.stock_uom}}</td>
+                   {% for row in data.date_data %}
+                   <td>{{item.req_qty}}</td>
+                   {% endfor %}
+                </tr>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+           
+        </tbody>
+         {% endif %}
+  </table>
+  </div>
+</div>
+</div>
