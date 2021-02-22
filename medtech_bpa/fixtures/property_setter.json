@@ -2675,7 +2675,7 @@
   "doctype": "Property Setter",
   "doctype_or_field": "DocField",
   "field_name": "expected_delivery_date",
-  "modified": "2021-02-22 19:56:28.731857",
+  "modified": "2021-02-22 20:13:28.257615",
   "name": "Purchase Order Item-expected_delivery_date-allow_on_submit",
   "parent": null,
   "parentfield": null,
@@ -2683,6 +2683,6 @@
   "property": "allow_on_submit",
   "property_type": "Check",
   "row_name": null,
-  "value": "0"
+  "value": "1"
  }
 ]
