@@ -155,7 +155,7 @@
                    <td class="ta col5 fixcolor">{{item.item_code }}</td>
                    <td class="ta col6 fixcolor">{{item.stock_uom}}</td>
                    {% for row in data.date_data %}
-                   <td width="5%">{{item.get(row.date)}}</td>
+                   <td class="center" width="5%">{{item.get(row.date)}}</td>
                    {% endfor %}
                 </tr>
                 {% endfor %}
