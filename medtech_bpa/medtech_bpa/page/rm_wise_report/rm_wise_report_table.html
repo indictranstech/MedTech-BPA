@@ -144,8 +144,8 @@
             <th class="po_report_row center fixed sticky ta" rowspan="2">Sr NO</th>
             <th class="po_report_row ta col2 center" rowspan="2">RM Name</th>
             <th class="po_report_row ta col3" rowspan="2">UOM</th>
-            <th class="po_report_row ta col4" rowspan="2">Total Production Planned Till From Date</th>
-            <th class="po_report_row ta col5" rowspan="2">Pending PO Qty till From Date</th>
+            <th class="po_report_row ta col4" rowspan="2">Total Production Planned Qty Till {{data.from_date}}</th>
+            <th class="po_report_row ta col5" rowspan="2">Pending PO Qty Till {{data.from_date}}</th>
             <th class="po_report_row ta col6" rowspan="2">Current Stock</th>
             {%for date in data.date_list%}
                 <th class="ta" colspan="4">{{date}}</th>
@@ -164,18 +164,56 @@
         {%for row in data.table_data%}
         <tr>
             <td class="fixed sticky ta fixcolor">{{count}}</td>
-            <td class="ta col2 fixcolor word" >{{row.item_code}}</td>
+            <td class="ta col2 fixcolor word" >{{row.item_code}} - {{row.item_name}}</td>
             <td class="ta col3 fixcolor">{{row.stock_uom}}</td>
-            <td class="ta col4 fixcolor">{{row.planned_qty}}</td>
-            <td class="ta col5 fixcolor">{{row.pending_qty}}</td>
-            <td class="ta col6 fixcolor">{{row.ohs_qty}}</td>
+            {% if row.planned_qty >= 0 %}
+                <td class="ta col4 fixcolor">{{row.planned_qty}}</td>
+            {% else %}
+                <td class="ta col4 fixcolor" style="background-color:#ff0000;">{{row.planned_qty}}</td>
+            {% endif %}
+
+
+            {% if row.pending_qty >= 0 %}
+                <td class="ta col5 fixcolor" >{{row.pending_qty}}</td>
+            {% else %}
+                <td class="ta col5 fixcolor" style="background-color:#ff0000;">{{row.pending_qty}}</td>
+            {% endif %}
+
+            {% if row.ohs_qty >= 0 %}
+                <td class="ta col6 fixcolor">{{row.ohs_qty}}</td>
+            {% else %}
+                <td class="ta col6 fixcolor" style="background-color:#ff0000;">{{row.ohs_qty}}</td>
+            {% endif %}
+            
+            
+            
             {% count = count + 1 %}
 
             {%for date in data.date_list%}
-                <td class="ta">{{row[date].required_qty}}</td>
-                <td class="ta">{{row[date].expected_po}}</td>
-                <td class="ta">{{row[date].with_po}}</td>
-                <td class="ta">{{row[date].with_out_po}}</td>
+                {% if row[date].required_qty >= 0 %}
+                    <td class="ta">{{row[date].required_qty}}</td>
+                {% else %}
+                    <td class="ta" style="background-color:#ff0000;">{{row[date].required_qty}}</td>
+                {% endif %}
+
+                {% if row[date].expected_po >= 0 %}
+                    <td class="ta">{{row[date].expected_po}}</td>
+                {% else %}
+                    <td class="ta"  style="background-color:#ff0000;">{{row[date].expected_po}}</td>
+                {% endif %}
+
+                {% if row[date].with_po >= 0 %}
+                    <td class="ta">{{row[date].with_po}}</td>
+                {% else %}
+                    <td class="ta"  style="background-color:#ff0000;">{{row[date].with_po}}</td>
+                {% endif %}
+
+                {% if row[date].with_out_po >= 0 %}
+                    <td class="ta">{{row[date].with_out_po}}</td>
+                {% else %}
+                    <td class="ta"  style="background-color:#ff0000;">{{row[date].with_out_po}}</td>
+                {% endif %}
+                
             {%endfor%}
         </tr>
         {%endfor%}
