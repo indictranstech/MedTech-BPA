@@ -68,7 +68,7 @@ frappe.rm_wise_report = Class.extend({
 						async :false,
 						callback: function(r) {
 							if(r.message){
-								$("[data-fieldname=from_date]").val(r.message['from_date'])
+								$("[data-fieldname=from_date]").val(r.message[0].from_date)
 							}
 						}
 					});
