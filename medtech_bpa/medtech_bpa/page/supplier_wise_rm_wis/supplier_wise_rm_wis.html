@@ -1,7 +1,7 @@
 <style type="text/css">
 	.bcolor{background-color: #70c1fb}
 	.center{text-align: center;}
-    .top{vertical-align: top;}
+  .top{vertical-align: top;}
 </style>
 
 
@@ -17,15 +17,16 @@
       <tr>
         <th width="40%" class="bcolor" colspan="2">From Date : 
           {% if data %}
-            {{data[0].from_date}}
+            {{frappe.utils.formatdate(data[0].from_date,"dd-mm-yyyy") or ""}}
           {% endif %}
         </th>
         <th width="20%" class="bcolor center"></th>
         <th width="20%" class="bcolor center">To Date</th>
         <th width="20%" class="bcolor center">
           {% if data %} 
-            {{data[0].to_date}}</th>
+            {{frappe.utils.formatdate(data[0].to_date,"dd-mm-yyyy") or ""}}
           {% endif %}
+        </th>
       </tr>
       <tr>
         <th width="20%" class="bcolor center" style="vertical-align: top" rowspan="2">Item Name</th>
@@ -43,9 +44,28 @@
         <tr>
             <td class="center">{{row.item_code}} - {{row.item_name}}</td>
             <td class="center"></td>
-            <td class="center">{{row.consider_po_qty or ""}}</td>
-            <td class="center">{{row.no_consider_po_qty or ""}}</td>
-            <td class="center">{{row.po_qty or ""}}</td>
+            {% if row.consider_po_qty > 0 %}
+            <td class="center">{{ row.consider_po_qty }}</td>
+            {% else %}
+            <td class="center" style="background-color:#ff0000">{{ row.consider_po_qty }}</td>
+            {% endif %}
+
+            {% if row.no_consider_po_qty > 0 %}
+            <td class="center">{{ row.no_consider_po_qty }}</td>
+            {% else %}
+            <td class="center" style="background-color:#ff0000">{{ row.no_consider_po_qty }}</td>
+            {% endif %}
+
+            {% if row.po_qty > 0 %}
+             <td class="center">{{ row.po_qty }}</td>
+            {% else %}
+             <td class="center">{{ row.po_qty }}</td>
+            {% endif %}
+
+
+
+            
+           
         </tr>
         {% if(row.supplier) %}
         {% for po in row.supplier %}
