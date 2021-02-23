@@ -9,6 +9,7 @@ from frappe.utils import nowdate, cstr, flt, cint, now, getdate,get_datetime,tim
 from datetime import datetime,date, timedelta
 import time
 from collections import OrderedDict
+from frappe.utils import nowdate,nowtime, today, flt
 
 import json
 # import pandas as pd
@@ -27,6 +28,8 @@ from collections import OrderedDict
 
 @frappe.whitelist()
 def get_rm_report_details(planning_master= ''):
+
+	precision = frappe.db.get_singles_value('System Settings', 'float_precision')
 	# planning master
 	pm_dates = get_pm_details(planning_master)
 	# planning master detail
@@ -47,7 +50,6 @@ def get_rm_report_details(planning_master= ''):
 	# date wise po
 	po_date_wise = get_po_qty_date_wise(planning_master)
 
-
 	table_data = []
 	final_dict = dict()
 	date_wise_details =dict()
@@ -55,10 +57,11 @@ def get_rm_report_details(planning_master= ''):
 		for item in item_data:
 			final_dict[item] = {
 				'item_code' : item,
+				'item_name' : frappe.db.get_value("Item", {'item_code': item}, 'item_name'),
 				'stock_uom' : item_data.get(item),
-				'planned_qty' : pp_details.get(item) or 0,
-				'pending_qty' : po_qty_detail.get(item) or 0,
-				'ohs_qty' : ohs_detail.get(item)
+				'planned_qty' : flt(pp_details.get(item), precision) or 0,
+				'pending_qty' : flt(po_qty_detail.get(item), precision) or 0,
+				'ohs_qty' : flt(ohs_detail.get(item), precision)
 			}
 			count = 1
 			for date in pm_date_ll:
@@ -73,19 +76,19 @@ def get_rm_report_details(planning_master= ''):
 				prev_with_out_po = with_out_po
 				count = count + 1
 				update_dict[date.strftime('%d-%m-%Y')] = {
-					'required_qty' : req_qty.get(item).get(date),
-					'expected_po' : po_date_wise.get(item).get(date),
-					'with_po' : with_po,
-					'with_out_po' : with_out_po
+					'required_qty' : flt(req_qty.get(item).get(date), precision),
+					'expected_po' : flt(po_date_wise.get(item).get(date), precision),
+					'with_po' : flt(with_po, precision),
+					'with_out_po' : flt(with_out_po, precision)
 				}
 
 		for row in final_dict:
 			table_data.append(final_dict.get(row))
 
-
 	data = dict()
 	data['date_list'] = pm_date_list
 	data['table_data'] = table_data
+	data['from_date'] = (pm_from_date).strftime('%d-%m-%Y') if pm_from_date else ''
 
 	return data
 
@@ -110,7 +113,7 @@ def get_item_details(planning_master):
 
 
 def get_production_planning_details(planning_master, pm_from_date):
-	pp_details = frappe.db.sql("select  mri.parent, mri.item_code, case when pp.posting_date <= '{0}' then mri.quantity end as quantity, mri.uom  from  `tabProduction Plan` pp join `tabMaterial Request Plan Item` mri on mri.parent = pp.name join `tabBOM Explosion Item` bi on bi.item_code = mri.item_code join `tabBOM` b on b.name = bi.parent join `tabPlanning Master Item` pmi on pmi.bom = b.name where pp.docstatus = 1 and pp.status in ('Not Started', 'Submitted', 'In Process') and pmi.planning_master_parent = '{1}'  group by mri.item_code, mri.parent".format(pm_from_date, planning_master), as_dict=1)
+	pp_details = frappe.db.sql("select  mri.parent, mri.item_code, case when pp.posting_date between '{0}' and '{1}' then mri.quantity else 0 end as quantity, mri.uom  from  `tabProduction Plan` pp join `tabMaterial Request Plan Item` mri on mri.parent = pp.name join `tabBOM Explosion Item` bi on bi.item_code = mri.item_code join `tabBOM` b on b.name = bi.parent join `tabPlanning Master Item` pmi on pmi.bom = b.name where pp.docstatus = 1 and pp.status in ('Not Started', 'Submitted', 'In Process') and pmi.planning_master_parent = '{2}'  group by mri.item_code, mri.parent".format(today(), pm_from_date, planning_master), as_dict=1)
 	item_dict = dict()
 
 	for item in pp_details:
@@ -155,7 +158,7 @@ def get_ohs_qty():
 
 
 def get_required_qty_date_wise(planning_master):
-	required_date_wise = frappe.db.sql("select bi.item_code, pmi.date, bi.stock_qty, sum(pmi.amount), (bi.stock_qty * sum(pmi.amount)) as cal_qty from `tabBOM Explosion Item` bi join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where pmi.planning_master_parent = '{0}' group by pmi.date, bi.item_code".format(planning_master), as_dict = 1, debug=1)
+	required_date_wise = frappe.db.sql("select bi.item_code, pmi.date, bi.stock_qty, sum(pmi.amount), (bi.stock_qty * sum(pmi.amount)) as cal_qty from `tabBOM Explosion Item` bi join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where pmi.planning_master_parent = '{0}' group by pmi.date, bi.item_code".format(planning_master), as_dict = 1)
 	req_dict = dict()
 	for item in required_date_wise:
 		if item.item_code in req_dict:
@@ -169,7 +172,7 @@ def get_required_qty_date_wise(planning_master):
 
 
 def get_po_qty_date_wise(planning_master):
-	query = frappe.db.sql("select pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1, debug =1)
+	query = frappe.db.sql("select pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1)
 	req_dict = dict()
 
 	item_list = get_item_details(planning_master)
