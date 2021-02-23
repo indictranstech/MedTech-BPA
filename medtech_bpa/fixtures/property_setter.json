@@ -2632,6 +2632,57 @@
   "property": "options",
   "property_type": "Text",
   "row_name": null,
-  "value": "PUR-ORD-.YYYY.-\nMLPL-.YYYY.-PO"
+  "value": "\nMLPL-.YYYY.-PO"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Purchase Order Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "expected_delivery_date",
+  "modified": "2021-02-22 19:33:42.645971",
+  "name": "Purchase Order Item-expected_delivery_date-bold",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "bold",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "0"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Purchase Order Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "expected_delivery_date",
+  "modified": "2021-02-22 19:34:52.415108",
+  "name": "Purchase Order Item-expected_delivery_date-reqd",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "reqd",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Purchase Order Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "expected_delivery_date",
+  "modified": "2021-02-22 20:13:28.257615",
+  "name": "Purchase Order Item-expected_delivery_date-allow_on_submit",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "allow_on_submit",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
  }
 ]
