@@ -30,7 +30,7 @@
       <tr>
         <th width="20%" class="bcolor center" style="vertical-align: top" rowspan="2">Item Name</th>
         <th width="20%" class="bcolor center top" style="vertical-align: top" rowspan="2">Supplier</th>
-        <th width="40%" class="bcolor center" colspan="2">Shortage Qty</th>
+        <th width="40%" class="bcolor center" colspan="2">Shortage/ Excess Qty</th>
         <th width="20%" class="bcolor center top" style="vertical-align: top" rowspan="2">Pending PO</th>
       </tr>
       <tr>
@@ -41,7 +41,7 @@
     <tbody>
         {% for row in data %}
         <tr>
-            <td class="center">{{row.item_code}}</td>
+            <td class="center">{{row.item_code}} - {{row.item_name}}</td>
             <td class="center"></td>
             <td class="center">{{row.consider_po_qty or ""}}</td>
             <td class="center">{{row.no_consider_po_qty or ""}}</td>
