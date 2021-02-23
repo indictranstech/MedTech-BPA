@@ -117,6 +117,7 @@ def get_planing_master_details(filters=None):
 	pp_data=[{'item_code':k, 'qty':sum(v)} for k, v in values_by_item.items()]
 
 	for row in new_data:
+		row['item_name']=frappe.db.get_value("Item", {'item_code':row.get('item_code')}, 'item_name')
 		for pp in pp_data:
 			if row.get('item_code') == pp.get('item_code'):
 				row['consider_po_qty'] = round((row.get('consider_po_qty')-pp.get('qty')),3)
