@@ -51,8 +51,8 @@ def get_planing_master_details(filters=None):
 
 	posting_time = nowtime()
 	for row in new_data:
-		row['from_date'] = from_date
-		row['to_date'] = planning_master[0].get('to_date')
+		row['from_date'] = from_date.strftime('%d-%m-%Y')
+		row['to_date'] = (planning_master[0].get('to_date')).strftime('%d-%m-%Y')
 		row['po_qty']=0.0
 		row['consider_po_qty']=0.0
 		row['current_stock'] = 0.0
@@ -69,7 +69,7 @@ def get_planing_master_details(filters=None):
 	#calculate pending po qty
 	po_data = []
 	for row in new_data:
-		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code, b.qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1 and a.schedule_date<='{0}' and b.item_code='{1}'""".format(row.get('to_date'), row.get('item_code')), as_dict=1)
+		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code, b.qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1 and b.expected_delivery_date <= '{0}' and b.item_code='{1}'""".format(row.get('to_date'), row.get('item_code')), as_dict=1)
 
 		for po in po_details:
 			accept_qty = frappe.db.get_values("Purchase Receipt Item", {'purchase_order':po.get('name'), 'item_code':po.get('item_code')}, ['item_code', 'actual_accepted_qty', 'parent', 'purchase_order'], as_dict=1)
