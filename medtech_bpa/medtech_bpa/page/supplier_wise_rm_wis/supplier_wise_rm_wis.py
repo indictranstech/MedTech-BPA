@@ -16,6 +16,7 @@ def get_planing_master_details(filters=None):
 	filters = json.loads(filters)
 	data =[]
 	from_date = datetime.date.today()
+	precision=frappe.db.get_singles_value('System Settings', 'float_precision')
 	planning_master=frappe.db.sql("""SELECT name, from_date, to_date from `tabPlanning Master` where {0} """.format(get_filters_codition(filters)), as_dict=1)
 
 	bom_name = frappe.db.sql("""SELECT name, bom, amount from `tabPlanning Master Item` where planning_master_parent='{0}' and date>='{1}' and date<='{2}'""".format(planning_master[0].get('name'), planning_master[0].get('from_date'), planning_master[0].get('to_date')), as_dict=1)
@@ -51,8 +52,8 @@ def get_planing_master_details(filters=None):
 
 	posting_time = nowtime()
 	for row in new_data:
-		row['from_date'] = from_date.strftime('%d-%m-%Y')
-		row['to_date'] = (planning_master[0].get('to_date')).strftime('%d-%m-%Y')
+		row['from_date'] = from_date
+		row['to_date'] = (planning_master[0].get('to_date'))
 		row['po_qty']=0.0
 		row['consider_po_qty']=0.0
 		row['current_stock'] = 0.0
@@ -83,7 +84,7 @@ def get_planing_master_details(filters=None):
 	for row in new_data:			
 		for poqty in po_data:
 			if row.get('item_code') == poqty.item_code:
-				row['po_qty']+=round(poqty.qty, 3)
+				row['po_qty']+=flt(poqty.qty, precision)
 				supplier.append({'supplier':poqty.supplier, 'qty':poqty.qty, 'item_code':poqty.item_code})
 	
 	outputList=[]
@@ -99,8 +100,8 @@ def get_planing_master_details(filters=None):
 				supplier_data=[{'supplier':k, 'qty':sum(v)} for k, v in values_by_supplier.items()]
 				row['supplier']=supplier_data
 
-		row['consider_po_qty']=(row.get('current_stock')+row.get('po_qty'))-row.get('planing_qty')
-		row['no_consider_po_qty']=row.get('current_stock')-row.get('planing_qty')
+		row['consider_po_qty']=flt((row.get('current_stock')+row.get('po_qty'))-row.get('planing_qty'), precision)
+		row['no_consider_po_qty']=flt((row.get('current_stock')-row.get('planing_qty')),precision)
 
 
 	#Production plan qty calculation
@@ -120,8 +121,8 @@ def get_planing_master_details(filters=None):
 		row['item_name']=frappe.db.get_value("Item", {'item_code':row.get('item_code')}, 'item_name')
 		for pp in pp_data:
 			if row.get('item_code') == pp.get('item_code'):
-				row['consider_po_qty'] = round((row.get('consider_po_qty')-pp.get('qty')),3)
-				row['no_consider_po_qty'] = round((row.get('no_consider_po_qty')-pp.get('qty')),3)
+				row['consider_po_qty'] = flt((row.get('consider_po_qty')-pp.get('qty')),precision)
+				row['no_consider_po_qty'] = flt((row.get('no_consider_po_qty')-pp.get('qty')),precision)
 
 
 	path = 'medtech_bpa/medtech_bpa/page/supplier_wise_rm_wis/supplier_wise_rm_wis.html'
