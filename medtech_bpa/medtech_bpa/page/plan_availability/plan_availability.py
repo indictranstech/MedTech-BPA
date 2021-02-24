@@ -15,9 +15,8 @@ from erpnext.manufacturing.doctype.bom.bom import get_bom_items_as_dict
 def get_planning_master_data(filters=None):
 	filters = json.loads(filters)
 	data = {}
-
+	precision=frappe.db.get_singles_value('System Settings', 'float_precision')
 	planning_master = filters.get("planning_master")
-
 	# fetch date_data 
 	date_data = get_date_data(planning_master)
 
@@ -55,19 +54,19 @@ def get_planning_master_data(filters=None):
 							current_stock = get_current_stock(item.item_code,fg_warehouse_list)
 							stock_expected = get_expected_stock(item.item_code,col.date)
 							virtual_stock = flt(current_stock[0].get('qty')) + flt(stock_expected[0].get("qty")) if stock_expected else 0
-							actual_qty_req = flt(flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty),3)
+							actual_qty_req = flt(flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty),precision)
 							item_dict.update({item.item_code:actual_qty_req if actual_qty_req > 0 else 0} )
 							item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty) })
 						elif item.item_code in item_dict and col.date in row:
-							actual_qty_req = flt(flt(item_dict.get(item.item_code)) - flt(raw_materials.get(item.item_code).qty),3)
+							actual_qty_req = flt(flt(item_dict.get(item.item_code)) - flt(raw_materials.get(item.item_code).qty),precision)
 							item_dict.update({item.item_code:actual_qty_req if actual_qty_req > 0 else 0})
 							item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty) })
 						else:
 							stock_expected = get_expected_stock(item.item_code,col.date)
 							virtual_stock = flt(item_dict.get(item.item_code).get(col.date)) + flt(stock_expected[0].get("qty")) if stock_expected else 0 
-							actual_qty_req = flt(flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty),3)
+							actual_qty_req = flt(flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty),precision)
 							item_dict.update({item.item_code:actual_qty_req if actual_qty_req > 0 else 0})
-							item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty) })
+							item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty ,precision) })
 		row.update({'bom_data':bom_data})
 	data.update({'planning_data':planning_data})
 	path = 'medtech_bpa/medtech_bpa/page/plan_availability/plan_availability.html'
@@ -134,4 +133,7 @@ def get_expected_stock(item,date):
 @frappe.whitelist()
 def get_planning_dates(planning_master):
 	planning_dates = frappe.db.sql("""SELECT from_date ,to_date from `tabPlanning Master` where name = '{0}'""".format(planning_master),as_dict=1)
-	return planning_dates
+	date_dict = dict()
+	date_dict['from_date'] =planning_dates[0].get('from_date').strftime('%d-%m-%Y')
+	date_dict['to_date'] = planning_dates[0].get("to_date").strftime('%d-%m-%Y') 
+	return date_dict

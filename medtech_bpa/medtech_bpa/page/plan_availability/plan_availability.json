@@ -1,10 +1,10 @@
 {
  "content": null,
- "creation": "2021-02-15 13:30:52.523060",
+ "creation": "2021-02-24 09:52:46.848576",
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2021-02-15 13:30:52.523060",
+ "modified": "2021-02-24 11:19:43.527520",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "plan_availability",
@@ -22,5 +22,5 @@
  "standard": "Yes",
  "style": null,
  "system_page": 0,
- "title": "Planning Vs Availability Report"
+ "title": "MRP FG Wise Report"
 }

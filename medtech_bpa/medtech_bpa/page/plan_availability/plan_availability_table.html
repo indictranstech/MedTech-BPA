@@ -104,7 +104,17 @@
                    <td>{{item.item_code }}</td>
                    <td>{{item.stock_uom}}</td>
                    {% for row in data.date_data %}
+
+                   {% if  item.req_qty >= 0 %}
+
                    <td>{{item.req_qty}}</td>
+
+                   {% else %}
+
+                   <td style="background-color:#ff0000;">{{item.req_qty}}</td>
+
+                   {% endif %}
+                   
                    {% endfor %}
                 </tr>
                 {% endfor %}
