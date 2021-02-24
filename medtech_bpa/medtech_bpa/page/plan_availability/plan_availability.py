@@ -1,6 +1,5 @@
 from __future__ import unicode_literals
 import frappe
-
 from frappe.model.document import Document
 from frappe.utils import nowdate, cstr, flt, cint, now, getdate,get_datetime,time_diff_in_seconds,add_to_date,time_diff_in_seconds,add_days,today
 from datetime import datetime,date, timedelta
@@ -10,6 +9,7 @@ import json
 import pandas as pd
 from frappe import _
 from erpnext.manufacturing.doctype.bom.bom import get_bom_items_as_dict
+
 
 @frappe.whitelist()
 def get_planning_master_data(filters=None):
@@ -22,58 +22,76 @@ def get_planning_master_data(filters=None):
 
 	data.update({'date_data':date_data})
 
-	# fetch date_data_with_amount
-	date_data_with_amount = get_date_data_with_amount(planning_master)
 
-	data.update({'date_data_with_amount':date_data_with_amount})
+	# fetch date_data_with_amount
+	date_wise_planning_details = date_wise_planning_master(planning_master)
+
+	data.update({'date_data_with_amount':date_wise_planning_details})
 
 	company = frappe.db.get_single_value("Global Defaults",'default_company')
 	# fetch warehouse list from medtech settings
 	fg_warehouse_list = get_warehouses()
+	ohs_dict = get_current_stock(fg_warehouse_list)
+	# pending_po_dict = get_expected_stock()
 
 	# fetch planning_data from planning_master item
 	planning_data = get_planning_data(planning_master)
 
-	for row in date_data_with_amount:
+	for row in date_wise_planning_details:
 		for item in planning_data:
 			if row.item_code == item.item_code:
 				item.update({row.date:row.amount})
 
-	item_dict = {}
 
-	# # fetch raw materials data from BOM and stock data
-	for row in planning_data:
-		bom_data = get_bom_data(row.get('bom'))
+	item_dict = dict()
+	final_dict = dict()
 
-		for col in date_data_with_amount:
-			if col.item_code == row.item_code:
-				raw_materials = get_bom_items_as_dict(row.get('bom'),company,col.get("amount"))
-				for item in bom_data:
-					if item.item_code in raw_materials:
-						if item.item_code not in item_dict:
-							current_stock = get_current_stock(item.item_code,fg_warehouse_list)
-							stock_expected = get_expected_stock(item.item_code,col.date)
-							virtual_stock = flt(current_stock[0].get('qty')) + flt(stock_expected[0].get("qty")) if stock_expected else 0
-							actual_qty_req = flt(flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty),precision)
-							item_dict.update({item.item_code:actual_qty_req if actual_qty_req > 0 else 0} )
-							item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty) })
-						elif item.item_code in item_dict and col.date in row:
-							actual_qty_req = flt(flt(item_dict.get(item.item_code)) - flt(raw_materials.get(item.item_code).qty),precision)
-							item_dict.update({item.item_code:actual_qty_req if actual_qty_req > 0 else 0})
-							item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty) })
-						else:
-							stock_expected = get_expected_stock(item.item_code,col.date)
-							virtual_stock = flt(item_dict.get(item.item_code).get(col.date)) + flt(stock_expected[0].get("qty")) if stock_expected else 0 
-							actual_qty_req = flt(flt(virtual_stock) - flt(raw_materials.get(item.item_code).qty),precision)
-							item_dict.update({item.item_code:actual_qty_req if actual_qty_req > 0 else 0})
-							item.update({col.date:flt(actual_qty_req if actual_qty_req < 0 else raw_materials.get(item.item_code).qty ,precision) })
-		row.update({'bom_data':bom_data})
-	data.update({'planning_data':planning_data})
+	# fetch raw materials data from BOM and stock data
+	for item in planning_data:
+		bom_data = get_bom_data(item.get('bom'))
+		item.update({'bom_data':bom_data})
+
+	item_details = {item.item_code : item for item in planning_data}
+	remaining_dict = dict()
+	check_date = dict()
+	for date in date_wise_planning_details:
+		fg_detail = item_details.get(date.get('item_code'))
+
+		for raw in fg_detail.get('bom_data'):
+			required_qty = raw.get('stock_qty') * date.get('amount')
+
+			if raw.get('item_code') not in remaining_dict:
+				current_stock = ohs_dict.get(raw.get('item_code')) or 0
+				stock_expected = get_expected_stock(raw.get('item_code'), date.get('date'))
+				stock_exp = stock_expected[0].get("qty") if stock_expected else 0
+				virtual_stock = current_stock + stock_exp
+
+				remaining_qty = virtual_stock - required_qty
+
+				remaining_dict[raw.get('item_code')] = remaining_qty if remaining_qty > 0 else 0
+				raw[date.get('date')] = flt(remaining_qty, precision) if remaining_qty < 0 else flt(required_qty, precision)
+				check_date[raw.get('item_code')] = date.get('date')
+			else:
+				if date.get('date') == check_date.get(raw.get('item_code')):
+					virtual_stock = remaining_dict.get(raw.get('item_code'))
+				else:
+					stock_expected = get_expected_stock(raw.get('item_code'), date.get('date'))
+					stock_exp = stock_expected[0].get("qty") if stock_expected else 0
+					check_date[raw.get('item_code')] = date.get('date')
+					virtual_stock = stock_exp + remaining_dict.get(raw.get('item_code'))
+
+				remaining_qty = virtual_stock - required_qty
+
+				remaining_dict[raw.get('item_code')] = remaining_qty if remaining_qty > 0 else 0
+				raw[date.get('date')] = flt(remaining_qty, precision) if remaining_qty < 0 else flt(required_qty, precision)
+
+	data.update({'planning_data':item_details})
 	path = 'medtech_bpa/medtech_bpa/page/plan_availability/plan_availability.html'
 	html=frappe.render_template(path,{'data':data})
 	return {'html':html}
+
+
 def get_filters_codition(filters):
-	print(filters)
 	conditions = "1=1"
 	if filters.get("planning_master"):
 		conditions += " and planning_master_parent = '{0}'".format(filters.get('planning_master'))
@@ -85,8 +103,8 @@ def get_date_data(planning_master):
 	return date_data
 
 # fetch planning_qty and dates
-def get_date_data_with_amount(planning_master):
-	date_data_with_amount = frappe.db.sql(""" SELECT a.item_code, a.date, a.amount from `tabPlanning Master Item` a join `tabPlanning Master` b on a.planning_master_parent = b.name  where a.planning_master_parent= '{0}' """.format(planning_master), as_dict=1)
+def date_wise_planning_master(planning_master):
+	date_data_with_amount = frappe.db.sql(""" SELECT a.item_code, a.date, a.amount from `tabPlanning Master Item` a join `tabPlanning Master` b on a.planning_master_parent = b.name  where a.planning_master_parent= '{0}' order by a.date asc""".format(planning_master), as_dict=1)
 	return date_data_with_amount
 
 # fetch FG data and it's details
@@ -122,13 +140,17 @@ def get_available_item_qty(item_code, warehouses, company):
 
 	return item_locations
 
-def get_current_stock(item,fg_warehouse_list):
-	current_stock = frappe.db.sql("""SELECT item_code,sum(actual_qty) as qty from `tabBin` where item_code = '{0}' and warehouse in {1}""".format(item,fg_warehouse_list),as_dict=1)
-	return current_stock
+def get_current_stock(fg_warehouse_list):
+	current_stock = frappe.db.sql("""SELECT item_code,sum(actual_qty) as qty from `tabBin` where warehouse in {0} group by item_code """.format(fg_warehouse_list),as_dict=1)
+	ohs_dict = {item.item_code : item.qty for item in current_stock}
+	return ohs_dict
+
 
 def get_expected_stock(item,date):
-	stock_expected = frappe.db.sql("""SELECT sum((i.qty-i.received_qty)) as qty from `tabPurchase Order Item` i join `tabPurchase Order` p on p.name = i.parent where i.item_code = '{0}' and i.expected_delivery_date between '{1}' and '{2}' """.format(item,nowdate(),date),as_dict=1)
+	stock_expected = frappe.db.sql("""SELECT i.item_code, ifnull(sum((i.qty-i.received_qty)),0) as qty from `tabPurchase Order Item` i join `tabPurchase Order` p on p.name = i.parent where i.item_code = '{0}' and i.expected_delivery_date between '{1}' and '{2}' """.format(item,nowdate(),date),as_dict=1)
 	return stock_expected
+
+
 
 @frappe.whitelist()
 def get_planning_dates(planning_master):
