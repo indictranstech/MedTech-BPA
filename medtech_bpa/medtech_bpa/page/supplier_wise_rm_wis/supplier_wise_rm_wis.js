@@ -13,6 +13,7 @@ frappe.supplier_wise_rm_wis = Class.extend({
     	this.make()
 		this.get_imp_data()
 		this.add_filters()
+		this.add_menus(wrapper);
 	},
 
 	make: function() {
@@ -55,4 +56,87 @@ frappe.supplier_wise_rm_wis = Class.extend({
 
 		})
   	},
+
+  	add_menus:function(wrapper){
+		var me = this
+		wrapper.page.add_menu_item("Print",function(){
+			me.print_pdf()
+		})
+		wrapper.page.add_menu_item("Export",function(){
+			var filters = {"planning_master":me.planning_master}
+			if (me.planning_master){
+		    	frappe.call({
+		        	"method": "medtech_bpa.medtech_bpa.page.supplier_wise_rm_wis.supplier_wise_rm_wis.get_planing_master_details",
+			        args: {
+			        	filters:filters
+			        },
+			        callback: function (r) {
+			        	if (r.message){
+			          		var data = r.message.data
+							me.download_xlsx(data)
+						}
+					}
+				})
+			}
+		})
+	},
+
+	print_pdf: function() {
+		var me = this;
+		var filters = {"planning_master":me.planning_master}
+	    if (me.planning_master){
+	    	frappe.call({
+	        	"method": "medtech_bpa.medtech_bpa.page.supplier_wise_rm_wis.supplier_wise_rm_wis.get_planing_master_details",
+		        args: {
+		        	filters:filters
+		        },
+		        callback: function (r) {
+		        	if (r.message){
+		          		var html = r.message.html
+						var formData = new FormData();
+						formData.append("html", html);
+						var blob = new Blob([], { type: "text/xml"});
+						//formData.append("webmasterfile", blob);
+						formData.append("blob", blob);
+
+						var xhr = new XMLHttpRequest();
+						/*xhr.open("POST", '/api/method/frappe.utils.print_format.report_to_pdf');*/
+						xhr.open("POST", '/api/method/medtech_bpa.medtech_bpa.page.supplier_wise_rm_wis.supplier_wise_rm_wis.custome_report_to_pdf');
+
+						xhr.setRequestHeader("X-Frappe-CSRF-Token", frappe.csrf_token);
+						xhr.responseType = "arraybuffer";
+						xhr.onload = function(success) {
+							if (this.status === 200) {
+								var blob = new Blob([success.currentTarget.response], {type: "application/pdf"});
+								var objectUrl = URL.createObjectURL(blob);
+
+								//Open report in a new window
+								window.open(objectUrl);
+							}
+						};
+						xhr.send(formData);
+		        	}
+
+		        }//calback end
+		    })
+	    }
+	},
+
+	download_xlsx: function(data) {
+		var me = this;
+		return frappe.call({
+			module:"medtech_bpa.medtech_bpa",
+			page:"supplier_wise_rm_wis",
+			method: "make_xlsx_file",
+			args: {renderd_data:data},
+			callback: function(r) {
+				var w = window.open(
+				frappe.urllib.get_full_url(
+				"/api/method/medtech_bpa.medtech_bpa.page.supplier_wise_rm_wis.supplier_wise_rm_wis.download_xlsx?"));
+
+				if(!w)
+					frappe.msgprint(__("Please enable pop-ups")); return;
+			}
+		})
+	},
 })
