@@ -16,7 +16,7 @@ frappe.rm_wise_report = Class.extend({
 		$(frappe.render_template('rm_wise_report_html')).appendTo(this.page);
 		me.base_data()		
 		me.planning_master()
-		me.from_date()
+		// me.from_date()
 		// me.to_date()
 		// me.po()
 		// me.item()

@@ -7,7 +7,7 @@ frappe.plan_availability = Class.extend({
 	init : function(wrapper){
 		this.page = frappe.ui.make_app_page({
 			parent: wrapper,
-			title: 'Planning Vs Availability Report',
+			title: 'MRP FG Wise Report',
 			single_column: true
 		});
     	this.wrapper = wrapper
@@ -53,9 +53,9 @@ frappe.plan_availability = Class.extend({
 						planning_master : me.planning_master
 					},
 					callback:function(r){
-			
-						$("[data-fieldname=from_date]").val(r.message[0].from_date)
-						$("[data-fieldname=to_date]").val(r.message[0].to_date)
+		
+						$("[data-fieldname=from_date]").val(r.message['from_date'])
+						$("[data-fieldname=to_date]").val(r.message['to_date'])
 					}
 				})
 				

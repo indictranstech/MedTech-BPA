@@ -1,6 +1,6 @@
 <style type="text/css">
-	/*.bcolor{background-color: #70c1fb}*/
-	.center{text-align: center;}
+    /*.bcolor{background-color: #70c1fb}*/
+    .center{text-align: center;}
     /*.bgcolor{background-color: :#70c1fb;}*/
 
     .table {
@@ -125,38 +125,41 @@
                 <th  class=" center ta col5" style="background: #1E90FF">BOM Items</th>
                 <th  class=" center ta col6" style="background: #1E90FF">BOM UOM</th>
                 {% for row in data.date_data %}
-                <th class=" center tdate">{{frappe.utils.formatdate(row.date,"dd-mm-yyyy") or ""}}</th>
+                <th class=" center tdate">{{frappe.utils.formatdate(row.date,"dd-mm") or ""}}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
            {% for row in data.planning_data %}
-            <tr>
-                <td  class="center fixed sticky ta fixcolor">{{row.item_code}}</td>
-                <td  class="center fixed ta col2 fixcolor">{{row.item_name}}</td>
-                <td  class="center ta col3 fixcolor">{{row.uom}}</td>
-                <td  class="center ta col4 fixcolor">{{row.amount}}</td>
-                <td class="center ta col5 fixcolor"></td>
-                <td class="center ta col6 fixcolor"></td>
-                {% for item in data.date_data_with_amount %}
-                {% if item.item_code == row.item_code %}
-                <td class="bcolor center tdate">{{item.amount}}</td>
-                {% endif %}
-                {% endfor %}
-               
-               
-            </tr>
-            {% for item in row.bom_data %}
-             <tr>
+               {% set result = data.planning_data[row] %}
+                <tr>
+                    <td  class="center fixed sticky ta fixcolor">{{result.item_code}}</td>
+                    <td  class="center fixed ta col2 fixcolor">{{result.item_name}}</td>
+                    <td  class="center ta col3 fixcolor">{{result.uom}}</td>
+                    <td  class="center ta col4 fixcolor">{{result.amount}}</td>
+                    <td class="center ta col5 fixcolor"></td>
+                    <td class="center ta col6 fixcolor"></td>
+                    {% for item in data.date_data_with_amount %}
+                        {% if item.item_code == row %}
+                            <td class="bcolor center tdate">{{item.amount}}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% for item in result.bom_data %}
+                <tr>
                     <td class="fixed sticky ta fixcolor"></td>
                     <td class="fixed ta col2 fixcolor"></td>
                     <td class="ta col3 fixcolor"></td>
                     <td class="ta col4 fixcolor"></td>
-                   <td class="ta col5 fixcolor">{{item.item_code }}</td>
-                   <td class="ta col6 fixcolor">{{item.stock_uom}}</td>
-                   {% for row in data.date_data %}
-                   <td class="center" width="5%">{{item.get(row.date)}}</td>
-                   {% endfor %}
+                    <td class="ta col5 fixcolor">{{item.item_code }}</td>
+                    <td class="ta col6 fixcolor">{{item.stock_uom}}</td>
+                    {% for date in data.date_data %}
+                        {% if item.get(date.date) >= 0 %}
+                            <td class="center" width="5%">{{item.get(date.date)}}</td>
+                        {% else %}
+                            <td class="center" width="5%" style="background-color:#ff0000;">{{item.get(date.date)}}</td>
+                        {% endif %}
+                    {% endfor %}
                 </tr>
                 {% endfor %}
             {% endfor %}
@@ -167,31 +170,31 @@
 </div>
 
 <!-- <div class="conatiner">
-  	<table class="table table-bordered" width="100%">
+    <table class="table table-bordered" width="100%">
          {% if data %}
-    	<thead>
+        <thead>
 
-	       	<tr>
-	       		<th  class="bcolor center">FG Items</th>
-	       		<th  class="bcolor center">UOM</th>
-	       		<th width="14%" class="bcolor center">FG Qty</th>
-	       		<th width="14%" class="bcolor center">BOM Items</th>
-	       		<th width="14%" class="bcolor center">BOM UOM</th>
+            <tr>
+                <th  class="bcolor center">FG Items</th>
+                <th  class="bcolor center">UOM</th>
+                <th width="14%" class="bcolor center">FG Qty</th>
+                <th width="14%" class="bcolor center">BOM Items</th>
+                <th width="14%" class="bcolor center">BOM UOM</th>
                 {% for row in data %}
                 <th>{{row.date}}</th>
                 {% endfor %}
-	      	</tr>
-    	</thead>
-    	<tbody>
+            </tr>
+        </thead>
+        <tbody>
            
             <tr>
                 <td colspan="5">Qty To Manufacture</td>
             </tr>
-    		{% for row in data %}
-    		<tr>
-    			<td width="14%" class="center">{{row.item_code}}</td>
-    			<td width="14%" class="center">{{row.uom}}</td>
-    			<td width="14%" class="center">{{row.amount}}</td>
+            {% for row in data %}
+            <tr>
+                <td width="14%" class="center">{{row.item_code}}</td>
+                <td width="14%" class="center">{{row.uom}}</td>
+                <td width="14%" class="center">{{row.amount}}</td>
                 {% for item in row.bom_data %}
                 <tr>
                     <td></td>
@@ -201,10 +204,10 @@
                    <td>{{item.stock_uom}}</td>
                 </tr>
                 {% endfor %}
-    		</tr>
-    		{% endfor %}
+            </tr>
+            {% endfor %}
            
-    	</tbody>
+        </tbody>
          {% endif %}
-  	</table>
+    </table>
 </div> -->
