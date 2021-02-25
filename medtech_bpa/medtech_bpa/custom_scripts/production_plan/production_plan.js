@@ -12,7 +12,17 @@ frappe.ui.form.on("Production Plan", {
 				}
 			}
 		});
+		
+		if(frm.doc.docstatus == 1){
+			frm.add_custom_button(__('Production Pick List'), () => frm.events.go_to_production_pick_list(frm),
+					__("Create"));
+		}
 	
+	},
+	go_to_production_pick_list:function(frm){
+		// Redirect to production pick list of same production Plan
+		frappe.route_options = {"production_plan": frm.doc.name};
+		frappe.set_route(['List', 'Production Pick List'])
 	},
 	get_items_for_mr: function(frm) {
 		if (!frm.doc.for_warehouse) {

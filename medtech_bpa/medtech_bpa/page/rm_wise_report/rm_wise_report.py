@@ -352,13 +352,14 @@ def download_xlsx():
 	import openpyxl
 	from io import BytesIO
 	file_path = frappe.utils.get_site_path("public")
-	wb = openpyxl.load_workbook(filename=file_path+'/rm_wise_report.xlsx')
+	now = datetime.now()
+	fname = "MRP_RM_WISE_REPORT" + now.strftime("%H:%M:%S") + ".xlsx"
+	wb = openpyxl.load_workbook(filename=file_path+fname)
 	xlsx_file = BytesIO()
 	wb.save(xlsx_file)
 	frappe.local.response.filecontent=xlsx_file.getvalue()
 
 	frappe.local.response.type = "download"
-	now = datetime.now()
-	fname = "MRP_RM_WISE_REPORT" + now.strftime("%H:%M:%S") + ".xlsx"
+	
 	frappe.local.response.filename = fname
 
