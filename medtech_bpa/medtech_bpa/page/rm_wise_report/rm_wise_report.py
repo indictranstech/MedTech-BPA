@@ -26,6 +26,22 @@ from frappe.utils import cint, flt
 from datetime import datetime
 from collections import OrderedDict
 
+import operator
+import itertools
+
+from frappe.utils.pdf import get_pdf
+from frappe.utils.xlsxutils import make_xlsx
+import openpyxl
+from openpyxl import load_workbook
+from openpyxl.styles import Font, Color, Fill, PatternFill, Alignment
+from openpyxl.drawing.image import Image
+from openpyxl import Workbook
+from six import StringIO, string_types
+import sys
+from openpyxl import Workbook
+from openpyxl.styles import Alignment
+from openpyxl.utils.cell import get_column_letter
+
 @frappe.whitelist()
 def get_rm_report_details(planning_master= ''):
 
@@ -89,6 +105,7 @@ def get_rm_report_details(planning_master= ''):
 	data['date_list'] = pm_date_list
 	data['table_data'] = table_data
 	data['from_date'] = (pm_from_date).strftime('%d-%m-%Y') if pm_from_date else ''
+	data['planning_master'] = planning_master
 
 	return data
 
@@ -203,4 +220,141 @@ def get_po_qty_date_wise(planning_master):
 				data[date] = 0
 	return req_dict
 
+
+@frappe.whitelist()
+def get_planning_dates(planning_master):
+	planning_dates = frappe.db.sql("""SELECT from_date ,to_date from `tabPlanning Master` where name = '{0}'""".format(planning_master),as_dict=1)
+	date_dict = dict()
+	date_dict['from_date'] =planning_dates[0].get('from_date').strftime('%d-%m-%Y')
+	date_dict['to_date'] = planning_dates[0].get("to_date").strftime('%d-%m-%Y') 
+	return date_dict
+
+	
+@frappe.whitelist()
+def make_xlsx_file(renderd_data):
+	data =json.loads(renderd_data)
+
+	header = ['Sr.No','RM Name','UOM','Total Production Qty Till {0}'.format(data.get("from_date")),'Pending PO Qty Till {0}'.format(data.get("from_date")),'Current Stock']
+	header_2 = ['Required','Expected PO','Short/Excess with PO','Short/Excess without PO']
+	
+	book = Workbook()
+	sheet = book.active
+	
+	row = 1
+	col = 1
+
+	for item in header:
+		cell = sheet.cell(row=row,column=col)
+		cell.value = item
+		cell.font = cell.font.copy(bold=True)
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=1, start_column=col, end_row=2, end_column=col)
+
+		col+=1
+
+
+	col = 7
+	end_col = 10
+	col_1 = 7
+	for date in data.get("date_list"):
+		cell = sheet.cell(row=1,column=col)
+		cell.value = date
+		cell.font = cell.font.copy(bold=True)
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=1, start_column=col, end_row=1, end_column=end_col)	
+		for raw in header_2:
+			cell = sheet.cell(row=2,column=col_1)
+			cell.value = raw
+			cell.font = cell.font.copy(bold=True)
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=2, start_column=col_1, end_row=2, end_column=col_1)
+			col_1+=1
+		end_col+=4
+		col+=4
+
+	row = 3 
+	col  = 1
+	count = 0
+	
+	for item in data.get("table_data"):
+		cell = sheet.cell(row=row,column=col)
+		cell.value = count + 1
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+1)
+		cell.value = item.get("item_code") +'-'+item.get("item_name")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+2)
+		cell.value = item.get("stock_uom")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+3)
+		cell.value = item.get("planned_qty")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+4)
+		cell.value = item.get("pending_qty")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+
+		cell = sheet.cell(row=row,column=col+5)
+		cell.value = item.get("ohs_qty")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		date_col = 7
+		for date in data.get("date_list"):
+
+			cell = sheet.cell(row=row,column=date_col)
+			cell.value = item.get(date).get("required_qty")
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
+
+			date_col+=1
+
+			cell = sheet.cell(row=row,column=date_col)
+			cell.value = item.get(date).get("expected_po")
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
+			
+			date_col+=1
+
+			cell = sheet.cell(row=row,column=date_col)
+			cell.value = item.get(date).get("with_po")
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
+			
+			date_col+=1
+
+			cell = sheet.cell(row=row,column=date_col)
+			cell.value = item.get(date).get("with_out_po")
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
+
+			date_col+=1
+		count+=1
+
+		row+=1
+
+	file_path = frappe.utils.get_site_path("public")
+	book.save(file_path+'/rm_wise_report.xlsx')
+
+@frappe.whitelist()
+def download_xlsx():
+	import openpyxl
+	from io import BytesIO
+	file_path = frappe.utils.get_site_path("public")
+	wb = openpyxl.load_workbook(filename=file_path+'/rm_wise_report.xlsx')
+	xlsx_file = BytesIO()
+	wb.save(xlsx_file)
+	frappe.local.response.filecontent=xlsx_file.getvalue()
+
+	frappe.local.response.type = "download"
+	frappe.local.response.filename = "rm_wise_report.xlsx"
 
