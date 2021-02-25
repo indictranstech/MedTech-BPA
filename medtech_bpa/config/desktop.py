@@ -10,5 +10,12 @@ def get_data():
 			"icon": "octicon octicon-plus",
 			"type": "module",
 			"label": _("MedTech-BPA")
+		},
+		{
+			"module_name": "MedTech Reports",
+			"color": "grey",
+			"icon": "octicon octicon-circuit-board",
+			"type": "module",
+			"label": _("Reports")
 		}
 	]

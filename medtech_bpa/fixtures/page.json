@@ -576,7 +576,7 @@
   "docstatus": 0,
   "doctype": "Page",
   "icon": null,
-  "modified": "2021-02-05 15:12:56.546549",
+  "modified": "2021-02-24 12:57:48.657716",
   "module": "MedTech-BPA",
   "name": "rm-wise-report",
   "page_name": "RM Wise Report",
@@ -596,40 +596,7 @@
   "standard": "Yes",
   "style": null,
   "system_page": 0,
-  "title": "RM Wise Report"
- },
- {
-  "content": null,
-  "docstatus": 0,
-  "doctype": "Page",
-  "icon": null,
-  "modified": "2021-02-15 13:30:52.523060",
-  "module": "MedTech-BPA",
-  "name": "plan_availability",
-  "page_name": "plan_availability",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "restrict_to_domain": null,
-  "roles": [
-   {
-    "parent": "plan_availability",
-    "parentfield": "roles",
-    "parenttype": "Page",
-    "role": "System Manager"
-   },
-   {
-    "parent": "plan_availability",
-    "parentfield": "roles",
-    "parenttype": "Page",
-    "role": "Administrator"
-   }
-  ],
-  "script": null,
-  "standard": "Yes",
-  "style": null,
-  "system_page": 0,
-  "title": "Planning Vs Availability Report"
+  "title": "MRP RM Wise Report"
  },
  {
   "content": null,
@@ -695,7 +662,7 @@
   "docstatus": 0,
   "doctype": "Page",
   "icon": null,
-  "modified": "2021-02-19 10:49:39.786883",
+  "modified": "2021-02-24 12:54:08.721334",
   "module": "MedTech-BPA",
   "name": "supplier_wise_rm_wis",
   "page_name": "supplier_wise_rm_wis",
@@ -721,7 +688,85 @@
   "standard": "Yes",
   "style": null,
   "system_page": 0,
+  "title": "MRP Supplier Wise Report"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": null,
+  "modified": "2021-02-19 10:49:39.786883",
+  "module": "MedTech-BPA",
+  "name": "supplier-wise-rm-wis",
+  "page_name": "Supplier wise RM wise Pending PO against Shortage Report",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "supplier-wise-rm-wis",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "System Manager"
+   },
+   {
+    "parent": "supplier-wise-rm-wis",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "System Manager"
+   },
+   {
+    "parent": "supplier-wise-rm-wis",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Administrator"
+   },
+   {
+    "parent": "supplier-wise-rm-wis",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Administrator"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
   "title": "Supplier wise RM wise Pending PO against Shortage Report"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": null,
+  "modified": "2021-02-15 13:30:52.523060",
+  "module": "MedTech-BPA",
+  "name": "plan_availability",
+  "page_name": "plan_availability",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "plan_availability",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "System Manager"
+   },
+   {
+    "parent": "plan_availability",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Administrator"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": "MRP FG Wise Report"
  },
  {
   "content": null,

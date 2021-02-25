@@ -81,8 +81,36 @@ def get_data(filters):
 			INNER JOIN `tabPurchase Order Item` poi ON po.name = poi.parent and pri.item_name = poi.item_name
 		where {0} and pr.is_return != 1 AND pr.docstatus = 1
 		order by pr.creation
-			""".format(validate_filters(filters)))
-	return query_data
+			""".format(validate_filters(filters)), as_dict = 1)
+	
+	final_data = []
+	for row in query_data:
+		row_data = []
+		row_data.append(row.get('pri_item_name'))
+		row_data.append(row.get('pr_supplier'))
+		row_data.append(row.get('po_no'))
+		row_data.append(row.get('vir_no'))
+		row_data.append(row.get('supplier_bill_no'))
+		row_data.append(row.get('po_qty'))
+		row_data.append(row.get('po_date'))
+		row_data.append(row.get('req_by_date'))
+		row_data.append(row.get('exp_deli_date'))
+		row_data.append(row.get('vir_date'))
+		row_data.append(row.get('billed_qty'))
+		row_data.append(row.get('excess_qty'))
+		row_data.append(row.get('short_qty'))
+		row_data.append(row.get('rej_qty'))
+		row_data.append(row.get('accepted_qty'))
+		row_data.append(row.get('diff'))
+		row_data.append(row.get('purchase_rtn_qty'))
+		row_data.append('')
+		row_data.append(row.get('debit_note_qty'))
+		row_data.append((row.get('diff') - row.get('purchase_rtn_qty') - row.get('debit_note_qty') + 0))
+		row_data.append(row.get('bill_booked'))
+		row_data.append(row.get('pending_for_payment'))
+		final_data.append(row_data)
+	return final_data
+
 
 def validate_filters(filters):
 	conditions = '1 = 1' 
@@ -201,7 +229,7 @@ def get_columns():
 			"width": 140
 		},
 		{
-			"fieldname": "",
+			"fieldname": "credit_note_qty",
 			"label": _("Credit Note Qty"),
 			"fieldtype": "Float",
 			"width": 112
@@ -213,7 +241,7 @@ def get_columns():
 			"width": 110
 		},
 		{
-			"fieldname": "",
+			"fieldname": "deviation",
 			"label": _("Deviation"),
 			"fieldtype": "Float",
 			"width": 100
