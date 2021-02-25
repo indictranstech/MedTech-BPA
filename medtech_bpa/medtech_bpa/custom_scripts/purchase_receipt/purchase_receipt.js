@@ -5,7 +5,7 @@ frappe.ui.form.on("Purchase Receipt", {
 			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'quality_inspection', cur_frm.doc.name);
 			df.hidden = 1
 		}
-		if(frm.doc.workflow_state == 'For QC'){
+		if(frm.doc.workflow_state == 'Pending For QC'){
 			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'quality_inspection', cur_frm.doc.name);
 			df.hidden = 0
 		}
