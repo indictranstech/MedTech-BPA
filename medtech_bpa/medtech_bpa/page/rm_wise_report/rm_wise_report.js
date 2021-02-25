@@ -16,15 +16,47 @@ frappe.rm_wise_report = Class.extend({
 		$(frappe.render_template('rm_wise_report_html')).appendTo(this.page);
 		me.base_data()		
 		me.planning_master()
-		// me.from_date()
-		// me.to_date()
+		me.from_date()
+		me.to_date()
 		// me.po()
 		// me.item()
 		// me.po_toc_status()
 
-		// $(".export").click(function(){
-		// 	me.export()
-		// });
+		$(".export").click(function(){
+			me.get_data_for_export()
+		});
+	},
+	get_data_for_export:function(){
+		var me = this
+		frappe.call({
+		        	"method": "medtech_bpa.medtech_bpa.page.rm_wise_report.rm_wise_report.get_rm_report_details",
+			        args: {
+			        	planning_master : me.planning_master_list
+			        },
+			        callback: function (r) {
+			        	if (r.message){
+			          		var data = r.message
+							me.download_xlsx(data)
+						}
+					}
+				})
+	},
+	download_xlsx: function(data) {
+		var me = this;
+		return frappe.call({
+			module:"medtech_bpa.medtech_bpa",
+			page:"rm_wise_report",
+			method: "make_xlsx_file",
+			args: {renderd_data:data},
+			callback: function(r) {
+				var w = window.open(
+				frappe.urllib.get_full_url(
+				"/api/method/medtech_bpa.medtech_bpa.page.rm_wise_report.rm_wise_report.download_xlsx?"));
+
+				if(!w)
+					frappe.msgprint(__("Please enable pop-ups")); return;
+			}
+		})
 	},
 	base_data:function(){
 		var me= this;
@@ -56,22 +88,19 @@ frappe.rm_wise_report = Class.extend({
 				fieldname: "",
 				placeholder: __("Planning Master"),
 				reqd : 1,
-				// get_query: function(){ return {'filters': [['Project', 'status','=','Open']]}},
 				change:function(){
+					me.planning_master = this.value?this.value:null
 					frappe.call({
-						method: "frappe.client.get_value",
-						args: {
-							doctype: "Planning Master",
-							fieldname: ['from_date', 'to_date'],
-							filters: { name: planning_master.get_value()},
+						method:"medtech_bpa.medtech_bpa.page.rm_wise_report.rm_wise_report.get_planning_dates",
+						args :{
+							planning_master : me.planning_master
 						},
-						async :false,
-						callback: function(r) {
-							if(r.message){
-								$("[data-fieldname=from_date]").val(r.message[0].from_date)
-							}
+						callback:function(r){
+			
+							$("[data-fieldname=from_date]").val(r.message['from_date'])
+							$("[data-fieldname=to_date]").val(r.message['to_date'])
 						}
-					});
+					})
 					$("#planning_master").val(planning_master.get_value())
 					me.planning_master_list = planning_master.get_value()
 					me.base_data()
@@ -89,7 +118,7 @@ frappe.rm_wise_report = Class.extend({
 				label: '<b>From Date</b>',
 				fieldtype: "Date",
 				options: "",
-				fieldname: "",
+				fieldname: "from_date",
 				placeholder: __("From Date"),
 	     	},
 	     	only_input: false,
@@ -104,7 +133,7 @@ frappe.rm_wise_report = Class.extend({
 				label: '<b>To Date</b>',
 				fieldtype: "Date",
 				options: "",
-				fieldname: "",
+				fieldname: "to_date",
 				placeholder: __("To Date"),
 	     	},
 	     	only_input: false,
@@ -195,29 +224,5 @@ frappe.rm_wise_report = Class.extend({
 			only_input: false,
 	     });
 		po_toc_status.refresh();
-	},
-	export:function(){
-		var me= this;
-		export_type = "Excel"
-		frappe.call({
-			method: "nano_mag.nano_mag_tech.page.po_report.po_report.create_file",
-			freeze_message:"Loading ...Please Wait",
-			args: {
-					project : me.project_list,
-					from_date : me.project_from_date,
-					to_date : me.project_to_date,
-					po : me.po_list,
-					item : me.item_list,
-					po_toc_status : me.po_toc_status_list
-			},
-			callback:function(r){
-				if (export_type == 'Excel'){
-					var w = window.open(frappe.urllib.get_full_url("/api/method/nano_mag.nano_mag_tech.page.po_report.po_report.download_xlsx?"+ "&name=" + encodeURIComponent(r.message)));
-				}
-				if(!w){
-					frappe.msgprint(__("Please enable pop-ups")); return;
-				}
-			}
-		});
 	}
 })
