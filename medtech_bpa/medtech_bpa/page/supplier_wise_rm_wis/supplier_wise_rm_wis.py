@@ -11,6 +11,21 @@ from erpnext.stock.stock_ledger import get_previous_sle
 import operator
 import itertools
 
+from frappe.utils.pdf import get_pdf
+from frappe.utils.xlsxutils import make_xlsx
+import openpyxl
+from openpyxl import load_workbook
+from openpyxl.styles import Font, Color, Fill, PatternFill, Alignment
+from openpyxl.drawing.image import Image
+from openpyxl import Workbook
+from six import StringIO, string_types
+import sys
+from openpyxl import Workbook
+from openpyxl.styles import Alignment
+from openpyxl.utils.cell import get_column_letter
+# reload(sys)
+# sys.setdefaultencoding('utf8')
+
 @frappe.whitelist()
 def get_planing_master_details(filters=None):
 	filters = json.loads(filters)
@@ -127,7 +142,7 @@ def get_planing_master_details(filters=None):
 
 	path = 'medtech_bpa/medtech_bpa/page/supplier_wise_rm_wis/supplier_wise_rm_wis.html'
 	html=frappe.render_template(path,{'data':new_data})
-	return {'html':html}
+	return {'html':html, 'data':new_data}
 
 
 def get_filters_codition(filters):
@@ -135,3 +150,145 @@ def get_filters_codition(filters):
 	if filters.get("planning_master"):
 		conditions += " and name = '{0}'".format(filters.get('planning_master'))
 	return conditions
+
+@frappe.whitelist()
+def custome_report_to_pdf(html, orientation="Landscape"):
+	frappe.local.response.filename = "report.pdf"
+	frappe.local.response.filecontent = get_pdf(html, {"orientation": orientation,'page-size':'A4'})
+	frappe.local.response.type = "download"
+
+@frappe.whitelist()
+def make_xlsx_file(renderd_data):
+	data =json.loads(renderd_data)
+	from_date = data[0].get('from_date')
+	to_date = data[0].get('to_date')
+
+	book = Workbook()
+	sheet = book.active
+	
+	row = 1
+	col = 1
+	
+	cell = sheet.cell(row=row,column=col)
+	cell.value = 'Supplier wise RM wise Pending PO against Shortage Report'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=5)
+
+
+	row+=1
+	col = 1
+	cell = sheet.cell(row=row,column=col)
+	cell.value = 'Select Period for Planning'
+	cell.font = cell.font.copy(bold=True, center=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=2, start_column=1, end_row=2, end_column=5)
+
+	row=3
+	col = 1
+	cell = sheet.cell(row=row,column=col)
+	cell.value = 'From Date:{0}'.format(from_date)
+	cell.font = cell.font.copy(bold=True)
+	sheet.merge_cells(start_row=3, start_column=1, end_row=3, end_column=2)
+
+	col = 4
+	cell = sheet.cell(row=row,column=col)
+	cell.value = 'To Date'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=3, start_column=4, end_row=3, end_column=4)
+
+	col = 5
+	cell = sheet.cell(row=row,column=col)
+	cell.value =to_date
+	cell.font = cell.font.copy(bold=True)
+	sheet.merge_cells(start_row=3, start_column=5, end_row=3, end_column=5)
+
+	row = 4
+	col = 1
+	cell = sheet.cell(row=row,column=col)
+	cell.value ='Item Name'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=4, start_column=1, end_row=5, end_column=1)
+
+	col = 2
+	cell = sheet.cell(row=row,column=col)
+	cell.value ='Supplier'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=4, start_column=2, end_row=5, end_column=2)
+
+	col = 3
+	cell = sheet.cell(row=row,column=col)
+	cell.value ='Shortage/ Excess Qty'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=4, start_column=3, end_row=4, end_column=4)
+
+	col = 5
+	cell = sheet.cell(row=row,column=col)
+	cell.value ='Pending PO'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=4, start_column=5, end_row=5, end_column=5)
+
+	row = 5
+	col = 3
+	cell = sheet.cell(row=row,column=col)
+	cell.value ='Considered PO'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=5, start_column=3, end_row=5, end_column=3)
+
+
+	col = 4
+	cell = sheet.cell(row=row,column=col)
+	cell.value ='Considered PO'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	sheet.merge_cells(start_row=5, start_column=4, end_row=5, end_column=4)
+
+	row+=1
+	col = 1
+	for d in data:
+		cell = sheet.cell(row=row,column=col)
+		cell.value = d.get("item_code")+':'+d.get("item_name")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		cell = sheet.cell(row=row,column=col+2)
+		cell.value = d.get("consider_po_qty")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		cell = sheet.cell(row=row,column=col+3)
+		cell.value = d.get("no_consider_po_qty")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		cell = sheet.cell(row=row,column=col+4)
+		cell.value = d.get("po_qty")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		row+=1
+		supplier_data=d.get('supplier')
+		if supplier_data:
+			for supplier in supplier_data:
+				cell = sheet.cell(row=row,column=col+1)
+				cell.value = supplier.get('supplier')
+				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+				cell = sheet.cell(row=row,column=col+4)
+				cell.value = supplier.get('qty')
+				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+				row+=1
+
+
+	file_path = frappe.utils.get_site_path("public")
+	book.save(file_path+'/supplier_wise_rm_wise.xlsx')
+
+@frappe.whitelist()
+def download_xlsx():
+	import openpyxl
+	from io import BytesIO
+	file_path = frappe.utils.get_site_path("public")
+	wb = openpyxl.load_workbook(filename=file_path+'/supplier_wise_rm_wise.xlsx')
+	xlsx_file = BytesIO()
+	wb.save(xlsx_file)
+	frappe.local.response.filecontent=xlsx_file.getvalue()
+
+	frappe.local.response.type = "download"
+	frappe.local.response.filename = "supplier_wise_rm_wise.xlsx"
