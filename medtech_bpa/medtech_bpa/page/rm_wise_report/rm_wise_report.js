@@ -1,7 +1,7 @@
 frappe.pages['rm-wise-report'].on_page_load = function(wrapper) {
 	var page = frappe.ui.make_app_page({
 		parent: wrapper,
-		title: 'RM Wise Report',
+		title: 'MRP RM Wise Report',
 		single_column: true
 	});
 	controller = new frappe.rm_wise_report(wrapper);
@@ -120,6 +120,9 @@ frappe.rm_wise_report = Class.extend({
 				options: "",
 				fieldname: "from_date",
 				placeholder: __("From Date"),
+				change:function(){
+					me.from_date = $("#from_date").val(from_date.get_value())
+				}
 	     	},
 	     	only_input: false,
    		});
@@ -135,6 +138,9 @@ frappe.rm_wise_report = Class.extend({
 				options: "",
 				fieldname: "to_date",
 				placeholder: __("To Date"),
+				change:function(){
+					me.to_date = $("#to_date").val(to_date.get_value())
+				}
 	     	},
 	     	only_input: false,
    		});

@@ -170,7 +170,7 @@ def make_xlsx_file(renderd_data):
 	col = 1
 	
 	cell = sheet.cell(row=row,column=col)
-	cell.value = 'Supplier wise RM wise Pending PO against Shortage Report'
+	cell.value = 'MRP Supplier Wise Report'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 	sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=5)

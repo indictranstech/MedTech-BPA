@@ -343,7 +343,9 @@ def make_xlsx_file(renderd_data):
 		row+=1
 
 	file_path = frappe.utils.get_site_path("public")
-	book.save(file_path+'/rm_wise_report.xlsx')
+	now = datetime.now()
+	fname = "MRP_RM_WISE_REPORT" + now.strftime("%H:%M:%S") + ".xlsx"
+	book.save(file_path+fname)
 
 @frappe.whitelist()
 def download_xlsx():
@@ -356,5 +358,7 @@ def download_xlsx():
 	frappe.local.response.filecontent=xlsx_file.getvalue()
 
 	frappe.local.response.type = "download"
-	frappe.local.response.filename = "rm_wise_report.xlsx"
+	now = datetime.now()
+	fname = "MRP_RM_WISE_REPORT" + now.strftime("%H:%M:%S") + ".xlsx"
+	frappe.local.response.filename = fname
 

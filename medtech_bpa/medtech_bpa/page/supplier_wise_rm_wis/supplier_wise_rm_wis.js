@@ -6,7 +6,7 @@ frappe.supplier_wise_rm_wis = Class.extend({
 	init : function(wrapper){
 		this.page = frappe.ui.make_app_page({
 			parent: wrapper,
-			title: 'Supplier wise RM wise Pending PO against Shortage Report',
+			title: 'MRP Supplier Wise Report',
 			single_column: true
 		});
     	this.wrapper = wrapper
