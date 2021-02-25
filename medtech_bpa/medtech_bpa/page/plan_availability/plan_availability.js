@@ -13,6 +13,7 @@ frappe.plan_availability = Class.extend({
     	this.wrapper = wrapper
     	this.make()
 		this.add_filters()
+		this.add_menus(wrapper);
 	},
 
 	make: function() {
@@ -31,7 +32,7 @@ frappe.plan_availability = Class.extend({
 	        	if (r.message){
 	          		var html = r.message.html
 					$('.frappe-list').html(html)
-					// me.mass_production(me)	          
+						          
 	        	}
 
 	        }//calback end
@@ -86,4 +87,47 @@ frappe.plan_availability = Class.extend({
 			}
 		})
   	},
+  	add_menus:function(wrapper){
+		var me = this
+		var filters = {"planning_master":me.planning_master}
+		wrapper.page.add_menu_item("Export",function(){
+			if (me.planning_master){
+		    	me.export()
+			}
+		})
+	},
+	export:function(){
+		var me = this
+	    var filters = {"planning_master":me.planning_master}
+	    frappe.call({
+	        "method": "medtech_bpa.medtech_bpa.page.plan_availability.plan_availability.get_planning_master_data",
+	        args: {filters:filters},
+	        callback: function (r) {
+	        	if (r.message){
+	          		data = r.message.data
+	          		me.download_xlsx(data)
+						          
+	        	}
+
+	        }//calback end
+	    })
+
+	},
+	download_xlsx: function(data) {
+		var me = this;
+		return frappe.call({
+			module:"medtech_bpa.medtech_bpa",
+			page:"plan_availability",
+			method: "make_xlsx_file",
+			args: {renderd_data:data},
+			callback: function(r) {
+				var w = window.open(
+				frappe.urllib.get_full_url(
+				"/api/method/medtech_bpa.medtech_bpa.page.plan_availability.plan_availability.download_xlsx?"));
+
+				if(!w)
+					frappe.msgprint(__("Please enable pop-ups")); return;
+			}
+		})
+	}
 })

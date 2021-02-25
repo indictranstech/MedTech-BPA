@@ -9,18 +9,32 @@ import json
 import pandas as pd
 from frappe import _
 from erpnext.manufacturing.doctype.bom.bom import get_bom_items_as_dict
+import operator
+import itertools
 
+from frappe.utils.pdf import get_pdf
+from frappe.utils.xlsxutils import make_xlsx
+import openpyxl
+from openpyxl import load_workbook
+from openpyxl.styles import Font, Color, Fill, PatternFill, Alignment
+from openpyxl.drawing.image import Image
+from openpyxl import Workbook
+from six import StringIO, string_types
+import sys
+from openpyxl import Workbook
+from openpyxl.styles import Alignment
+from openpyxl.utils.cell import get_column_letter
 
 @frappe.whitelist()
 def get_planning_master_data(filters=None):
 	filters = json.loads(filters)
-	data = {}
+	data = dict()
 	precision=frappe.db.get_singles_value('System Settings', 'float_precision')
 	planning_master = filters.get("planning_master")
 	# fetch date_data 
 	date_data = get_date_data(planning_master)
 
-	data.update({'date_data':date_data})
+	data.update({'date_data':[(pmi.get('date')).strftime('%d-%m-%Y') for pmi in date_data]})
 
 
 	# fetch date_data_with_amount
@@ -32,7 +46,7 @@ def get_planning_master_data(filters=None):
 	# fetch warehouse list from medtech settings
 	fg_warehouse_list = get_warehouses()
 	ohs_dict = get_current_stock(fg_warehouse_list)
-	# pending_po_dict = get_expected_stock()
+	
 
 	# fetch planning_data from planning_master item
 	planning_data = get_planning_data(planning_master)
@@ -40,7 +54,7 @@ def get_planning_master_data(filters=None):
 	for row in date_wise_planning_details:
 		for item in planning_data:
 			if row.item_code == item.item_code:
-				item.update({row.date:row.amount})
+				item.update({row.get('date').strftime('%d-%m-%Y'):row.amount})
 
 
 	item_dict = dict()
@@ -69,7 +83,7 @@ def get_planning_master_data(filters=None):
 				remaining_qty = virtual_stock - required_qty
 
 				remaining_dict[raw.get('item_code')] = remaining_qty if remaining_qty > 0 else 0
-				raw[date.get('date')] = flt(remaining_qty, precision) if remaining_qty < 0 else flt(required_qty, precision)
+				raw[date.get('date').strftime('%d-%m-%Y')] = flt(remaining_qty, precision) if remaining_qty < 0 else flt(required_qty, precision)
 				check_date[raw.get('item_code')] = date.get('date')
 			else:
 				if date.get('date') == check_date.get(raw.get('item_code')):
@@ -83,12 +97,13 @@ def get_planning_master_data(filters=None):
 				remaining_qty = virtual_stock - required_qty
 
 				remaining_dict[raw.get('item_code')] = remaining_qty if remaining_qty > 0 else 0
-				raw[date.get('date')] = flt(remaining_qty, precision) if remaining_qty < 0 else flt(required_qty, precision)
+				raw[date.get('date').strftime('%d-%m-%Y')] = flt(remaining_qty, precision) if remaining_qty < 0 else flt(required_qty, precision)
 
 	data.update({'planning_data':item_details})
+	final_data = data
 	path = 'medtech_bpa/medtech_bpa/page/plan_availability/plan_availability.html'
 	html=frappe.render_template(path,{'data':data})
-	return {'html':html}
+	return {'html':html,'data':final_data}
 
 
 def get_filters_codition(filters):
@@ -100,6 +115,7 @@ def get_filters_codition(filters):
 # fetch planning dates
 def get_date_data(planning_master):
 	date_data = frappe.db.sql(""" SELECT DISTINCT a.date from `tabPlanning Master Item` a join `tabPlanning Master` b on a.planning_master_parent = b.name  where a.planning_master_parent= '{0}' group by a.date order by a.date""".format(planning_master), as_dict=1)
+	# date_data = date.strftime('%d-%m-%Y')
 	return date_data
 
 # fetch planning_qty and dates
@@ -159,3 +175,123 @@ def get_planning_dates(planning_master):
 	date_dict['from_date'] =planning_dates[0].get('from_date').strftime('%d-%m-%Y')
 	date_dict['to_date'] = planning_dates[0].get("to_date").strftime('%d-%m-%Y') 
 	return date_dict
+
+@frappe.whitelist()
+def make_xlsx_file(renderd_data):
+	data =json.loads(renderd_data)
+
+	header = ['Sr.No','FG Items','FG Item Name','UOM','FG Qty','BOM Items','BOM UOM']
+	
+	book = Workbook()
+	sheet = book.active
+	
+	row = 1
+	col = 1
+
+	for item in header:
+		cell = sheet.cell(row=row,column=col)
+		cell.value = item
+		cell.font = cell.font.copy(bold=True)
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		
+		col+=1
+
+
+	col = 8
+	for date in data.get("date_data"):
+		cell = sheet.cell(row=1,column=col)
+		cell.value = date
+		cell.font = cell.font.copy(bold=True)
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		col+=1
+	
+	row = 2 
+	col  = 1
+	count = 0
+	
+	for item in data.get("planning_data"):
+		item_dict = data.get("planning_data").get(item)
+		cell = sheet.cell(row=row,column=col)
+		cell.value = count + 1
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+1)
+		cell.value = item_dict.get("item_code") 
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+2)
+		cell.value = item_dict.get("item_name")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+3)
+		cell.value = item_dict.get("uom")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+4)
+		cell.value = item_dict.get("amount")
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+5)
+		cell.value = ''
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+		cell = sheet.cell(row=row,column=col+6)
+		cell.value = ''
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+
+
+		col_date = 8
+		for date in data.get("date_data"):
+			cell = sheet.cell(row=row,column=col_date)
+			cell.value = item_dict.get(date)
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
+			col_date+=1
+
+		row+= 1
+		bom_col = 6
+		for bom_item in item_dict.get("bom_data"):
+			cell = sheet.cell(row=row,column=bom_col)
+			cell.value = bom_item.get("item_code")
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=row, start_column=bom_col, end_row=row, end_column=bom_col)
+
+			cell = sheet.cell(row=row,column=bom_col+1)
+			cell.value = bom_item.get("stock_uom")
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			sheet.merge_cells(start_row=row, start_column=bom_col + 1, end_row=row, end_column=bom_col+1)
+
+			date_col = bom_col + 2 
+			for date in data.get("date_data"):
+				cell = sheet.cell(row=row,column=date_col)
+				cell.value = bom_item.get(date)
+				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+				sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
+				date_col+=1
+			row+=1
+
+		count+=1
+
+	file_path = frappe.utils.get_site_path("public")
+	book.save(file_path+'/plan_availability_report.xlsx')
+
+@frappe.whitelist()
+def download_xlsx():
+	import openpyxl
+	from io import BytesIO
+	file_path = frappe.utils.get_site_path("public")
+	wb = openpyxl.load_workbook(filename=file_path+'/plan_availability_report.xlsx')
+	xlsx_file = BytesIO()
+	wb.save(xlsx_file)
+	frappe.local.response.filecontent=xlsx_file.getvalue()
+
+	frappe.local.response.type = "download"
+	frappe.local.response.filename = "plan_availability_report.xlsx"
+
