@@ -106,5 +106,17 @@
   "parenttype": null,
   "style": "",
   "workflow_state_name": "Draft"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-02-25 12:55:38.221062",
+  "name": "Pending For QC",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Pending For QC"
  }
 ]
