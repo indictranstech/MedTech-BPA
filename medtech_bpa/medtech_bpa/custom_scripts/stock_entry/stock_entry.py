@@ -45,6 +45,30 @@ def update_qc_reference_on_vir(doc):
 		if doc.items:
 			for item in doc.items:
 				if item.t_warehouse == get_warehouse.rm_warehouse and  item.s_warehouse == get_warehouse.qc_warehouse and item.quality_inspection:
-					rejected_qty = frappe.db.get_value('Quality Inspection', {'name' : item.quality_inspection}, 'rejected_quantity')
+					rejected_qty = frappe.db.get_value('Quality Inspection', {'name' : item.quality_inspection}, 'rejected_quantity') or 0
+
+					if rejected_qty > 0:
+						# create mr for rejected warehouse
+						current_date = frappe.utils.today()
+						stock_entry = frappe.new_doc("Stock Entry")
+						if stock_entry:
+							stock_entry.posting_date = current_date
+							stock_entry.stock_entry_type = "Rejected Material Transfer"
+							stock_entry.purchase_receipt = doc.purchase_receipt
+							stock_entry.append("items",{
+								'item_code': item.get('item_code'),
+								'item_name': item.get('item_name'),
+								'item_group':item.get('item_group'),
+								'description': item.get('description'),
+								'uom': item.get('uom'),
+								'qty': rejected_qty,
+								's_warehouse': item.t_warehouse,
+								't_warehouse': get_warehouse.rejected_warehouse,
+								'basic_rate' : item.get('rate')
+							})
+							stock_entry.save(ignore_permissions = True)
+							stock_entry.submit()
+							frappe.db.commit()	
+
 					frappe.db.sql("Update `tabPurchase Receipt Item` set quality_inspection = '{0}', custom_rejected_qty = '{1}' where parent = '{2}' and item_code = '{3}'".format(item.quality_inspection, rejected_qty, doc.purchase_receipt, item.item_code))
 					frappe.db.commit()
