@@ -1,11 +1,28 @@
 
 frappe.ui.form.on("Purchase Receipt", {
+	onload: function(frm){	
+		if(cur_frm.doc.__islocal == 1 && cur_frm.doc.is_return == 1){
+			if(frm.doc.items){
+				frm.doc.items.forEach(function(row){
+					frappe.model.set_value(row.doctype, row.name, 'billed_qty', null)
+					frappe.model.set_value(row.doctype, row.name, 'physically_verified_quantity', null)
+					frappe.model.set_value(row.doctype, row.name, 'received_qty', null)
+					frappe.model.set_value(row.doctype, row.name, 'qty', null)
+					frappe.model.set_value(row.doctype, row.name, 'rejected_qty', null)
+					frappe.model.set_value(row.doctype, row.name, 'short_quantity', null)
+					frappe.model.set_value(row.doctype, row.name, 'excess_quantity', null)
+					frappe.model.set_value(row.doctype, row.name, 'actual_accepted_qty', null)
+					frappe.model.set_value(row.doctype, row.name, 'custom_rejected_qty', null)
+				});
+			}
+		}
+	},
 	refresh: function(frm){
 		if(frm.doc.workflow_state == 'Draft'){
 			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'quality_inspection', cur_frm.doc.name);
 			df.hidden = 1
 		}
-		if(frm.doc.workflow_state == 'For QC'){
+		if(frm.doc.workflow_state == 'Pending For QC'){
 			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'quality_inspection', cur_frm.doc.name);
 			df.hidden = 0
 		}
