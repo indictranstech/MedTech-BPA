@@ -344,7 +344,7 @@ def make_xlsx_file(renderd_data):
 
 	file_path = frappe.utils.get_site_path("public")
 	now = datetime.now()
-	fname = "MRP_RM_WISE_REPORT" + now.strftime("%H:%M:%S") + ".xlsx"
+	fname = "MRP_RM_WISE_REPORT" + nowdate() + ".xlsx"
 	book.save(file_path+fname)
 
 @frappe.whitelist()
@@ -353,7 +353,7 @@ def download_xlsx():
 	from io import BytesIO
 	file_path = frappe.utils.get_site_path("public")
 	now = datetime.now()
-	fname = "MRP_RM_WISE_REPORT" + now.strftime("%H:%M:%S") + ".xlsx"
+	fname = "MRP_RM_WISE_REPORT" + nowdate() + ".xlsx"
 	wb = openpyxl.load_workbook(filename=file_path+fname)
 	xlsx_file = BytesIO()
 	wb.save(xlsx_file)
