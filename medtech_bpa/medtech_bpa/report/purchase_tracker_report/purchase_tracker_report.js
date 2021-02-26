@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Visual Inspection Report"] = {
+frappe.query_reports["Purchase Tracker Report"] = {
 	"filters": [
 		{
 			"label": __("From Date"),

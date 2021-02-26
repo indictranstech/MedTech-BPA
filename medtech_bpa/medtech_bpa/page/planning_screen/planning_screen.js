@@ -16,12 +16,18 @@ frappe.planning_screen = Class.extend({
                 me.update_values = update_values
     me.wrapper_page = wrapper.page
                 me.delete_name = ''
+                me.sr_no = 0
+                me.item_code =[]
+                me.item_code_and_uom=null
+                me.selected_values=[]
     // '.layout-main-section-wrapper' class for blank dashboard page
     this.page = $(wrapper).find('.layout-main-section-wrapper');
     $(frappe.render_template('planning_screen_html')).appendTo(this.page);
                 
-
-
+$.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) {
+    
+  })
+                
                 $(".update_view").click(function(){
                   me.update_values=[]
                   $('.planning_screen').html($(frappe.render_template('create_new')));
@@ -129,8 +135,43 @@ frappe.planning_screen = Class.extend({
                         //me.planning_master()
       
       
-      $(".create").click(function(){      
-                          me.get_data();
+      $(".create").click(function(){
+      $(".create").hide()
+              me.item_code = []
+        me.item_code_and_uom = []   
+        me.selected_values=[] 
+            me.get_data(0);
+                       $(".add_row").on("click",function(){
+                        me.get_data(1);
+
+                        //$(".freeze-table").freezeTable('update');
+                        
+                       /* $(".freeze-table").freezeTable({
+                        'freezeColumnHead' : true,
+                        'columnNum':4,
+                        'scrollable':true,
+                       'scrollBar':true, 
+                       });*/
+
+                       });
+                        $(".delete_row").on("click",function(){
+                        
+                        $.each($('input[name="chk[]"]:checked'),function(){
+                        var idbom =$(this).closest('tr').find('.item_code input').attr('id')
+                        var val_in_deleted_row = $("#" + idbom).val()
+                       
+                        var index = me.selected_values.indexOf(val_in_deleted_row);
+if (index >= 0) {
+ me.selected_values.splice( index, 1 );
+}
+                        
+                        remove_id = $(this).closest('tr').attr('id')
+                     
+                        $("#"+remove_id).remove()
+                        $(".freeze-table").freezeTable('update');
+                        })
+                        })
+                      // $("table").scrollTableBody();
        $(document).on('keydown', '.date_class' ,function(event)
                 {
                 
@@ -189,24 +230,24 @@ frappe.planning_screen = Class.extend({
 
 $("td > input.bom").each(function(elem) {
 
-var input = document.getElementById(this.id);
+/*var input = document.getElementById(this.id);
     input.awesomplete = new Awesomplete(input, {
                                 minChars: 0,
               maxItems: 99,
                 autoFirst: true,
-                list:[]                });
-
-
-
-$("#" + this.id).on("awesomplete-selectcomplete", function(e){
+                list:[]                });*/
+/*$("#" + this.id).on("awesomplete-selectcomplete", function(e){
 
     var o = e.originalEvent;
     var value=o.text.value
     this.value=value;
+   // console.log(this);
+   // $('#'+ this.id).val(value)
+   // console.log(";;;;",this)
+$(".freeze-table").freezeTable('update');
+    });*/
 
-    });
-
-$("#" +this.id).on("focus",function(e){
+/*$("#" +this.id).on("focus",function(e){
 $(e.target).val('').trigger('input');
 
 })
@@ -226,16 +267,15 @@ $("#" +this.id).on('input', function(e) {
             e.target.awesomplete.list=r.message
         }
       });
-
-
-
-}) 
-
-
-
-
+}) */
 })
 
+
+/*$(".freeze-table").freezeTable(
+{'columnNum':4,
+'freezeColumnHead': true,
+}
+);*/
       });
                             
 $(".save_new").click(function(){
@@ -286,15 +326,16 @@ save_data:function(){
                 var me = this;
                 var  row_id=[]
                 var dict = {}
-                $("tr:first td").each(function(i,el){
+                $("thead tr th").each(function(i,el){
                   if (el.id != ''){  
                   row_id.push(el.id)}
                  })
-                 
+
                  row_id.forEach(function(element){
+
                   var values= [];
-                  if (element != "bom"){
-                  $('tr:not(:first-child) td[id*= '+element+'  ]').each(function(i,el){
+                  if (element != "bom" && element != "item_code" && element != "uom"){
+                  $('tr td[id*= '+element+'  ]').each(function(i,el){
                       if (el.innerHTML=="<br>" || el.innerHTML == ".<br>"){
                      
                       $(this).html(0)
@@ -305,10 +346,31 @@ save_data:function(){
                       
                   })}
                   else{
-                  
-                   $('tr:not(:first-child) td').find('.bom').each(function(i,el){
+                  if (element == "bom"){
+
+                   $('table:first tbody tr').find('.bom_inner').each(function(i,el){
                   values.push(el.value)
-                  })
+                  })}
+                  
+                  if (element == "uom"){
+                
+                   $('table:first tbody tr  ').find('.uom').each(function(i,el){
+              
+                  if (el.innerHTML=="<br>" || el.innerHTML == ".<br>"){
+                     
+                      $(this).html(0)
+                      
+                      }
+                      
+                      values.push(el.innerHTML)
+                  })}
+
+                  if (element == "item_code"){
+                
+                   $('table:first tbody tr').find('.item_code_inner').each(function(i,el){
+              
+                  values.push(el.value)
+                  })}
                   }
                       dict[element]=values
                   })
@@ -333,6 +395,8 @@ save_data:function(){
                     'width':'150px', 'padding-top': '3px','height':'30px','border-radius':'3px','top':'0'})
                     $('label[for="planning_master"]').show()
                     $(".create").hide()
+                    $(".add_row").hide()
+                    $(".delete_row").hide()
                   frappe.msgprint(__("Planning Master {0} is created.",[r.message[1]]))
                   
                   }
@@ -345,7 +409,7 @@ save_data:function(){
         },
 
 
-get_data:function()
+get_data:function(value)
         {
     var me= this;
                 if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined){
@@ -358,9 +422,156 @@ get_data:function()
           to_date : me.new_project_to_date
         },
         callback: function(r) {
-          data=r.message
+               data=r.message
+                                        if(value==0){
           $('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
-        }
+        me.item_code = data['item_code']
+        me.item_code_and_uom = data['uom_dict']
+                                }
+                                if (value==1){
+                         
+                           data["sr_no"]=me.sr_no + 1
+                          me.sr_no += 1
+                        $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}))
+                  //      $(".ablet > tbody:last-child").find("td:first-child").html($('.ablet > tbody > tr:last').index() + 1 )
+                  
+                        $(".freeze-table").freezeTable({
+                        'freezeColumnHead' : true,
+                        'columnNum':4,
+                        'scrollable':true,
+                       'scrollBar':true
+                       });
+                        //$(".ablet > tbody:last-child").append("<p>jhsagdjas</p>")
+var input_id ="item_code_" + me.sr_no.toString()
+var input = document.getElementById(input_id);
+var input_bom_id ="lmk_" + me.sr_no.toString()
+var input_bom = document.getElementById(input_bom_id)
+
+var element_list = [input,input_bom]
+var element_id = [input_id,input_bom_id]
+//var input = document.getElementById(this.id);
+
+element_list.forEach(function(input){
+
+    input.awesomplete = new Awesomplete(input, {
+                                minChars: 0,
+              maxItems: 99,
+                autoFirst: true,
+                list:[]                });
+});
+
+
+
+
+
+$("#" +input_id).on("focus",function(e){
+//$(e.target).val('').trigger('input');
+
+e.target.awesomplete.list=me.item_code
+
+})
+
+$("#" +input_id).on("focusout",function(e){
+//$(e.target).val('').trigger('input');
+
+
+var iditc =$(this).closest('tr').find('.item_code input').attr('id')
+initial = $("#" + iditc).data('initial')
+
+
+
+if (e.target.value ==""){
+var idbom =$(this).closest('tr').find('.bom input').attr('id')
+$("#" + idbom).val(null)
+$(this).closest('tr').find('.uom').html("")
+}
+
+if (e.target.value != initial){
+
+var index = me.selected_values.indexOf(initial);
+if (index >= 0) {
+ me.selected_values.splice( index, 1 );
+}
+var idbom =$(this).closest('tr').find('.bom input').attr('id')
+$("#" + idbom).val(null)
+$(this).closest('tr').find('.uom').html("")
+
+}
+
+})
+$("#" +input_bom_id).on("focus",function(e){
+//$(e.target).val('').trigger('input');
+var item_code_value = $(this).closest('.item_code')
+var value_in_item_code = $("#"+ "item_code_" + this.id.slice(4 )).val()
+
+//e.target.awesomplete.list=me.item_code
+if (item_code_value != "<empty string>"){
+
+    frappe.call({
+        method: "medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.get_bom_based_on_item_code",
+        async: false,
+        freeze_message:"Loading ...Please Wait",
+        args:{
+          item_code : value_in_item_code,
+        },
+        callback: function(r) {
+        e.target.awesomplete.list = r.message
+        }})}
+
+
+})
+
+
+
+element_id.forEach(function(input){
+
+$("#" + input).on("awesomplete-selectcomplete", function(e){
+
+
+    var o = e.originalEvent;
+    var value=o.text.value
+    /*if (me.selected_values.includes(value)){
+    frappe.throw('duplicate')
+    }else{
+    me.selected_values.push(value)*/
+
+    this.value=value;
+
+
+if (input.search("item_code_") != -1)
+{
+if (me.selected_values.includes(value)){
+var iditc =$(this).closest('tr').find('.item_code input').attr('id')
+$("#" + iditc).val(null)
+frappe.throw('Duplicate Entry')
+return
+    }
+var iditc =$(this).closest('tr').find('.item_code input').attr('id')
+initial = $("#" + iditc).data('initial')
+if (this.value != initial){
+
+var index = me.selected_values.indexOf(initial);
+if (index >= 0) {
+ me.selected_values.splice( index, 1 );
+ var idbom =$(this).closest('tr').find('.bom input').attr('id')
+$("#" + idbom).val(null)
+$(this).closest('tr').find('.uom').html("")
+}
+
+
+}
+$("#" + iditc).data('initial',this.value)
+me.selected_values.push(value)
+//$("#" + "uom_"+ input.slice(10)).val()
+
+$("#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
+}
+//}
+$(".freeze-table").freezeTable('update');
+    });
+})
+}
+                                }
     });}
   },
 
@@ -379,7 +590,9 @@ get_data:function()
           data=r.message
           
           $('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
-          
+          $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}));
+          $(".add_row").hide()
+          $(".delete_row").hide()
           }
 
           });

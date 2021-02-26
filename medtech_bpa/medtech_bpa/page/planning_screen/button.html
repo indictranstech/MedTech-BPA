@@ -1,0 +1,47 @@
+
+                    {% count = 1 %}
+                    {% if data.update == 0 %}
+              
+                        <tr class="row_po_report"  id={{data.sr_no}}>
+                            <td style="color:black;" align="left" id="sr_no" class="sr_no" ><input style = "width:auto" class="check" type="checkbox" name="chk[]" id="sr_no_{{data.sr_no}}" value=""/></td>
+                            <td style="color:black;display:flex;" align="left"id="item_code"  class="item_code" ><input data-initial="" style="width:auto" type="text" class="item_code_inner" id="item_code_{{data.sr_no}}" value=""/></td>
+                            <td style="color:black;" align="left" id ="uom_{{data.sr_no}}" class ="uom"> </td>
+                            <td style="color:black;display:flex;"  align="left"id="bom" class="bom"> <input data-initial="" style = "width:auto" type="text" class="bom_inner" id="lmk_{{data.sr_no}}" value="" /></td>
+                        
+                            {% count1 = 1 %}
+                            {% for date in data.header_list %}
+
+                                {% if date[1] == 1 %}
+                                <td style="color:black;" align="left"  contenteditable="true" class="date_class {{count1}}" id = {{date[0]}} data-initial="{{count1}}">0</td>
+                                {% else %}
+                                <td style="color:black; background : #c2c2a3" align="left" contenteditable="false" class="date_class {{count1}}" id = {{date[0]}} data-initial="{{count1}}">0</td>
+                                {% endif %}
+                                {% if count1 != 2 %}
+                                  {% count1 = count1 +1 %}                     
+                                {% endif %}
+                            {% endfor %}
+                            </tr>
+                            {% count = count + 1 %}
+                     
+                   
+                   {% else %}
+                      {% for tbl_data in data.item_data %}
+                          <tr class="row_po_report"  >
+                              <td style="color:black;" align="left" id="sr_no" >{{ count }}</td>
+                              <td style="color:black;" align="left" id="item_code">{{ tbl_data["item_code"] }}</td>
+                              <td style="color:black;" align="left" id ="uom">{{ tbl_data["stock_uom"] }}</td>
+                              <td style="color:black;" align="left"  contenteditable="true" id="bom">{{ tbl_data["bom"] }}</td>
+                                  {% inner_count = 0 %}                            
+                                  {% for date in data.header_list%}
+
+                                  {% if date[1] == 1 %}
+                                  <td style="color:black;" align="left"  contenteditable="true" class="date_class  {{tbl_data.name[inner_count]}}" id = {{date[0]}} data-initial={{tbl_data.amount[inner_count]}}>{{tbl_data.amount[inner_count]}} </td>
+                                  {% else %}
+                                  <td style="color:black; background : #c2c2a3" align="left" contenteditable="false" class="date_class {{tbl_data.name[inner_count]}}" id = {{date[0]}} data-initital={{tbl_data.amount[inner_count]}}>{{tbl_data.amount[inner_count]}}</td>
+                                  {% endif %}
+                                  {% inner_count = inner_count + 1 %}
+                              {% endfor %}
+                              {% count = count + 1 %}
+                          </tr>
+                      {% endfor %}
+                      {% endif %}

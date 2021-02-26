@@ -103,7 +103,7 @@ def get_data(filters):
 		row_data.append(row.get('accepted_qty'))
 		row_data.append(row.get('diff'))
 		row_data.append(row.get('purchase_rtn_qty'))
-		row_data.append('')
+		row_data.append(0)
 		row_data.append(row.get('debit_note_qty'))
 		row_data.append((row.get('diff') - row.get('purchase_rtn_qty') - row.get('debit_note_qty') + 0))
 		row_data.append(row.get('bill_booked'))
