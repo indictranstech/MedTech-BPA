@@ -2,7 +2,7 @@
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Tracking Report and Export"] = {
+frappe.query_reports["QC Tracking Report"] = {
 	"filters": [
 		{
 			"label": __("Visual Inspection Report"),

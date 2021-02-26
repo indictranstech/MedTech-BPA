@@ -1,5 +1,5 @@
 <style media="screen">
-  .po_report{
+<!  .po_report{
     font-size: 15px;
     text-align: center;
     letter-spacing: .4px;
@@ -11,80 +11,58 @@
     letter-spacing: .4px;
     border-color:#0579ce;
     border-color:#e0dede;
-  }
+  }>
   tbody tr td{
-    width:100px;
-  }.po_report_row{height: 40px;font-weight: 500;font-size: 25px;}
-  tr:not(:first-child) td:hover{ background-color: #ffff99;}
+    width:50px;
+    vertical-align:middle;
+    border-color:#d1d8dd;
+  }
+  .po_report_row{
+  height: 40px;
+  font-weight: 500;
+  width: 100px;
+
+  }
+
+  tr:not(:first-child) td:hover{
+  background-color: #ffff99;
+
+}
+
+.scrollit{
+overflow:scroll;
+height:500px;
+}
+
+
+
 </style>
-<div class="order_table">
-        <span>
-            <table id="updates" style="margin-top:10px;">
-                    <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center;">
-                        <td class="po_report_row" >Sr No</td>
-                        <td class="po_report_row" id="item_code" >Item Code</td>
-                        <td class="po_report_row" id="uom">UOM</td>
-                        <td class="po_report_row" id="bom">BOM</td>
+<div class="order_table freeze-table scrollit">
+    
+            <table  id="updates" style="margin-top:0px;"class="table ablet">
+ <thead>
+                    <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center; border: 1px border-color: #ffffff">
+                        <th class="po_report_row" >Sr No</th>
+                        <th class="po_report_row" id="item_code" >Item Code</th>
+                        <th class="po_report_row" id="uom">UOM</th>
+                        <th class="po_report_row" id="bom">BOM</th>
 
                         
                           {% for key in data.header_list %}
                             
                               {% if key[1] == 0 %}                               
-                                <td class="hide_editable" id = {{key[0]}} > {{key[0]}}</td>
+                                <th class="hide_editable" id = {{key[0]}} > {{key[0]}}</th>
                               {% else %}
-                                <td class="po_report_row" id = {{key[0]}} > {{key[0]}}</td>
+                                <th class="po_report_row" id = {{key[0]}} > {{key[0]}}</th>
                               {% endif %}                    
                           
                           {% endfor %}
                     </tr> 
+</thead>
+<tbody>
 
-
-                    {% count = 1 %}
-                    {% if data.update == 0 %}
-                    {% for tbl_data in data.item_data %}
-                        <tr class="row_po_report"  >
-                            <td style="color:black;" align="left" id="sr_no" >{{ count }}</td>
-                            <td style="color:black;" align="left" id="item_code">{{ tbl_data["item_code"] }}</td>
-                            <td style="color:black;" align="left" id ="uom">{{ tbl_data["stock_uom"] }}</td>
-                            <td style="color:black;dicplay:flex;"  align="left"id="bom" > <input style = "width:auto" type="text" class="bom" id="lmk_{{count}}" value="{{tbl_data["bom"]}}" /></td>
-                        
-                            {% count1 = 1 %}
-                            {% for date in data.header_list %}
-
-                                {% if date[1] == 1 %}
-                                <td style="color:black;" align="left"  contenteditable="true" class="date_class {{count1}}" id = {{date[0]}} data-initial="{{count1}}"></td>
-                                {% else %}
-                                <td style="color:black; background : #c2c2a3" align="left" contenteditable="false" class="date_class {{count1}}" id = {{date[0]}} data-initial="{{count1}}"></td>
-                                {% endif %}
-                                {% if count1 != 2 %}
-                                  {% count1 = count1 +1 %}
-                                {% endif %}
-                            {% endfor %}
-                            {% count = count + 1 %}
-                        </tr>
-                    {% endfor %}
-                    {% else %}
-                      {% for tbl_data in data.item_data %}
-                          <tr class="row_po_report"  >
-                              <td style="color:black;" align="left" id="sr_no" >{{ count }}</td>
-                              <td style="color:black;" align="left" id="item_code">{{ tbl_data["item_code"] }}</td>
-                              <td style="color:black;" align="left" id ="uom">{{ tbl_data["stock_uom"] }}</td>
-                              <td style="color:black;" align="left"  contenteditable="false" id="bom">{{ tbl_data["bom"] }}</td>
-                                  {% inner_count = 0 %}                            
-                                  {% for date in data.header_list%}
-
-                                  {% if date[1] == 1 %}
-                                  <td style="color:black;" align="left"  contenteditable="true" class="date_class  {{tbl_data.name[inner_count]}}" id = {{date[0]}} data-initial={{tbl_data.amount[inner_count]}}>{{tbl_data.amount[inner_count]}} </td>
-                                  {% else %}
-                                  <td style="color:black; background : #c2c2a3" align="left" contenteditable="false" class="date_class {{tbl_data.name[inner_count]}}" id = {{date[0]}} data-initital={{tbl_data.amount[inner_count]}}>{{tbl_data.amount[inner_count]}}</td>
-                                  {% endif %}
-                                  {% inner_count = inner_count + 1 %}
-                              {% endfor %}
-                              {% count = count + 1 %}
-                          </tr>
-                      {% endfor %}
-                      {% endif %}
-            </table>
-          </span>
-    
+</tbody>
+</table>
   </div>
+  <span><button type="button" class ="add_row">New Row</button></span>
+  <span><button type="button" class ="delete_row">Delete Row</button></span>

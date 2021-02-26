@@ -575,33 +575,6 @@
   "content": null,
   "docstatus": 0,
   "doctype": "Page",
-  "icon": null,
-  "modified": "2021-02-24 12:57:48.657716",
-  "module": "MedTech-BPA",
-  "name": "rm-wise-report",
-  "page_name": "RM Wise Report",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "restrict_to_domain": null,
-  "roles": [
-   {
-    "parent": "rm-wise-report",
-    "parentfield": "roles",
-    "parenttype": "Page",
-    "role": "Administrator"
-   }
-  ],
-  "script": null,
-  "standard": "Yes",
-  "style": null,
-  "system_page": 0,
-  "title": "MRP RM Wise Report"
- },
- {
-  "content": null,
-  "docstatus": 0,
-  "doctype": "Page",
   "icon": "fa fa-th",
   "modified": "2014-08-08 05:59:33.045012",
   "module": "Accounts",
@@ -767,6 +740,33 @@
   "style": null,
   "system_page": 0,
   "title": "MRP FG Wise Report"
+ },
+ {
+  "content": null,
+  "docstatus": 0,
+  "doctype": "Page",
+  "icon": null,
+  "modified": "2021-02-24 12:57:48.657716",
+  "module": "MedTech-BPA",
+  "name": "rm-wise-report",
+  "page_name": "RM Wise Report",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "roles": [
+   {
+    "parent": "rm-wise-report",
+    "parentfield": "roles",
+    "parenttype": "Page",
+    "role": "Administrator"
+   }
+  ],
+  "script": null,
+  "standard": "Yes",
+  "style": null,
+  "system_page": 0,
+  "title": "MRP RM Wise Report"
  },
  {
   "content": null,

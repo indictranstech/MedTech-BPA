@@ -15,7 +15,8 @@ from frappe import _
 
 @frappe.whitelist()
 def save_items_data(from_date,to_date,data):
-    dates_check(from_date,to_date)
+    
+    #dates_check(from_date,to_date)
     date_range = pd.date_range(from_date,to_date)
     date_range= [(i).strftime("%d-%m-%Y") for i in  date_range]
     doc = frappe.new_doc("Planning Master")
@@ -32,10 +33,10 @@ def save_items_data(from_date,to_date,data):
             doc_child.item_name = data['item_code'][i]
             doc_child.date =  datetime.strptime(j,"%d-%m-%Y")
             try:
-                if '<br>' in data[j][i]:
-                    doc_child.amount = float(data[j][i][0:-4]) if data[j][i][0:-4] not in ['',None,'.'] else 0
+                if '<br>' in data[j[:-5]][i]:
+                    doc_child.amount = float(data[j[:-5]][i][0:-4]) if data[j[:-5]][i][0:-4] not in ['',None,'.'] else 0
                 else:
-                    doc_child.amount =  float(data[j][i]) 
+                    doc_child.amount =  float(data[j[:-5]][i]) 
             except Exception as e:
                 frappe.throw("Error in saving data at column %s and row %s"%(j,i+1))
             doc_child.uom = data["uom"][i]
@@ -72,7 +73,7 @@ def delete_data(delete_data):
 
 @frappe.whitelist()
 def get_items_data(from_date, to_date,listview=None):
-        dates_check(from_date,to_date)    
+        #dates_check(from_date,to_date)    
         sdate =  datetime.strptime(from_date, '%Y-%m-%d').date()
         edate =  datetime.strptime(to_date, '%Y-%m-%d').date()
         delta = edate - sdate
@@ -82,9 +83,9 @@ def get_items_data(from_date, to_date,listview=None):
             day = sdate + timedelta(days=i)
         
             if date.today() >= day:
-                date_dict.append([day.strftime('%d-%m-%Y'),0])
+                date_dict.append([day.strftime('%d-%m'),0])
             else:
-                date_dict.append([day.strftime('%d-%m-%Y'),1])
+                date_dict.append([day.strftime('%d-%m'),1])
             date_list.append(day.strftime('%d-%m-%Y'))
     
         data = dict()
@@ -98,15 +99,30 @@ def get_items_data(from_date, to_date,listview=None):
         else:
             fg_item_group_list = "' '"
 
-        item_detail = frappe.db.sql("select i.item_code, i.item_group, i.stock_uom from `tabItem` i join `tabBOM` b on i.item_code = b.item where b.docstatus = 1 and i.item_group in ({0}) group by i.item_code order by i.item_group, i.item_code".format(fg_item_group_list), as_dict=1)
+        item_detail = frappe.db.sql("select i.item_code,i.name, i.item_group, i.stock_uom from `tabItem` i join `tabBOM` b on i.item_code = b.item where b.docstatus = 1 and i.item_group in ({0}) group by i.item_code order by i.item_group, i.item_code".format(fg_item_group_list), as_dict=1)
         bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = (select max(b2.is_default) from `tabBOM` b2 where b2.item = b.item and b.docstatus = 1)", as_dict = 1)
         bom_dict = {bom.get('item') : bom.get('name') for bom in bom_query}
+        uom_dict={}
+        
+        for i in item_detail:
+            uom_dict[i.item_code]=[i.name,i.stock_uom]
+       
         for row in item_detail:
             row['bom'] = bom_dict.get(row.get('item_code'))
+        item_code_list = [i.get('item_code') for i in item_detail]
         data['item_data'] = item_detail
+        data['item_code'] = item_code_list
         data['update']=0
+        data['uom_dict']=uom_dict
+       
         return data
 
+@frappe.whitelist()
+def get_bom_based_on_item_code(item_code):
+   
+    bom_list = [ i[0] for i in frappe.db.sql("select b.name from `tabItem` i join `tabBOM` b on i.item_code = b.item where i.item_code='%s'"%(item_code), as_list=1)]
+    
+    return bom_list
 @frappe.whitelist()
 def fetch_data(name):
     try:
