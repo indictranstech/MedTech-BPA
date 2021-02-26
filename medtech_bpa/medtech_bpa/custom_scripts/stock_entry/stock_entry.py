@@ -46,5 +46,5 @@ def update_qc_reference_on_vir(doc):
 			for item in doc.items:
 				if item.t_warehouse == get_warehouse.rm_warehouse and  item.s_warehouse == get_warehouse.qc_warehouse and item.quality_inspection:
 					rejected_qty = frappe.db.get_value('Quality Inspection', {'name' : item.quality_inspection}, 'rejected_quantity')
-					frappe.db.sql("Update `tabPurchase Receipt Item` set quality_inspection = '{0}', rejected_qty = '{1}' where parent = '{2}' and item_code = '{3}'".format(item.quality_inspection, rejected_qty, doc.purchase_receipt, item.item_code))
+					frappe.db.sql("Update `tabPurchase Receipt Item` set quality_inspection = '{0}', custom_rejected_qty = '{1}' where parent = '{2}' and item_code = '{3}'".format(item.quality_inspection, rejected_qty, doc.purchase_receipt, item.item_code))
 					frappe.db.commit()
