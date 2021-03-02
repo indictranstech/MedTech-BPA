@@ -75,9 +75,10 @@ frappe.ui.form.on("Stock Entry Detail", {
 			callback: function(r) {
 				var row = locals[cdt][cdn]
 				if(r.message) {
-					if(r.message.rm_warehouse == row.t_warehouse){
+					if(r.message.rm_warehouse == row.t_warehouse && !frm.doc.purchase_receipt){
+						frappe.msgprint("Please Enter Visual Inspection Report No")
 
-						frm.set_df_property('purchase_receipt' , 'reqd', 1)
+						// frm.set_df_property('purchase_receipt' , 'reqd', 1)
 
 					}
 				}

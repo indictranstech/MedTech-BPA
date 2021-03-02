@@ -18,6 +18,21 @@ frappe.ui.form.on("Purchase Receipt", {
 		}
 	},
 	refresh: function(frm){
+		if(frm.doc.is_return == 1){
+			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'short_quantity', cur_frm.doc.name);
+			df.hidden = 1
+			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'excess_quantity', cur_frm.doc.name);
+			df.hidden = 1
+			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'custom_rejected_qty', cur_frm.doc.name);
+			df.hidden = 1
+			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'actual_accepted_qty', cur_frm.doc.name);
+			df.read_only = 1
+			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'received_stock_qty', cur_frm.doc.name);
+			df.hidden = 1
+			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'stock_qty', cur_frm.doc.name);
+			df.hidden = 1
+
+		}
 		if(frm.doc.workflow_state == 'Draft'){
 			var df = frappe.meta.get_docfield('Purchase Receipt Item', 'quality_inspection', cur_frm.doc.name);
 			df.hidden = 1
