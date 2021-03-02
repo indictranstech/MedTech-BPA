@@ -105,7 +105,7 @@ def get_data(filters):
 		row_data.append(row.get('purchase_rtn_qty'))
 		row_data.append(0)
 		row_data.append(row.get('debit_note_qty'))
-		row_data.append((row.get('diff') - row.get('purchase_rtn_qty') - row.get('debit_note_qty') + 0))
+		row_data.append((abs(row.get('diff')) - abs(row.get('purchase_rtn_qty')) - abs(row.get('debit_note_qty')) + 0))
 		row_data.append(row.get('bill_booked'))
 		row_data.append(row.get('pending_for_payment'))
 		final_data.append(row_data)
@@ -254,7 +254,7 @@ def get_columns():
 		},
 		{
 			"fieldname": "pending_for_payment",
-			"label": _("Pending for Payment"),
+			"label": _("Pending for Invoice/Debit Note"),
 			"fieldtype": "Float",
 			"width": 140
 		}
