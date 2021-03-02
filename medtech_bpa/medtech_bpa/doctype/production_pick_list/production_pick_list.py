@@ -40,7 +40,7 @@ class ProductionPickList(Document):
 					actual_balance = frappe.db.get_value("Work Order Item",{'parent':self.work_order,'item_code':item.item_code
 						},'transferred_qty')
 					item.check_balance = (item.check_balance + item.picked_qty)
-					item.balance_qty = item.qty - actual_balance
+					item.balance_qty = flt(item.qty - actual_balance) if flt(item.qty - actual_balance) > 0 else 0
 					item.picked_qty = 0
 					actual_stock = get_available_item_locations_for_other_item(item.item_code,item.warehouse,item.qty,self.company)
 					item.stock_qty = actual_stock[0].get("qty")
