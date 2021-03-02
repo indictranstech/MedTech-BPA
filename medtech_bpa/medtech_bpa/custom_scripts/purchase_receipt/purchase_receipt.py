@@ -8,11 +8,11 @@ def validate(doc, method):
 	if doc.is_return:
 		setting_doc = frappe.get_single('MedTech Settings')
 		if setting_doc.get('rejected_warehouse') == doc.set_warehouse:
-			doc.return_for_warehouse = "Rejected Warehouse"
+			doc.return_for_warehouse = "Purchase Return"
 		elif setting_doc.get('short_warehouse') == doc.set_warehouse:
-			doc.return_for_warehouse = "Short Warehouse"
+			doc.return_for_warehouse = "Debit Note"
 		elif setting_doc.get('excess_warehouse') == doc.set_warehouse:
-			doc.return_for_warehouse = "Excess Warehouse"
+			doc.return_for_warehouse = "Credit Note"
 		else:
 			doc.return_for_warehouse = ''
 
