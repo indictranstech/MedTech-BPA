@@ -48,7 +48,9 @@ class ProductionPickList(Document):
 		for item in self.locations:
 			actual_balance = frappe.db.get_value("Work Order Item",{'parent':self.work_order,'item_code':item.item_code
 						},'transferred_qty')
-			item.balance_qty = item.qty - actual_balance	
+			item.balance_qty = item.qty - actual_balance
+
+	
 	def set_item_locations(self, save=False):
 		items = self.aggregate_item_qty()
 		self.item_location_map = frappe._dict()
@@ -57,6 +59,9 @@ class ProductionPickList(Document):
 		if self.parent_warehouse:
 			from_warehouses = frappe.db.get_descendants('Warehouse', self.parent_warehouse)
 
+		if not from_warehouses:
+			from_warehouses = self.parent_warehouse
+		
 		# Create replica before resetting, to handle empty table on update after submit.
 		locations_replica  = self.get('locations')
 
@@ -298,4 +303,5 @@ def get_work_orders(production_plan,item):
 def get_items_from_production_plan(production_plan):
 	items = frappe.get_list("Production Plan Item",{'parent':production_plan},'item_code')
 	item_list = [item.item_code for item in items]
-	return item_list
+	rm_warehouse = frappe.db.get_value("Production Plan",{'name':production_plan},'for_warehouse')
+	return item_list,rm_warehouse

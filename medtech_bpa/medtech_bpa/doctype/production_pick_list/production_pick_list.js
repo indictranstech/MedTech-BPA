@@ -8,7 +8,7 @@ frappe.ui.form.on('Production Pick List', {
 		frm.set_query('parent_warehouse', () => {
 			return {
 				filters: {
-					'is_group': 1,
+					// 'is_group': 1,
 					'company': frm.doc.company
 				}
 			};
@@ -42,15 +42,16 @@ frappe.ui.form.on('Production Pick List', {
 				},
 				callback:function(r){
 					if(r.message){
+						frm.set_value('parent_warehouse',r.message[1])
 						cur_frm.fields_dict['item'].get_query = function(doc, cdt, cdn) {
-			return {
-				filters: [
-					['Item','name', 'in', r.message]
-				]
-			}
-		}
+							return {
+								filters: [
+									['Item','name', 'in', r.message[0]]
+								]
+							}
 						}
 					}
+				}
 							
 				
 			})
@@ -120,8 +121,29 @@ frappe.ui.form.on('Production Pick List', {
 	purpose: (frm) => {
 		frm.clear_table('locations');
 		frm.trigger('add_get_items_button');
+	},
+	before_submit(frm){
+		var remaining_qty = 0
+		$.each(frm.doc.locations, function(idx, row){
+			if(row.balance_qty > 0){
+				remaining_qty = remaining_qty + row.balance_qty
+			}
+		})
+		if(remaining_qty > 0){
+			return new Promise(function(resolve, reject) {
+					frappe.confirm(
+						__("Qty Remaining To Be Picked ,Do you want to Submit?"),
+					function(){
+						var negative = 'frappe.validated = true';
+						resolve(negative);	
+					},function(){	
+						reject();
+				});
+			})
+		}
 	}
 });
+
 
 frappe.ui.form.on('Production Pick List Item', {
 	item_code: (frm, cdt, cdn) => {
