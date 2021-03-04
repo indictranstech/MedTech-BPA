@@ -1497,23 +1497,6 @@
  },
  {
   "default_value": null,
-  "doc_type": "Purchase Receipt",
-  "docstatus": 0,
-  "doctype": "Property Setter",
-  "doctype_or_field": "DocField",
-  "field_name": "naming_series",
-  "modified": "2021-02-04 17:25:48.997075",
-  "name": "Purchase Receipt-naming_series-options",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "property": "options",
-  "property_type": "Text",
-  "row_name": null,
-  "value": "MAT-PRE-.YYYY.-"
- },
- {
-  "default_value": null,
   "doc_type": "Purchase Invoice",
   "docstatus": 0,
   "doctype": "Property Setter",
@@ -2701,5 +2684,22 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Purchase Receipt",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "naming_series",
+  "modified": "2021-03-04 09:50:05.599814",
+  "name": "Purchase Receipt-naming_series-options",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "options",
+  "property_type": "Text",
+  "row_name": null,
+  "value": "MAT-PRE-.YYYY.-\nMAT-VIR-RET-.YYYY.-"
  }
 ]
