@@ -26,23 +26,16 @@ def on_submit(doc,method):
 		work_order_doc.submit()
 	
 def get_stock_balance(item_set,date,wip_warehouse):
-	"""Returns stock balance quantity at given warehouse on given posting date or current date.
-	If `with_valuation_rate` is True, will return tuple (qty, rate)"""
-	if len(item_set) == 0:
-		frappe.throw("Please select item".format(date))
-	elif len(item_set) == 1:
-		stock_qty = frappe.db.sql(""" SELECT b.item_code, b.actual_qty,b.stock_uom from `tabBin` b where b.item_code = '{0}' and b.actual_qty > 0 order by b.modified asc """.format(item_set[0]), as_dict = 1)
+	from_warehouses = None
+	if wip_warehouse:
+		from_warehouses = frappe.db.get_descendants('Warehouse', wip_warehouse)
+		
+	if not from_warehouses:
+		from_warehouses = [wip_warehouse]
+
+	if len(from_warehouses) == 1:
+		stock_qty = frappe.db.sql("SELECT item.item_code, sum(IFNULL (bin.actual_qty,0.0)) as ohs from `tabItem` item LEFT JOIN `tabBin` bin on item.item_code = bin.item_code  and item.disabled = 0 and bin.warehouse = '{0}' group by item.item_code".format(from_warehouses[0]), as_dict=1,debug=1)
 	else:
-		stock_qty = frappe.db.sql(""" SELECT b.item_code, b.actual_qty,b.stock_uom from `tabBin` b where b.item_code in {0} and b.actual_qty > 0 order by b.modified asc """.format(tuple(item_set)), as_dict = 1)
-	from erpnext.stock.stock_ledger import get_previous_sle
-	stock_dict = {}
-	posting_time = nowtime()
-	for item in item_set:
-		last_entry = get_previous_sle({
-			"item_code": item,
-			"warehouse" : wip_warehouse,
-			"posting_date": date,
-			"posting_time": posting_time })
-		total_qty = last_entry.qty_after_transaction if last_entry else 0.0
-		stock_dict[item] = total_qty
+		stock_qty = frappe.db.sql("SELECT item.item_code, sum(IFNULL (bin.actual_qty,0.0)) as ohs from `tabItem` item LEFT JOIN `tabBin` bin on item.item_code = bin.item_code  and item.disabled = 0 and bin.warehouse in {0} group by item.item_code".format(tuple(from_warehouses)), as_dict=1,debug=1)
+	stock_dict = {row.item_code : row.ohs for row in stock_qty}
 	return stock_dict
