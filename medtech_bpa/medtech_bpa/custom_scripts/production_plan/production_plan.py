@@ -13,7 +13,7 @@ def validate(doc,method):
 			item.qty_in_material_issue_warehouse = stock_qty_in_material_issue_warehouse.get(item.item_code)
 		if item.item_code in stock_qty_in_wip_warehouse:
 			item.qty_in_wip_warehouse = stock_qty_in_wip_warehouse.get(item.item_code)
-		item.quantity_to_be_issued = (item.quantity - item.qty_in_wip_warehouse)
+		item.quantity_to_be_issued = (item.quantity - item.qty_in_wip_warehouse) if (item.quantity - item.qty_in_wip_warehouse) > 0 else 0
 		item.shortage_or_excess_quantity = (item.qty_in_material_issue_warehouse - item.quantity_to_be_issued)
 
 def on_submit(doc,method):
@@ -24,6 +24,7 @@ def on_submit(doc,method):
 		work_order_doc = frappe.get_doc("Work Order",item)
 		work_order_doc.flags.ignore_permissions = 1
 		work_order_doc.submit()
+	doc.reload()
 	
 def get_stock_balance(item_set,date,wip_warehouse):
 	from_warehouses = None
