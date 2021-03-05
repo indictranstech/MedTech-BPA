@@ -12,10 +12,11 @@ def on_submit(doc,method):
 		for item in doc.required_items:
 			if item.item_code == row.item_code:
 				actual_qty = get_available_item_qty_in_wip(item.item_code,doc.wip_warehouse,doc.company)
-				if len(actual_qty) > 0:
-					item.qty_to_be_issued = item.required_qty - actual_qty[0].get("qty")
-				else:
-					item.qty_to_be_issued = item.required_qty
+				item.qty_to_be_issued = (item.required_qty - row.qty_in_wip_warehouse) if (item.required_qty - row.qty_in_wip_warehouse) > 0 else 0
+				# if len(actual_qty) > 0:
+				# 	item.qty_to_be_issued = item.required_qty - actual_qty[0].get("qty")
+				# else:
+				# 	item.qty_to_be_issued = item.required_qty
 	doc.save()
 	doc.submit()
 @frappe.whitelist()
