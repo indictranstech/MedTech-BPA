@@ -88,36 +88,46 @@ frappe.ui.form.on('Production Pick List', {
 	},
 	get_item_locations: (frm) => {
 		// Button on the form
-		frm.events.set_item_locations(frm, false);
-	},
-	work_order: (frm) => {
-		frappe.db.get_value('Work Order',
-			frm.doc.work_order,
-			['qty', 'material_transferred_for_manufacturing']
-		).then(data => {
-			let qty_data = data.message;
-			let max = qty_data.qty - qty_data.material_transferred_for_manufacturing;
-			frappe.prompt({
-				fieldtype: 'Float',
-				label: __('Qty of Finished Goods Item'),
-				fieldname: 'qty',
-				description: __('Max: {0}', [max]),
-				default: max
-			}, (data) => {
-				frm.set_value('for_qty', data.qty);
-				if (data.qty > max) {
-					frappe.msgprint(__('Quantity must not be more than {0}', [max]));
-					return;
-				}
-				frm.clear_table('locations');
-				erpnext.utils.map_current_doc({
+		frm.doc.locations = ''
+		if(frm.doc.work_order){
+			erpnext.utils.map_current_doc({
 					method: 'medtech_bpa.medtech_bpa.custom_scripts.work_order.work_order.create_pick_list',
 					target: frm,
 					source_name: frm.doc.work_order
 				});
-			}, __('Select Quantity'), __('Get Items'));
-		});
+		}
+		else{
+			frappe.msgprint("Please Select Item First ")
+		}
 	},
+	// work_order: (frm) => {
+		// frappe.db.get_value('Work Order',
+		// 	frm.doc.work_order,
+		// 	['qty', 'material_transferred_for_manufacturing']
+		// ).then(data => {
+		// 	let qty_data = data.message;
+		// 	let max = qty_data.qty - qty_data.material_transferred_for_manufacturing;
+		// 	frappe.prompt({
+		// 		fieldtype: 'Float',
+		// 		label: __('Qty of Finished Goods Item'),
+		// 		fieldname: 'qty',
+		// 		description: __('Max: {0}', [max]),
+		// 		default: max
+		// 	}, (data) => {
+		// 		frm.set_value('for_qty', data.qty);
+		// 		if (data.qty > max) {
+		// 			frappe.msgprint(__('Quantity must not be more than {0}', [max]));
+		// 			return;
+		// 		}
+		// 		frm.clear_table('locations');
+		// 		erpnext.utils.map_current_doc({
+		// 			method: 'medtech_bpa.medtech_bpa.custom_scripts.work_order.work_order.create_pick_list',
+		// 			target: frm,
+		// 			source_name: frm.doc.work_order
+		// 		});
+		// 	}, __('Select Quantity'), __('Get Items'));
+		// });
+	// },
 	purpose: (frm) => {
 		frm.clear_table('locations');
 		frm.trigger('add_get_items_button');
