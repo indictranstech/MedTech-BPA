@@ -3,10 +3,11 @@
                     {% if data.update == 0 %}
               
                         <tr class="row_po_report"  id={{data.sr_no}}>
-                            <td style="color:black;" align="left" id="sr_no" class="sr_no" ><input style = "width:auto" class="check" type="checkbox" name="chk[]" id="sr_no_{{data.sr_no}}" value=""/></td>
-                            <td style="color:black;display:flex;" align="left"id="item_code"  class="item_code" ><input data-initial="" style="width:auto" type="text" class="item_code_inner" id="item_code_{{data.sr_no}}" value=""/></td>
+                            <td style="color:black;" align="left" id="sr_no" class="sr_no" ><input style = "width:auto;" class="check" type="checkbox" name="chk[]"   id="sr_no_{{data.sr_no}}" value=""/></td>
+                            <td style="color:black;" align="left"id="item_code"  class="item_code" ><input data-initial="" style="width:150px" type="text" class="item_code_inner" id="item_code_{{data.sr_no}}" value=""/></td>
+                            <td style="color:black;width:150px;overflow:hidden;" align="left" id ="item_name_{{data.sr_no}}" class ="item_name"><input data-initial="" style="width:150px" type="text" class="item_name_inner" id="item_name_inner{{data.sr_no}}" value=""/> </td>
                             <td style="color:black;" align="left" id ="uom_{{data.sr_no}}" class ="uom"> </td>
-                            <td style="color:black;display:flex;"  align="left"id="bom" class="bom"> <input data-initial="" style = "width:auto" type="text" class="bom_inner" id="lmk_{{data.sr_no}}" value="" /></td>
+                            <td style="color:black;"  align="left"id="bom" class="bom"> <input data-initial="" style = "width:150px" type="text" class="bom_inner" id="lmk_{{data.sr_no}}" value="" /></td>
                         
                             {% count1 = 1 %}
                             {% for date in data.header_list %}
@@ -27,10 +28,11 @@
                    {% else %}
                       {% for tbl_data in data.item_data %}
                           <tr class="row_po_report"  >
-                              <td style="color:black;" align="left" id="sr_no" >{{ count }}</td>
+                              <td style="color:black;" align="left" id="sr_no" ></td>
                               <td style="color:black;" align="left" id="item_code">{{ tbl_data["item_code"] }}</td>
+                              <td style="color:black;" align="left" id ="item_name">{{ tbl_data["item_name"] }}</td>
                               <td style="color:black;" align="left" id ="uom">{{ tbl_data["stock_uom"] }}</td>
-                              <td style="color:black;" align="left"  contenteditable="true" id="bom">{{ tbl_data["bom"] }}</td>
+                              <td style="color:black;" align="left"  contenteditable="false" id="bom">{{ tbl_data["bom"] }}</td>
                                   {% inner_count = 0 %}                            
                                   {% for date in data.header_list%}
 

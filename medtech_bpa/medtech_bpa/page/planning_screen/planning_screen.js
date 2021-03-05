@@ -19,8 +19,10 @@ frappe.planning_screen = Class.extend({
                 me.sr_no = 0
                 me.item_code =[]
                 me.item_code_and_uom=null
-                me.selected_values=[]
+                me.selected_values={}
+                me.setup_table_wrapper=0
     // '.layout-main-section-wrapper' class for blank dashboard page
+    console.log("before this.page")
     this.page = $(wrapper).find('.layout-main-section-wrapper');
     $(frappe.render_template('planning_screen_html')).appendTo(this.page);
                 
@@ -33,17 +35,20 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
                   $('.planning_screen').html($(frappe.render_template('create_new')));
                   $('label[for="from_date"]').hide()
                   $('label[for="to_date"]').hide()
+                  $('label[for="title"]').hide()
                   $('.new_from_date').hide()
                   $('.new_to_date').hide()
                   $('.create').hide()
                   $('.save_new').hide()
                   $('.planning_master').show()
-                  $("label[for=planning_master]").css({'float':'left','margin-right':'2px'})
+                  $("label[for=planning_master]").css({'float':'left','margin-right':'2px','margin-bottom':'5px'})
+                  $(".pm").css({'padding-top':'20px'})
                   me.planning_master()
 
 
        $(document).on('keydown', '.date_class' ,function(event)
                 {
+               // console.log("executed thos code ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
  if ($('.save_new').is(':visible')) {
               
   $('.save_new').hide();
@@ -51,6 +56,7 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
 
   var code = event.keyCode;
   var key = event.key;
+  console.log(code,"<<<<<<>>>>")
     if (code== 32){
   event.preventDefault();
   }
@@ -58,19 +64,12 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
     return;
 //&& (code < 48 || code > 57
   // allow backspace, delete, left & right arrows, home, end keys
-  if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110) {
+  if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110||code==9) {
     return;
   } else {
     event.preventDefault();
   }
-                //blocking keys that are not necessary
-              /*  if (e.which != 37 && e.which != 39 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57))
-                {
-                  $(this).html("Digits Only").show();
-                  $(this).html($(this).data().initial)
-                  $(this).css('opacity' , 1)
-                  return false;
-                }*/
+
                 });
                 
                 //collecting values to be updated in array
@@ -125,62 +124,91 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
 
                         me.new_project_from_date = undefined
                         me.new_project_to_date = undefined
+                        me.title_name = undefined
+                        me.description_name = undefined
       $('.planning_screen').html($(frappe.render_template('create_new')));
+      $("label[for=from_date]").css({'margin-left':'10px'});
+      $("label[for=description]").css({'margin-top':'-25px'});
+      $(".description").css({'margin-top':'-15px'});
+      
+      // $(".desc").css({'margin-bottom':'85px'})
                         $('.planning_master').hide()
                         $('.delete').hide()
                         $('label[for="planning_master"]').hide()
+                        $('label[for="title"]').show()
+                        $('.title').show()
                         $('.update').hide()
       me.new_from_date()
       me.new_to_date()
-                        //me.planning_master()
-      
-      
+       me.title()                //me.planning_master()
+      me.description()
+                    $(".title, .description").on("focusout",function(){
+                if ($(this).val() != ""){
+                
+                     if ($('.planning_master').is(':visible')) {
+
+  $('.save_new').hide();
+}else{
+
+ $('.save_new').show();
+}
+  
+                }
+                });
       $(".create").click(function(){
-      $(".create").hide()
+       if (me.new_project_from_date != undefined && me.new_project_to_date != undefined){
+      $(".create").hide()}
               me.item_code = []
         me.item_code_and_uom = []   
-        me.selected_values=[] 
+        me.selected_values={}
             me.get_data(0);
                        $(".add_row").on("click",function(){
                         me.get_data(1);
+                        me.set_up_for_column_table_wrap()
+                        me.check()
+                     
+            $('.item_code_inner').each(function(i,el){
 
-                        //$(".freeze-table").freezeTable('update');
-                        
-                       /* $(".freeze-table").freezeTable({
-                        'freezeColumnHead' : true,
-                        'columnNum':4,
-                        'scrollable':true,
-                       'scrollBar':true, 
-                       });*/
-
-                       });
-                        $(".delete_row").on("click",function(){
-                        
-                        $.each($('input[name="chk[]"]:checked'),function(){
-                        var idbom =$(this).closest('tr').find('.item_code input').attr('id')
-                        var val_in_deleted_row = $("#" + idbom).val()
-                       
-                        var index = me.selected_values.indexOf(val_in_deleted_row);
-if (index >= 0) {
- me.selected_values.splice( index, 1 );
+       if ($('.planning_master').is(':visible')) {
+              
+  $('.save_new').hide();
+}else{
+ $('.save_new').show();
 }
+      })
+      
+              
+      
+      
+                       });
+             
+                        $(".delete_row").on("click",function(){
+
+                        $.each($('input[name="chk[]"]:checked'),function(){
+
+                        var id_bom = $(this).closest('tr').find('.bom input').attr('id')
+                        var val_in_deleted_row = $("#" + id_bom).val()
+                       
+                        delete me.selected_values[val_in_deleted_row]
                         
                         remove_id = $(this).closest('tr').attr('id')
                      
                         $("#"+remove_id).remove()
                         $(".freeze-table").freezeTable('update');
+                        me.setup_table_wrapper=0
                         })
                         })
-                      // $("table").scrollTableBody();
+
        $(document).on('keydown', '.date_class' ,function(event)
                 {
-                
+            
                 if ($('.save_new').is(':hidden') && $('.planning_master').is(':hidden')) {
               
   $('.save_new').show();
 }
   var code = event.keyCode;
   var key = event.key;
+
   if (code== 32){
   event.preventDefault();
   }
@@ -188,19 +216,12 @@ if (index >= 0) {
     return;
 //&& (code < 48 || code > 57
   // allow backspace, delete, left & right arrows, home, end keys
-  if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110) {
+  if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110||code==9) {
     return;
   } else {
     event.preventDefault();
   }
-                //blocking keys that are not necessary
-              /*  if (e.which != 37 && e.which != 39 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57))
-                {
-                  $(this).html("Digits Only").show();
-                  $(this).html($(this).data().initial)
-                  $(this).css('opacity' , 1)
-                  return false;
-                }*/
+
                 });
                          //checking if data is written in first cell and then copying to rest of the cells on first write.
                           $('.1').on ('focusout',function() 
@@ -227,59 +248,20 @@ if (index >= 0) {
                             })
                           }
                           });
+                         $(".freeze-table").on('scroll', function() {
 
-$("td > input.bom").each(function(elem) {
-
-/*var input = document.getElementById(this.id);
-    input.awesomplete = new Awesomplete(input, {
-                                minChars: 0,
-              maxItems: 99,
-                autoFirst: true,
-                list:[]                });*/
-/*$("#" + this.id).on("awesomplete-selectcomplete", function(e){
-
-    var o = e.originalEvent;
-    var value=o.text.value
-    this.value=value;
-   // console.log(this);
-   // $('#'+ this.id).val(value)
-   // console.log(";;;;",this)
-$(".freeze-table").freezeTable('update');
-    });*/
-
-/*$("#" +this.id).on("focus",function(e){
-$(e.target).val('').trigger('input');
-
-})
-
-$("#" +this.id).on('input', function(e) {
-       var val = $(this).html()
-                             var myCol = $(this).index();
-                             var $tr = $(this).closest('tr');
-                             var myRow = $tr.index();
-      frappe.call({
-        method: "medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.return_list",
-        args: {
-                                item_detail : $('tr').eq(myRow).find('#item_code').html()
-          },
-        callback: function(r) {
-            me.render_list.push([this.id,r.message])
-            e.target.awesomplete.list=r.message
-        }
-      });
-}) */
-})
+                         if (me.setup_table_wrapper==0){
 
 
-/*$(".freeze-table").freezeTable(
-{'columnNum':4,
-'freezeColumnHead': true,
-}
-);*/
+
+                          me.set_up_for_column_table_wrap()
+                          me.setup_table_wrapper=1
+                          }
+                          });
+
       });
                             
 $(".save_new").click(function(){
-
                 if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined)
                     {      $(this).hide()}
                           me.save_data()
@@ -289,6 +271,198 @@ $(".save_new").click(function(){
         },
 
 
+set_up_for_column_table_wrap:function(){
+
+                      var me=this;
+                      //console.log("setup for column table wrap")
+
+                      $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner").each(function(i,el){
+
+                          if (el.value == "") {
+
+                              el.awesomplete = new Awesomplete(el, {
+                                minChars: 0,
+                                 maxItems: 99,
+                                  autoFirst: true,
+                                  list:[]               });
+
+
+                
+$(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" +el.id).on("focus",function(e){
+
+e.target.awesomplete.list=me.item_code
+
+})
+
+$(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" +el.id).on("focusout",function(e){
+
+if($(this).val()==""){
+e.target.awesomplete.list=me.item_code
+
+}
+})         
+                          }
+                          
+$(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" +el.id).on("awesomplete-open",function(e){
+
+
+
+$(".clone-column-table-wrap  ").height("+=200")
+
+})                           
+       $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" +el.id).on("awesomplete-close",function(e){
+
+$(".clone-column-table-wrap  ").height("-=200")
+
+})  
+                          
+                         $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" + el.id).on("awesomplete-selectcomplete", function(e){
+
+
+    var o = e.originalEvent;
+    var value=o.text.value
+
+
+    this.value=value;
+    $("#" + el.id).val(value)
+
+if (el.id.search("item_code_") != -1)
+{
+
+   var id_item_code =$(this).closest('tr').find('.item_code input').attr('id')
+    initial = $("#" + id_item_code).data('initial')
+    var id_bom =$(this).closest('tr').find('.bom input').attr('id')
+    var value_bom = $("#" + id_bom).val()
+    if (this.value != initial)
+    {
+      
+      
+        
+        if (value_bom != null || value_bom != undefined || value_bom != "")
+        {
+       
+          delete me.selected_values[value_bom]
+        }
+          $("#" + id_bom).val(null)
+          $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" +id_bom ).val(null)
+           
+          var id_item_name =$(this).closest('tr').find('.item_name input').attr('id')     
+          $("#" + id_item_name).val(null)
+          $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" +id_item_name ).val(null)
+        
+        
+          var id_uom =$(this).closest('tr').find('.uom').attr('id')    
+          $("#" + id_uom).html("")
+          $(".clone-column-table-wrap .ablet tbody tr "+"#" +id_uom ).html("")      
+       
+
+
+   }
+   $("#" + id_item_code).data('initial',this.value)
+   $("#" + "uom_"+ el.id.slice(10)).html(me.item_code_and_uom[value][1])
+   $(".clone-column-table-wrap .ablet tbody tr "+"#" + "uom_"+ el.id.slice(10)).html(me.item_code_and_uom[value][1])
+   $("#" + "item_name_inner"+ el.id.slice(10)).val(me.item_code_and_uom[value][0])
+   $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" + "item_name_inner"+ el.id.slice(10)).val(me.item_code_and_uom[value][0])
+}
+
+    });
+              
+                          })
+
+
+
+$(".clone-column-table-wrap .ablet tbody tr input.bom_inner").each(function(i,el){
+
+                                              if (el.value ==""){
+
+                                                        el.awesomplete = new Awesomplete(el, {
+                                minChars: 0,
+              maxItems: 99,
+                autoFirst: true,
+                list:[]               });}
+
+
+                          $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" +el.id).on("focus",function(e){
+
+var item_code_value = $(this).closest('.item_code')
+
+var value_in_item_code = $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#"+ "item_code_" + el.id.slice(4 )).val()
+
+if (item_code_value != "<empty string>"){
+
+    frappe.call({
+        method: "medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.get_bom_based_on_item_code",
+        async: false,
+        freeze_message:"Loading ...Please Wait",
+        args:{
+          item_code : value_in_item_code,
+        },
+        callback: function(r) {
+        e.target.awesomplete.list = r.message
+        }})}
+
+
+})
+ $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" + el.id).on("focusout", function(e){
+
+ //$(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" +el.id).css({"display":"revert"})
+ }
+ 
+ )
+ $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" + el.id).on("awesomplete-selectcomplete", function(e){
+
+
+    var o = e.originalEvent;
+    var value=o.text.value
+ 
+    me.check_duplicate(value,"#" + el.id)
+
+    })
+      })
+
+
+
+},
+
+
+check_duplicate:function(value,id){
+var me =this;
+
+    var id_row= $(id).closest('tr').attr('id')
+
+    
+    var id_item_code =$(id).closest('tr').find('.item_code input').attr('id') 
+    var id_item_name =$(id).closest('tr').find('.item_name input').attr('id')  
+    var id_uom =$(id).closest('tr').find('.uom').attr('id') 
+    if (me.selected_values[value] && id_row != me.selected_values[value] )
+    {
+
+      $("#" + id_item_code).val(null)
+      $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" +id_item_code ).val(null)
+
+          
+      $("#" + id_item_name).val(null)
+      $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" +id_item_name ).val(null)
+      
+      
+        
+      $("#" + id_uom).html("")
+      $(".clone-column-table-wrap .ablet tbody tr "+"#" +id_uom ).html("")
+
+      $(id).val("")
+      $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+ id).val("")
+      frappe.throw('Duplicate Entry')
+      return
+
+    }
+    else{
+  
+     me.selected_values[value] = id_row
+    $(id).val(value)
+    $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+ id).val(value)
+    }
+
+},
 update_data:function(){
                   var me =this;
                   if(me.delete_name != ""){
@@ -321,9 +495,34 @@ update_data:function(){
                   }
                   });}
         },
+check:function(){
+var me=this;
+$('input[type=text],select', '.freeze-table').each(function() {
+   // code
 
+   $(this).on('click',function(){
+    if ($('.planning_master').is(':visible')) {
+   $(".create").hide()
+                    $(".add_row").hide()
+                    $(".delete_row").hide()            
+  $('.save_new').hide();
+}else{
+
+if ($('.save_new').is(':hidden')){
+                    $(".add_row").show()
+                    $(".delete_row").show()
+$('.save_new').show();}
+}})
+});
+},
 save_data:function(){
                 var me = this;
+                if (me.title_name == undefined || me.title_name == null || me.title_name ==""){
+                frappe.throw("Please add title.")
+                }
+                if (me.description_name == undefined || me.description_name == null || me.description_name ==""){
+                frappe.throw("Please add description")
+                }
                 var  row_id=[]
                 var dict = {}
                 $("thead tr th").each(function(i,el){
@@ -334,7 +533,7 @@ save_data:function(){
                  row_id.forEach(function(element){
 
                   var values= [];
-                  if (element != "bom" && element != "item_code" && element != "uom"){
+                  if (element != "bom" && element != "item_code" && element != "uom" && element !="item_name"){
                   $('tr td[id*= '+element+'  ]').each(function(i,el){
                       if (el.innerHTML=="<br>" || el.innerHTML == ".<br>"){
                      
@@ -364,7 +563,15 @@ save_data:function(){
                       
                       values.push(el.innerHTML)
                   })}
-
+                  if (element == "item_name"){
+                
+                   $('table:first tbody tr  ').find('.item_name_inner').each(function(i,el){
+              
+ 
+                      
+                      
+                      values.push(el.value)
+                  })}
                   if (element == "item_code"){
                 
                    $('table:first tbody tr').find('.item_code_inner').each(function(i,el){
@@ -375,11 +582,13 @@ save_data:function(){
                       dict[element]=values
                   })
                     
-                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined &&  !jQuery.isEmptyObject(dict))
+                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined &&  !jQuery.isEmptyObject(dict) && me.title_name != undefined && me.description_name != undefined)
                   {frappe.call({
                   method:"medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.save_items_data",
                   async:false,
                   args:{
+                  title:me.title_name,
+                  description:me.description_name,
                     from_date:me.new_project_from_date,
                     to_date:me.new_project_to_date,
                     data:dict
@@ -394,11 +603,13 @@ save_data:function(){
                     'text-align':'center',
                     'width':'150px', 'padding-top': '3px','height':'30px','border-radius':'3px','top':'0'})
                     $('label[for="planning_master"]').show()
+                    $("label[for=planning_master]").css({'margin-left':'175px'})
+                    
                     $(".create").hide()
                     $(".add_row").hide()
                     $(".delete_row").hide()
-                  frappe.msgprint(__("Planning Master {0} is created.",[r.message[1]]))
-                  
+                    me.selected_values = {}
+     
                   }
                   
                   }
@@ -432,16 +643,14 @@ get_data:function(value)
                          
                            data["sr_no"]=me.sr_no + 1
                           me.sr_no += 1
-                        $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}))
-                  //      $(".ablet > tbody:last-child").find("td:first-child").html($('.ablet > tbody > tr:last').index() + 1 )
-                  
+                        $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}))   
                         $(".freeze-table").freezeTable({
                         'freezeColumnHead' : true,
-                        'columnNum':4,
+                        'columnNum':5,
                         'scrollable':true,
                        'scrollBar':true
                        });
-                        //$(".ablet > tbody:last-child").append("<p>jhsagdjas</p>")
+                        
 var input_id ="item_code_" + me.sr_no.toString()
 var input = document.getElementById(input_id);
 var input_bom_id ="lmk_" + me.sr_no.toString()
@@ -449,7 +658,7 @@ var input_bom = document.getElementById(input_bom_id)
 
 var element_list = [input,input_bom]
 var element_id = [input_id,input_bom_id]
-//var input = document.getElementById(this.id);
+
 
 element_list.forEach(function(input){
 
@@ -465,14 +674,14 @@ element_list.forEach(function(input){
 
 
 $("#" +input_id).on("focus",function(e){
-//$(e.target).val('').trigger('input');
+
 
 e.target.awesomplete.list=me.item_code
 
 })
 
 $("#" +input_id).on("focusout",function(e){
-//$(e.target).val('').trigger('input');
+
 
 
 var iditc =$(this).closest('tr').find('.item_code input').attr('id')
@@ -484,6 +693,7 @@ if (e.target.value ==""){
 var idbom =$(this).closest('tr').find('.bom input').attr('id')
 $("#" + idbom).val(null)
 $(this).closest('tr').find('.uom').html("")
+$(this).closest('tr').find('input.item_name_inner').val("")
 }
 
 if (e.target.value != initial){
@@ -495,16 +705,17 @@ if (index >= 0) {
 var idbom =$(this).closest('tr').find('.bom input').attr('id')
 $("#" + idbom).val(null)
 $(this).closest('tr').find('.uom').html("")
+$(this).closest('tr').find('input.item_name_inner').val("")
 
 }
 
 })
 $("#" +input_bom_id).on("focus",function(e){
-//$(e.target).val('').trigger('input');
+
 var item_code_value = $(this).closest('.item_code')
 var value_in_item_code = $("#"+ "item_code_" + this.id.slice(4 )).val()
 
-//e.target.awesomplete.list=me.item_code
+
 if (item_code_value != "<empty string>"){
 
     frappe.call({
@@ -522,59 +733,86 @@ if (item_code_value != "<empty string>"){
 })
 
 
-
-element_id.forEach(function(input){
-
-$("#" + input).on("awesomplete-selectcomplete", function(e){
-
+   $("#" + input_bom_id).on("awesomplete-selectcomplete", function(e){
 
     var o = e.originalEvent;
     var value=o.text.value
-    /*if (me.selected_values.includes(value)){
-    frappe.throw('duplicate')
-    }else{
-    me.selected_values.push(value)*/
+ 
+    me.check_duplicate(value,"#"+input_bom_id)
 
+    
+    
+    
+    
+    
+    })
+element_id.forEach(function(input){
+
+$("#" + input).on("awesomplete-selectcomplete", function(e){
+    var o = e.originalEvent;
+    var value=o.text.value
     this.value=value;
-
 
 if (input.search("item_code_") != -1)
 {
-if (me.selected_values.includes(value)){
-var iditc =$(this).closest('tr').find('.item_code input').attr('id')
-$("#" + iditc).val(null)
-frappe.throw('Duplicate Entry')
-return
-    }
-var iditc =$(this).closest('tr').find('.item_code input').attr('id')
-initial = $("#" + iditc).data('initial')
-if (this.value != initial){
 
-var index = me.selected_values.indexOf(initial);
-if (index >= 0) {
- me.selected_values.splice( index, 1 );
- var idbom =$(this).closest('tr').find('.bom input').attr('id')
-$("#" + idbom).val(null)
-$(this).closest('tr').find('.uom').html("")
+
+    var id_item_code =$(this).closest('tr').find('.item_code input').attr('id')
+    initial = $("#" + id_item_code).data('initial')
+    var id_bom =$(this).closest('tr').find('.bom input').attr('id')
+    var value_bom = $("#" + id_bom).val()
+    
+ 
+    
+    
+    
+    if (this.value != initial)
+    {
+      
+      
+        
+        if (value_bom != null || value_bom != undefined || value_bom != "")
+        {
+       
+          delete me.selected_values[value_bom]
+        }
+          $("#" + id_bom).val(null)
+          $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" +id_bom ).val(null)
+           
+          var id_item_name =$(this).closest('tr').find('.item_name input').attr('id')     
+          $("#" + id_item_name).val(null)
+          $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" +id_item_name ).val(null)
+        
+        
+          var id_uom =$(this).closest('tr').find('.uom').attr('id')    
+          $("#" + id_uom).html("")
+          $(".clone-column-table-wrap .ablet tbody tr "+"#" +id_uom ).html("")      
+       
+
+
+   }
+   $("#" + id_item_code).data('initial',this.value)
+   $("#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
+   $(".clone-column-table-wrap .ablet tbody tr "+"#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
+   $("#" + "item_name_inner"+ input.slice(10)).val(me.item_code_and_uom[value][0])
+   $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" + "item_name_inner"+ input.slice(10)).val(me.item_code_and_uom[value][0])
+
 }
 
 
-}
-$("#" + iditc).data('initial',this.value)
-me.selected_values.push(value)
-//$("#" + "uom_"+ input.slice(10)).val()
-
-$("#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
-}
-//}
-$(".freeze-table").freezeTable('update');
-    });
+  $(".freeze-table").freezeTable('update');
+        me.setup_table_wrapper=0
+});
 })
+
+      
 }
                                 }
     });}
   },
 
+     
+     
         fetch_data : function(elem)
         {
           var me = this;
@@ -600,8 +838,10 @@ $(".freeze-table").freezeTable('update');
 
 new_from_date:function()
         {
+
     var me= this;
     var new_from_date = frappe.ui.form.make_control({
+    
         parent: this.page.find(".new_from_date"),
         df: {
         label: '<b>From Date</b>',
@@ -621,6 +861,7 @@ new_from_date:function()
   
         new_to_date:function()
         {
+
     var me= this;
     var new_to_date = frappe.ui.form.make_control({
         parent: this.page.find(".new_to_date"),
@@ -639,9 +880,49 @@ new_from_date:function()
       });
     new_to_date.refresh();
   },
-        
+title:function(){
+
+        var me= this;
+        var title = frappe.ui.form.make_control({
+        parent: this.page.find(".title"),
+                df: {
+        label: '<b>Title</b>',
+        fieldtype: "Data",
+        options: "",
+        fieldname: "",
+        placeholder: __("Title"),
+        change:function(){
+          $("#title").val(title.get_value())
+          me.title_name = title.get_value()
+        }
+        },
+        only_input: false,
+        });
+        title.refresh()
+        },
+description:function(){
+
+        var me= this;
+        var description = frappe.ui.form.make_control({
+        parent: this.page.find(".description"),
+                df: {
+        label: '<b>Description</b>',
+        fieldtype: "Data",
+        options: "",
+        fieldname: "",
+        placeholder: __("Description"),
+        change:function(){
+          $("#description").val(description.get_value())
+          me.description_name = description.get_value()
+        }
+        },
+        only_input: false,
+        });
+        description.refresh()
+        },
 planning_master:function()
         {
+
           var me=this;
           var planning_master = frappe.ui.form.make_control({
           parent: this.page.find(".planning_master"),
