@@ -24,7 +24,7 @@
 
   }
 
-  tr:not(:first-child) td:hover{
+  tr td:hover{
   background-color: #ffff99;
 
 }
@@ -34,18 +34,36 @@ overflow:scroll;
 height:500px;
 }
 
+.css-serial {
+  counter-reset: serial-number;  /* Set the serial number counter to 0 */
+}
+
+.css-serial td:first-child:before {
+  counter-increment: serial-number;  /* Increment the serial number counter */
+  content: counter(serial-number);  /* Display the counter */
+  margin: 5px;
+  /*position:relative;*/
+  bottom :25%;
+}
+input[type="checkbox"]{
+
+  position: relative; 
+  top:4px;
+  left:0px;  
+}
 
 
 </style>
 <div class="order_table freeze-table scrollit">
     
-            <table  id="updates" style="margin-top:0px;"class="table ablet">
+            <table  id="updates" style="margin-top:0px;"class="table ablet css-serial" >
  <thead>
                     <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center; border: 1px border-color: #ffffff">
                         <th class="po_report_row" >Sr No</th>
-                        <th class="po_report_row" id="item_code" >Item Code</th>
+                        <th class="po_report_row" id="item_code" style="text-align:center;" >Item Code</th>
+                        <th class="po_report_row" id="item_name">Item Name</th>
                         <th class="po_report_row" id="uom">UOM</th>
-                        <th class="po_report_row" id="bom">BOM</th>
+                        <th class="po_report_row" id="bom" style="text-align:center;">BOM</th>
 
                         
                           {% for key in data.header_list %}

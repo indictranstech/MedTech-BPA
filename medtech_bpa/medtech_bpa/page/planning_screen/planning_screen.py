@@ -14,7 +14,7 @@ from frappe import _
 
 
 @frappe.whitelist()
-def save_items_data(from_date,to_date,data):
+def save_items_data(title,description,from_date,to_date,data):
     
     #dates_check(from_date,to_date)
     date_range = pd.date_range(from_date,to_date)
@@ -23,14 +23,17 @@ def save_items_data(from_date,to_date,data):
     doc.from_date=from_date
     doc.to_date=to_date
     data = json.loads(data)
-    doc.title="abc"
+    doc.title=title
+    doc.description=description
+    #doc.name=title
     doc.save()
-    frappe.db.set_value("Planning Master", doc.name,'title',doc.name)
+    frappe.rename_doc("Planning Master",doc.name,doc.title,force=True)
+    #frappe.db.set_value("Planning Master", doc.name,'title',doc.name)
     for j in date_range:
         for i in range(len(data['item_code'])):
             doc_child= frappe.new_doc('Planning Master Item')
             doc_child.item_code = data['item_code'][i]
-            doc_child.item_name = data['item_code'][i]
+            doc_child.item_name = data['item_name'][i]
             doc_child.date =  datetime.strptime(j,"%d-%m-%Y")
             try:
                 if '<br>' in data[j[:-5]][i]:
@@ -41,10 +44,11 @@ def save_items_data(from_date,to_date,data):
                 frappe.throw("Error in saving data at column %s and row %s"%(j,i+1))
             doc_child.uom = data["uom"][i]
             doc_child.bom = data["bom"][i]
-            doc_child.planning_master_parent = doc.name
+            doc_child.planning_master_parent = doc.title
             doc_child.save()
             frappe.db.set_value("Planning Master Item", doc_child.name,'title',doc_child.name)
-    return ["1",doc.name] 
+
+    return ["1",doc.title] 
 
 def dates_check(from_date,to_date):    
     if from_date <= today():
@@ -129,7 +133,7 @@ def fetch_data(name):
         send_data={}
         date_range = pd.date_range(frappe.get_value('Planning Master',name,'from_date'),frappe.get_value('Planning Master',name,'to_date'))
         date_range= [[(i).strftime("%d-%m-%Y"),0 if pd.Timestamp(date.today()) >= i else 1] for i in  date_range]
-        data = frappe.db.sql("""select GROUP_CONCAT(name) as name,item_code , uom as stock_uom,bom ,GROUP_CONCAT(amount) as amount from `tabPlanning Master Item` where planning_master_parent = '%s' group by item_code order by date"""%(name),as_dict=1)
+        data = frappe.db.sql("""select GROUP_CONCAT(name) as name,item_code ,item_name, uom as stock_uom,bom ,GROUP_CONCAT(amount) as amount from `tabPlanning Master Item` where planning_master_parent = '%s' group by item_code order by creation"""%(name),as_dict=1)
         for i in data:
             i['name'] = i['name'].split(',')
             i['amount']= [float(i) for i in i['amount'].split(',')]

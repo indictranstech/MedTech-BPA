@@ -8,7 +8,8 @@
  "field_order": [
   "title",
   "from_date",
-  "to_date"
+  "to_date",
+  "description"
  ],
  "fields": [
   {
@@ -31,11 +32,16 @@
    "in_list_view": 1,
    "label": "To Date",
    "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Data",
+   "label": "Description"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-11 18:23:13.907448",
+ "modified": "2021-03-05 14:43:09.735695",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Planning Master",
@@ -69,5 +75,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "title_field": "description",
  "track_changes": 1
 }
