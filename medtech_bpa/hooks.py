@@ -137,7 +137,9 @@ doctype_js = {
 	"Quality Inspection": "medtech_bpa/custom_scripts/quality_inspection/quality_inspection.js",
 	"Production Plan":"medtech_bpa/custom_scripts/production_plan/production_plan.js",
 	"Stock Entry":"medtech_bpa/custom_scripts/stock_entry/stock_entry.js",
-	"Purchase Order":"medtech_bpa/custom_scripts/purchase_order/purchase_order.js"
+	"Purchase Order":"medtech_bpa/custom_scripts/purchase_order/purchase_order.js",
+	"Sales Order":"medtech_bpa/custom_scripts/sales_order/sales_order.js",
+	"Payment Entry":"medtech_bpa/custom_scripts/payment_entry/payment_entry.js"
 }
 
 
