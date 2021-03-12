@@ -16,7 +16,7 @@ frappe.payment_allocation = Class.extend({
 		this.$wrapper.append(frappe.render_template("payment_allocation_layout"));
 		this.clear_localstorage();
 		this.fetch_pending_so();
-		this.update_localstorage_data("remaining_amt", 1000)
+		//this.update_localstorage_data("remaining_amt", 1000)
 	},
 
 	clear_localstorage: function() {
@@ -29,20 +29,22 @@ frappe.payment_allocation = Class.extend({
 
 	fetch_pending_so: function() {
 		var me = this;
-		console.log(frappe.route_options)
 		frappe.call({
 			method: "medtech_bpa.medtech_bpa.page.payment_allocation.payment_allocation.get_pending_so",
-			//args: {},
+			args: frappe.route_options,
 			callback: function(r) {
 				if(!r.exc) {
 					$('.item-tbl').html(frappe.render_template("so_item_list", {
 						"data": r.message
 					}))
 
+					me.update_localstorage_data("customer", r.message.customer)
+					me.update_localstorage_data("remaining_amt", r.message.closing_bal)
 					me.update_qty();
 					me.approval_check();
 					me.update_remark();
 					me.save_doc();
+					me.refresh_doc();
 				}
 				else {
 					frappe.msgprint("Unable to fetch the data.")
@@ -98,7 +100,7 @@ frappe.payment_allocation = Class.extend({
 			var sales_order = $(this).closest('tr').find('.so-name').attr('data-so').trim();
 			var is_approved = $(this).closest('tr').find('.is_approved').prop("checked");
 			var remark = $(this).closest('tr').find('.pa-remark').val().trim();
-			$('.pending_amt').html("<b>Pending Balane:  </b>"+remaining_amt)
+			$('.pending_amt').html("<b>Pending Balance:  </b>"+remaining_amt)
 			
 			//update localstorage
 			me.update_localstorage_data("remaining_amt", remaining_amt)
@@ -173,13 +175,37 @@ frappe.payment_allocation = Class.extend({
 	save_doc: function() {
 		var me = this;
 		$('.save_doc').on("click", function() {
-			frappe.msgprint("Save In Progress ....")
+			var approved_items = $('.is_approved').filter(':checked').length
+			if(approved_items == 0) {
+				frappe.msgprint(__("No approved allocation found"))
+			}
+			else {
+				var data =  me.get_localstorage_data()
+				frappe.call({
+					method: "medtech_bpa.medtech_bpa.page.payment_allocation.payment_allocation.save_payment_allocation",
+					args: {"data": data},
+					async: false,
+					callback: function(r) {
+						if(!r.exc) {
+							frappe.msgprint(__("Payment Allocation Saved Successfully ..."))
+						}
+					}
+				})
+			}
+		})
+	},
+
+	refresh_doc: function() {
+		var me = this;
+		$('.refresh_doc').on("click", function() {
+			//me.clear_localstorage();
+			me.make();
 		})
 	},
 
 	get_localstorage_data: function(key=false) {
 		data = {}
-		let keys = key ? [key]:["remaining_amt", "items"]
+		let keys = key ? [key]:["customer", "remaining_amt", "items"]
 		for (let key of keys) {
 			if(has_common(["items"],[key])) {
 				data[key] = JSON.parse(localStorage.getItem(key)) || {}

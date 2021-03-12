@@ -8,6 +8,7 @@
   "item_code",
   "qty",
   "against_sales_order",
+  "remarks",
   "column_break_4",
   "item_name",
   "rate",
@@ -55,12 +56,17 @@
   {
    "fieldname": "column_break_4",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2021-03-10 16:50:53.373553",
+ "modified": "2021-03-12 14:39:24.184712",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Payment Allocation Item",

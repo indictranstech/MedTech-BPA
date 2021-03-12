@@ -2,10 +2,17 @@
 <div>
 		<div class="row">
 			<div class="col-xs-1"></div>
-			<div class="col-xs-3"><b>Customer: </b>LIFE LINE DISTRIBUTOR</div>
-			<div class="col-xs-2"><b>Closing Balane: </b>400</div>
-			<div class="col-xs-2 pending_amt"><b>Pending Balane: </b>1000</div>
+			<div class="col-xs-3"><b>Customer: </b>{{data.customer}}</div>
+			<div class="col-xs-2"><b>Closing Balane: </b>
+				{{data.pending_bal}}
+			</div>
+			<div class="col-xs-2 pending_amt"><b>Pending Balane: </b>
+				{{ data.closing_bal }}
+			</div>
 			<div class="col-xs-3">
+				<button type="button" class="btn btn-primary btn-sm refresh_doc">
+					Refresh
+				</button>
 				<button type="button" class="btn btn-primary btn-sm save_doc">
 					Save
 				</button>
