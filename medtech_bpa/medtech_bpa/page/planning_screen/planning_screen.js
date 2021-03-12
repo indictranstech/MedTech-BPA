@@ -22,7 +22,6 @@ frappe.planning_screen = Class.extend({
                 me.selected_values={}
                 me.setup_table_wrapper=0
     // '.layout-main-section-wrapper' class for blank dashboard page
-    console.log("before this.page")
     this.page = $(wrapper).find('.layout-main-section-wrapper');
     $(frappe.render_template('planning_screen_html')).appendTo(this.page);
                 
@@ -30,7 +29,8 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
     
   })
                 
-                $(".update_view").click(function(){
+                $(".update_view").click(function()
+                {
                   me.update_values=[]
                   $('.planning_screen').html($(frappe.render_template('create_new')));
                   $('label[for="from_date"]').hide()
@@ -47,29 +47,30 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
                   me.planning_master()
 
 
-       $(document).on('keydown', '.date_class' ,function(event)
-                {
-               // console.log("executed thos code ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
- if ($('.save_new').is(':visible')) {
-              
-  $('.save_new').hide();
-}
+                  $(document).on('keydown', '.date_class' ,function(event){
 
-  var code = event.keyCode;
-  var key = event.key;
-  console.log(code,"<<<<<<>>>>")
-    if (code== 32){
-  event.preventDefault();
-  }
-  if (!isNaN(Number(key)))
-    return;
-//&& (code < 48 || code > 57
-  // allow backspace, delete, left & right arrows, home, end keys
-  if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110||code==9) {
-    return;
-  } else {
-    event.preventDefault();
-  }
+                      if ($('.save_new').is(':visible')) 
+                      {
+                          $('.save_new').hide();
+                      }
+
+                      var code = event.keyCode;
+                      var key = event.key;
+                      if (code== 32){
+                    event.preventDefault();
+                    }
+                    if (!isNaN(Number(key)))
+                      return;
+                    //&& (code < 48 || code > 57
+                   // allow backspace, delete, left & right arrows, home, end keys
+                   if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110||code==9) 
+                   {
+                      return;
+                   } 
+                   else 
+                   {
+                       event.preventDefault();
+                   }
 
                 });
                 
@@ -121,69 +122,77 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
 
 
 
-    $(".create_new").click(function(){
-
-                        me.new_project_from_date = undefined
-                        me.new_project_to_date = undefined
-                        me.title_name = undefined
-                        me.description_name = undefined
-      $('.planning_screen').html($(frappe.render_template('create_new')));
-      $("label[for=from_date]").css({'margin-left':'10px'});
-      $("label[for=description]").css({'margin-top':'-25px'});
-      $(".description").css({'margin-top':'-15px'});
-      
-      // $(".desc").css({'margin-bottom':'85px'})
-                        $('.planning_master').hide()
-                        $('.delete').hide()
-                        $('label[for="planning_master"]').hide()
-                        $('label[for="title"]').show()
-                        $('.title').show()
-                        $('.update').hide()
-      me.new_from_date()
-      me.new_to_date()
-       me.title()                //me.planning_master()
-      me.description()
+                $(".create_new").click(function(){
+                    me.new_project_from_date = undefined
+                    me.new_project_to_date = undefined
+                    me.title_name = undefined
+                    me.description_name = undefined
+                    $('.planning_screen').html($(frappe.render_template('create_new')));
+                    $("label[for=from_date]").css({'margin-left':'10px'});
+                    $("label[for=description]").css({'margin-top':'-25px'});
+                    $(".description").css({'margin-top':'-15px'});
+                    $('.planning_master').hide()
+                    $('.delete').hide()
+                    $('label[for="planning_master"]').hide()
+                    $('label[for="title"]').show()
+                    $('.title').show()
+                    $('.update').hide()
+                    me.new_from_date()
+                    me.new_to_date()
+                    me.title()                
+                    me.description()
+                    
+                    frappe.call({
+                    method: "medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.send_naming_series",
+                      async: false,
+                      freeze_message:"Loading ...Please Wait",
+                       callback: function(r) {
+                     $('*[placeholder="Title"]').val(r.message)
+                     $('*[placeholder="Title"]').attr('readonly','readonly');
+                          }})
                     $(".title, .description").on("focusout",function(){
-                if ($(this).val() != ""){
+                        if ($(this).val() != "")
+                        {
                 
-                     if ($('.planning_master').is(':visible')) {
+                          if ($('.planning_master').is(':visible')) 
+                          {
 
-  $('.save_new').hide();
-}else{
-
- $('.save_new').show();
-}
+                            $('.save_new').hide();
+                          }
+                          else
+                          {
+                            $('.save_new').show();
+                          }
   
-                }
-                });
-      $(".create").click(function(){
-       if (me.new_project_from_date != undefined && me.new_project_to_date != undefined){
-      $(".create").hide()}
-              me.item_code = []
-        me.item_code_and_uom = []   
-        me.selected_values={}
-            me.get_data(0);
-                       $(".add_row").on("click",function(){
+                        }
+                        });
+                   $(".create").click(function(){
+                      if (me.new_project_from_date != undefined && me.new_project_to_date != undefined)
+                      {
+                        $(".create").hide()
+                      }
+                      me.item_code = []
+                      me.item_code_and_uom = []   
+                      me.selected_values={}
+                      me.get_data(0);
+                      $(".add_row").on("click",function(){
                         me.get_data(1);
                         me.set_up_for_column_table_wrap()
                         me.check()
-                     
-            $('.item_code_inner').each(function(i,el){
-
-       if ($('.planning_master').is(':visible')) {
-              
-  $('.save_new').hide();
-}else{
- $('.save_new').show();
-}
-      })
-      
-              
-      
-      
-                       });
+                        $('.item_code_inner').each(function(i,el){
+                          if ($('.planning_master').is(':visible')) 
+                          {              
+                            $('.save_new').hide();
+                          }
+                          else
+                          {
+                            $('.save_new').show();
+                          }
+                        })
+                    $(".clone-column-table-wrap ").css({'top':'0px'})
+                      });
              
-                        $(".delete_row").on("click",function(){
+                      $(".delete_row").on("click",function(){
 
                         $.each($('input[name="chk[]"]:checked'),function(){
 
@@ -200,32 +209,33 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
                         })
                         })
 
-       $(document).on('keydown', '.date_class' ,function(event)
-                {
-            
-                if ($('.save_new').is(':hidden') && $('.planning_master').is(':hidden')) {
-              
-  $('.save_new').show();
-}
-  var code = event.keyCode;
-  var key = event.key;
+                      $(document).on('keydown', '.date_class' ,function(event)
+                      {
+                        if ($('.save_new').is(':hidden') && $('.planning_master').is(':hidden')) 
+                        {              
+                          $('.save_new').show();
+                        }
+                        var code = event.keyCode;
+                        var key = event.key;
+                        if (code== 32)
+                        {
+                          event.preventDefault();
+                        }
+                        if (!isNaN(Number(key)))
+                          return;
+                      //&& (code < 48 || code > 57
+                      // allow backspace, delete, left & right arrows, home, end keys
+                      if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110||code==9) {
+                        return;
+                      } 
+                      else 
+                      {
+                        event.preventDefault();
+                      }
 
-  if (code== 32){
-  event.preventDefault();
-  }
-  if (!isNaN(Number(key)))
-    return;
-//&& (code < 48 || code > 57
-  // allow backspace, delete, left & right arrows, home, end keys
-  if (code == 8 || code == 46 || code == 37 || code == 39 || code == 36 || code == 35 || code == 190 || code ==110||code==9) {
-    return;
-  } else {
-    event.preventDefault();
-  }
-
-                });
-                         //checking if data is written in first cell and then copying to rest of the cells on first write.
-                          $('.1').on ('focusout',function() 
+                      });
+                     //checking if data is written in first cell and then copying to rest of the cells on first write.
+                      $('.1').on ('focusout',function() 
                            {
                              var val = $(this).html()
                              var myCol = $(this).index();
@@ -249,43 +259,41 @@ $.getScript( "/assets/js/freeze-table.js" ).done(function( script, textStatus ) 
                             })
                           }
                           });
-                         $(".freeze-table").on('scroll', function() {
+                       $(".freeze-table").on('scroll', function() {
+                          $(".clone-column-table-wrap ").css({'top':'0px'})
+                          //$(".clone-column-table-wrap ").css({'position':'fixed'})
+                         if (me.setup_table_wrapper==0)
+                         {
+                            me.set_up_for_column_table_wrap()
+                            me.setup_table_wrapper=1
+                         }
+                         });
 
-                         if (me.setup_table_wrapper==0){
-
-
-
-                          me.set_up_for_column_table_wrap()
-                          me.setup_table_wrapper=1
-                          }
-                          });
-
-      });
+                    });
                             
-$(".save_new").click(function(){
-                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined)
+                    $(".save_new").click(function(){
+                      if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined)
                     {      $(this).hide()}
                           me.save_data()
                         });
                     });
 
-        },
+                  },
 
 
 set_up_for_column_table_wrap:function(){
 
-                      var me=this;
-                      //console.log("setup for column table wrap")
+    var me=this;
+    $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner").each(function(i,el){
 
-                      $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner").each(function(i,el){
+    if (el.value == "") {
 
-                          if (el.value == "") {
-
-                              el.awesomplete = new Awesomplete(el, {
-                                minChars: 0,
-                                 maxItems: 99,
-                                  autoFirst: true,
-                                  list:[]               });
+    el.awesomplete = new Awesomplete(el, {
+    minChars: 0,
+    maxItems: 99,
+    autoFirst: true,
+    list:[]               
+    });
 
 
                 
@@ -309,6 +317,8 @@ $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" +el.id).o
 
 
 $(".clone-column-table-wrap  ").height("+=200")
+
+$(".awesomplete > ul").css({'left':'-30px'})
 
 })                           
        $(".clone-column-table-wrap .ablet tbody tr input.item_code_inner"+"#" +el.id).on("awesomplete-close",function(e){
@@ -406,7 +416,7 @@ if (item_code_value != "<empty string>"){
 })
  $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" + el.id).on("focusout", function(e){
 
- //$(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" +el.id).css({"display":"revert"})
+
  }
  
  )
@@ -414,15 +424,22 @@ if (item_code_value != "<empty string>"){
 
 
     var o = e.originalEvent;
-    var value=o.text.value
- 
+    var value=o.text.value 
     me.check_duplicate(value,"#" + el.id)
 
     })
+    
+ $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" + el.id).on("awesomplete-open", function(e){
+ 
+ $(".clone-column-table-wrap  ").height("+=200")
+ 
+ })
+  $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" + el.id).on("awesomplete-close", function(e){
+ 
+ $(".clone-column-table-wrap  ").height("-=200")
+ 
+ })
       })
-
-
-
 },
 
 
@@ -497,31 +514,35 @@ update_data:function(){
                   });}
         },
 check:function(){
-var me=this;
-$('input[type=text],select', '.freeze-table').each(function() {
-   // code
-
+    var me=this;
+  $('input[type=text],select', '.freeze-table').each(function() {
    $(this).on('click',function(){
-    if ($('.planning_master').is(':visible')) {
-   $(".create").hide()
-                    $(".add_row").hide()
-                    $(".delete_row").hide()            
-  $('.save_new').hide();
-}else{
-
-if ($('.save_new').is(':hidden')){
-                    $(".add_row").show()
-                    $(".delete_row").show()
-$('.save_new').show();}
-}})
-});
+    if ($('.planning_master').is(':visible')) 
+    {
+      $(".create").hide()
+      $(".add_row").hide()
+      $(".delete_row").hide()            
+      $('.save_new').hide();
+    }
+    else
+    {
+      if ($('.save_new').is(':hidden'))
+      {
+        $(".add_row").show()
+        $(".delete_row").show()
+        $('.save_new').show();
+      }
+    }
+  })
+  });
 },
 save_data:function(){
                 var me = this;
-                if (me.title_name == undefined || me.title_name == null || me.title_name ==""){
+               /* if (me.title_name == undefined || me.title_name == null || me.title_name ==""){
                 frappe.throw("Please add title.")
-                }
+                }*/
                 if (me.description_name == undefined || me.description_name == null || me.description_name ==""){
+                $(".save_new").show()
                 frappe.throw("Please add description")
                 }
                 var  row_id=[]
@@ -549,7 +570,12 @@ save_data:function(){
                   if (element == "bom"){
 
                    $('table:first tbody tr').find('.bom_inner').each(function(i,el){
-                  values.push(el.value)
+                
+                   if (el.value != ""){
+                  values.push(el.value)}else{
+                 $(".save_new").show() 
+                  frappe.throw("Please fill empty values.")
+                  }
                   })}
                   
                   if (element == "uom"){
@@ -577,18 +603,21 @@ save_data:function(){
                 
                    $('table:first tbody tr').find('.item_code_inner').each(function(i,el){
               
-                  values.push(el.value)
+                  if (el.value != ""){
+                  values.push(el.value)}else{
+                      $(".save_new").show()
+                      frappe.throw("Please fill empty values.")
+                      }
                   })}
                   }
                       dict[element]=values
                   })
                     
-                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined &&  !jQuery.isEmptyObject(dict) && me.title_name != undefined && me.description_name != undefined)
+                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined &&  !jQuery.isEmptyObject(dict)  && me.description_name != undefined)
                   {frappe.call({
                   method:"medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.save_items_data",
                   async:false,
                   args:{
-                  title:me.title_name,
                   description:me.description_name,
                     from_date:me.new_project_from_date,
                     to_date:me.new_project_to_date,
@@ -635,90 +664,73 @@ get_data:function(value)
         },
         callback: function(r) {
                data=r.message
-                                        if(value==0){
-          $('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
-        me.item_code = data['item_code']
-        me.item_code_and_uom = data['uom_dict']
-                                }
-                                if (value==1){
+           if (value==0)
+           {
+                    $('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
+                  me.item_code = data['item_code']
+                  me.item_code_and_uom = data['uom_dict']
+           }
+           if (value==1)
+           {
                          
-                           data["sr_no"]=me.sr_no + 1
-                          me.sr_no += 1
-                        $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}))   
-                        $(".freeze-table").freezeTable({
-                        'freezeColumnHead' : true,
-                        'columnNum':5,
-                        'scrollable':true,
-                       'scrollBar':true
-                       });
-                        
-var input_id ="item_code_" + me.sr_no.toString()
-var input = document.getElementById(input_id);
-var input_bom_id ="lmk_" + me.sr_no.toString()
-var input_bom = document.getElementById(input_bom_id)
-
-var element_list = [input,input_bom]
-var element_id = [input_id,input_bom_id]
-
-
-element_list.forEach(function(input){
-
-    input.awesomplete = new Awesomplete(input, {
-                                minChars: 0,
+            data["sr_no"]=me.sr_no + 1
+            me.sr_no += 1
+            $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}))   
+            $(".freeze-table").freezeTable({
+            'freezeColumnHead' : true,
+            'columnNum':5,
+            'scrollable':true,
+            'scrollBar':true
+            });            
+            var input_id ="item_code_" + me.sr_no.toString()
+            var input = document.getElementById(input_id);
+            var input_bom_id ="lmk_" + me.sr_no.toString()
+            var input_bom = document.getElementById(input_bom_id)
+            var element_list = [input,input_bom]
+            var element_id = [input_id,input_bom_id]
+            
+          element_list.forEach(function(input){
+              input.awesomplete = new Awesomplete(input, {
+              minChars: 0,
               maxItems: 99,
-                autoFirst: true,
-                list:[]                });
-});
+              autoFirst: true,
+              list:[]                
+              });
+              });
 
-
-
-
-
-$("#" +input_id).on("focus",function(e){
-
-
-e.target.awesomplete.list=me.item_code
-
-})
+          $("#" +input_id).on("focus",function(e){
+            e.target.awesomplete.list=me.item_code
+          })
 
 $("#" +input_id).on("focusout",function(e){
-
-
-
-var iditc =$(this).closest('tr').find('.item_code input').attr('id')
-initial = $("#" + iditc).data('initial')
-
-
-
-if (e.target.value ==""){
-var idbom =$(this).closest('tr').find('.bom input').attr('id')
-$("#" + idbom).val(null)
-$(this).closest('tr').find('.uom').html("")
-$(this).closest('tr').find('input.item_name_inner').val("")
-}
-
-if (e.target.value != initial){
-
-var index = me.selected_values.indexOf(initial);
-if (index >= 0) {
- me.selected_values.splice( index, 1 );
-}
-var idbom =$(this).closest('tr').find('.bom input').attr('id')
-$("#" + idbom).val(null)
-$(this).closest('tr').find('.uom').html("")
-$(this).closest('tr').find('input.item_name_inner').val("")
-
-}
+    var iditc =$(this).closest('tr').find('.item_code input').attr('id')
+    initial = $("#" + iditc).data('initial')
+    if (e.target.value =="")
+    {
+      var idbom =$(this).closest('tr').find('.bom input').attr('id')
+      $("#" + idbom).val(null)
+      $(this).closest('tr').find('.uom').html("")
+      $(this).closest('tr').find('input.item_name_inner').val("")
+    }
+    if (e.target.value != initial)
+    {
+      var index = me.selected_values.indexOf(initial);
+      if (index >= 0) 
+      {
+        me.selected_values.splice( index, 1 );
+      }
+      var idbom =$(this).closest('tr').find('.bom input').attr('id')
+      $("#" + idbom).val(null)
+      $(this).closest('tr').find('.uom').html("")
+      $(this).closest('tr').find('input.item_name_inner').val("")
+    }
 
 })
 $("#" +input_bom_id).on("focus",function(e){
 
-var item_code_value = $(this).closest('.item_code')
-var value_in_item_code = $("#"+ "item_code_" + this.id.slice(4 )).val()
-
-
-if (item_code_value != "<empty string>"){
-
+    var item_code_value = $(this).closest('.item_code')
+    var value_in_item_code = $("#"+ "item_code_" + this.id.slice(4 )).val()
+    if (item_code_value != "<empty string>"){
     frappe.call({
         method: "medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.get_bom_based_on_item_code",
         async: false,
@@ -733,88 +745,58 @@ if (item_code_value != "<empty string>"){
 
 })
 
-
-   $("#" + input_bom_id).on("awesomplete-selectcomplete", function(e){
-
+$("#" + input_bom_id).on("awesomplete-selectcomplete", function(e){
     var o = e.originalEvent;
     var value=o.text.value
- 
-    me.check_duplicate(value,"#"+input_bom_id)
-
-    
-    
-    
-    
-    
+    me.check_duplicate(value,"#"+input_bom_id)    
     })
 element_id.forEach(function(input){
-
-$("#" + input).on("awesomplete-selectcomplete", function(e){
+  $("#" + input).on("awesomplete-selectcomplete", function(e){
     var o = e.originalEvent;
     var value=o.text.value
     this.value=value;
 
-if (input.search("item_code_") != -1)
-{
-
-
-    var id_item_code =$(this).closest('tr').find('.item_code input').attr('id')
-    initial = $("#" + id_item_code).data('initial')
-    var id_bom =$(this).closest('tr').find('.bom input').attr('id')
-    var value_bom = $("#" + id_bom).val()
-    
- 
-    
-    
-    
-    if (this.value != initial)
+   if (input.search("item_code_") != -1)
     {
-      
-      
-        
-        if (value_bom != null || value_bom != undefined || value_bom != "")
+      var id_item_code =$(this).closest('tr').find('.item_code input').attr('id')
+      initial = $("#" + id_item_code).data('initial')
+      var id_bom =$(this).closest('tr').find('.bom input').attr('id')
+      var value_bom = $("#" + id_bom).val()
+   if (this.value != initial)
+    {    
+       if (value_bom != null || value_bom != undefined || value_bom != "")
         {
-       
           delete me.selected_values[value_bom]
         }
-          $("#" + id_bom).val(null)
-          $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" +id_bom ).val(null)
-           
-          var id_item_name =$(this).closest('tr').find('.item_name input').attr('id')     
-          $("#" + id_item_name).val(null)
-          $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" +id_item_name ).val(null)
-        
-        
-          var id_uom =$(this).closest('tr').find('.uom').attr('id')    
-          $("#" + id_uom).html("")
-          $(".clone-column-table-wrap .ablet tbody tr "+"#" +id_uom ).html("")      
-       
-
-
+        $("#" + id_bom).val(null)
+        $(".clone-column-table-wrap .ablet tbody tr input.bom_inner"+"#" +id_bom ).val(null)
+         
+        var id_item_name =$(this).closest('tr').find('.item_name input').attr('id')     
+        $("#" + id_item_name).val(null)
+        $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" +id_item_name ).val(null)
+      
+      
+        var id_uom =$(this).closest('tr').find('.uom').attr('id')    
+        $("#" + id_uom).html("")
+        $(".clone-column-table-wrap .ablet tbody tr "+"#" +id_uom ).html("")      
    }
-   $("#" + id_item_code).data('initial',this.value)
-   $("#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
-   $(".clone-column-table-wrap .ablet tbody tr "+"#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
-   $("#" + "item_name_inner"+ input.slice(10)).val(me.item_code_and_uom[value][0])
-   $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" + "item_name_inner"+ input.slice(10)).val(me.item_code_and_uom[value][0])
+       $("#" + id_item_code).data('initial',this.value)
+       $("#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
+       $(".clone-column-table-wrap .ablet tbody tr "+"#" + "uom_"+ input.slice(10)).html(me.item_code_and_uom[value][1])
+       $("#" + "item_name_inner"+ input.slice(10)).val(me.item_code_and_uom[value][0])
+       $(".clone-column-table-wrap .ablet tbody tr input.item_name_inner"+"#" + "item_name_inner"+ input.slice(10)).val(me.item_code_and_uom[value][0])
 
-}
-
-
+    }
   $(".freeze-table").freezeTable('update');
         me.setup_table_wrapper=0
 });
-})
-
-      
+})     
 }
                                 }
     });}
   },
-
-     
-     
-        fetch_data : function(elem)
+   
+fetch_data : function(elem)
         {
           var me = this;
           frappe.call({
@@ -852,6 +834,12 @@ new_from_date:function()
         placeholder: __("From Date"),
         change:function(){
           $("#new_from_date").val(new_from_date.get_value())
+          if (me.new_project_from_date != new_from_date.get_value()){
+           if ($('.create').is(':hidden') && $('.planning_master').is(':hidden')) 
+                      {
+                      
+                          $('.create').show();
+                      }}
           me.new_project_from_date = new_from_date.get_value()
         }
         },
@@ -874,6 +862,12 @@ new_from_date:function()
         placeholder: __("To Date"),
         change:function(){
           $("#new_to_date").val(new_to_date.get_value())
+                    if (me.new_project_to_date != new_to_date.get_value()){
+           if ($('.create').is(':hidden') && $('.planning_master').is(':hidden')) 
+                      {
+                      
+                          $('.create').show();
+                      }}
           me.new_project_to_date = new_to_date.get_value()
         }
         },
@@ -889,6 +883,7 @@ title:function(){
                 df: {
         label: '<b>Title</b>',
         fieldtype: "Data",
+        id:'titel',
         options: "",
         fieldname: "",
         placeholder: __("Title"),

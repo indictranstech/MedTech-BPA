@@ -6,28 +6,51 @@ import frappe
 from frappe.model.document import Document
 from frappe.utils import nowdate, cstr, flt, cint, now, getdate,get_datetime,time_diff_in_seconds,add_to_date,time_diff_in_seconds,add_days,today
 from datetime import datetime,date, timedelta
-from frappe.model.naming import make_autoname
+from frappe.model.naming import make_autoname,get_default_naming_series,parse_naming_series
 import time
 import json
 import pandas as pd
 from frappe import _
-
+from frappe.utils import now_datetime
 
 @frappe.whitelist()
-def save_items_data(title,description,from_date,to_date,data):
+def send_naming_series():
+    today = now_datetime()
+    n = ''
+    naming_series = get_default_naming_series("Planning Master")
+    parts = naming_series.split('.')[:-1]
+    for e in parts:
+      part = ''
+      if e == 'YY':
+        part = today.strftime('%y')
+      elif e == 'MM':
+        part = today.strftime('%m')
+      elif e == 'DD':
+        part = today.strftime("%d")
+      elif e == 'YYYY':
+        part = today.strftime('%Y')
+      elif e == 'FY':
+        part = frappe.defaults.get_user_default("fiscal_year")
+      else:
+        part = e
+      n += part
+    #naming_series = parse_naming_series(naming_series)
+    return n  
+@frappe.whitelist()
+def save_items_data(description,from_date,to_date,data):
     
-    #dates_check(from_date,to_date)
+    dates_check(from_date,to_date)
     date_range = pd.date_range(from_date,to_date)
     date_range= [(i).strftime("%d-%m-%Y") for i in  date_range]
     doc = frappe.new_doc("Planning Master")
     doc.from_date=from_date
     doc.to_date=to_date
     data = json.loads(data)
-    doc.title=title
+   # doc.title=title
     doc.description=description
     #doc.name=title
     doc.save()
-    frappe.rename_doc("Planning Master",doc.name,doc.title,force=True)
+    #frappe.rename_doc("Planning Master",doc.name,doc.title,force=True)
     #frappe.db.set_value("Planning Master", doc.name,'title',doc.name)
     for j in date_range:
         for i in range(len(data['item_code'])):
@@ -44,11 +67,11 @@ def save_items_data(title,description,from_date,to_date,data):
                 frappe.throw("Error in saving data at column %s and row %s"%(j,i+1))
             doc_child.uom = data["uom"][i]
             doc_child.bom = data["bom"][i]
-            doc_child.planning_master_parent = doc.title
+            doc_child.planning_master_parent = doc.name
             doc_child.save()
             frappe.db.set_value("Planning Master Item", doc_child.name,'title',doc_child.name)
 
-    return ["1",doc.title] 
+    return ["1",doc.name] 
 
 def dates_check(from_date,to_date):    
     if from_date <= today():
@@ -57,27 +80,27 @@ def dates_check(from_date,to_date):
         frappe.throw("To Date must be greater than today.")
     if to_date < from_date:
         frappe.throw("To Date must be greater than or equals to From Date.")
-    date_overlap = frappe.db.sql("select name,from_date,to_date from `tabPlanning Master` where '%s' between from_date and to_date or '%s' between from_date and to_date"%(from_date,to_date),as_list=1)
+   # date_overlap = frappe.db.sql("select name,from_date,to_date from `tabPlanning Master` where '%s' between from_date and to_date or '%s' between from_date and to_date"%(from_date,to_date),as_list=1)
     
-    if len(date_overlap)>0:
-        frappe.throw("Date overlaps with Planning Master %s having From Date %s and To Date %s "%(date_overlap[0][0],date_overlap[0][1].strftime('%d-%m-%Y'),date_overlap[0][2].strftime('%d-%m-%Y')))
+    #if len(date_overlap)>0:
+      #  frappe.throw("Date overlaps with Planning Master %s having From Date %s and To Date %s "%(date_overlap[0][0],date_overlap[0][1].strftime('%d-%m-%Y'),date_overlap[0][2].strftime('%d-%m-%Y')))
 
 @frappe.whitelist()
 def delete_data(delete_data):
     doc = frappe.get_doc("Planning Master",delete_data)
     if doc.from_date <= date.today():
         frappe.throw("The entry cannot be deleted because it contains past date or present date.")
-    names_of_child = [i[0] for i in frappe.db.sql("""select name from `tabPlanning Master Item` where planning_master_parent = '%s'"""%(delete_data))]
-    for i in names_of_child:
-        frappe.delete_doc("Planning Master Item",i)
-
+    #names_of_child = [i[0] for i in frappe.db.sql("""select name from `tabPlanning Master Item` where planning_master_parent = '%s'"""%(delete_data))]
+    #for i in names_of_child:
+        #frappe.delete_doc("Planning Master Item",i)
+    frappe.db.sql("""delete  from `tabPlanning Master Item` where planning_master_parent = '%s'"""%(delete_data))
     frappe.delete_doc("Planning Master",delete_data)
     frappe.db.commit()
     return "1"
 
 @frappe.whitelist()
 def get_items_data(from_date, to_date,listview=None):
-        #dates_check(from_date,to_date)    
+        dates_check(from_date,to_date)    
         sdate =  datetime.strptime(from_date, '%Y-%m-%d').date()
         edate =  datetime.strptime(to_date, '%Y-%m-%d').date()
         delta = edate - sdate
@@ -133,7 +156,7 @@ def fetch_data(name):
         send_data={}
         date_range = pd.date_range(frappe.get_value('Planning Master',name,'from_date'),frappe.get_value('Planning Master',name,'to_date'))
         date_range= [[(i).strftime("%d-%m-%Y"),0 if pd.Timestamp(date.today()) >= i else 1] for i in  date_range]
-        data = frappe.db.sql("""select GROUP_CONCAT(name) as name,item_code ,item_name, uom as stock_uom,bom ,GROUP_CONCAT(amount) as amount from `tabPlanning Master Item` where planning_master_parent = '%s' group by item_code order by creation"""%(name),as_dict=1)
+        data = frappe.db.sql("""select GROUP_CONCAT(name) as name,item_code ,item_name, uom as stock_uom,bom ,GROUP_CONCAT(amount) as amount from `tabPlanning Master Item` where planning_master_parent = '%s' group by bom  order by creation"""%(name),as_dict=1)
         for i in data:
             i['name'] = i['name'].split(',')
             i['amount']= [float(i) for i in i['amount'].split(',')]
