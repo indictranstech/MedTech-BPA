@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2021-03-03 20:18:31.403420",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2021-03-03 20:18:31.403420",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "payment-allocation",
+ "owner": "Administrator",
+ "page_name": "Payment Allocation",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Payment Allocation"
+}

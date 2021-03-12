@@ -1,0 +1,69 @@
+
+<div>
+		<div class="row">
+			<div class="col-xs-1"></div>
+			<div class="col-xs-3"><b>Customer: </b>LIFE LINE DISTRIBUTOR</div>
+			<div class="col-xs-2"><b>Closing Balane: </b>400</div>
+			<div class="col-xs-2 pending_amt"><b>Pending Balane: </b>1000</div>
+			<div class="col-xs-3">
+				<button type="button" class="btn btn-primary btn-sm save_doc">
+					Save
+				</button>
+				<button type="button" class="btn btn-primary btn-sm">
+					Submit
+				</button>
+			</div>
+			<div class="col-xs-1"></div>
+		</div>
+	</div>
+
+
+<table class="table table-hover tb-head soi_item_tbl table-bordered">
+		<thead class="item_head">
+			<tr row>
+				<th class="tb-th soi-code-th" rowspan="2">{{ __("Item Code") }}</th>
+				<th class="tb-th soi-qty-th" rowspan="2">{{ __("Qty") }}</th>
+				<th class="tb-th so-name-th" rowspan="2">{{ __("Sales Order No.") }}</th>
+				<th class="tb-th posting-dt-th" rowspan="2">{{ __("Order Date") }}</th>
+				<th class="tb-th custome-th" rowspan="2">{{ __("Customer Name") }}</th>
+				<th class="tb-th status-th" rowspan="2">{{ __("Status") }}</th>
+				<th class="tb-th soi-rate-th" rowspan="2">{{ __("Rate") }}</th>
+				<th class="tb-th soi-amt-th" rowspan="2">{{ __("Amount with GST") }}</th>
+				<th class="tb-th pa-qty-th" rowspan="2">{{ __("Qty in Cartons") }}</th>
+				<th class="tb-th pa-amt-th" rowspan="2">{{ __("Revised Amount") }}</th>
+				<th class="tb-th pa-approval-th" rowspan="2">{{ __("Approval") }}</th>
+				<th class="tb-th pa-remark-th" rowspan="2">{{ __("Remarks") }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for item in data.items %}
+			<tr>
+				<td class="tb-td soi-code" data-soi-code="{{item.item_code}}">
+					{{item.item_code}}
+				</td>
+				<td class="tb-td soi-qty" data-soi-qty="{{item.qty}}">
+					{{item.qty}}
+				</td>
+				<td class="tb-td so-name" data-so="{{item.name}}">{{item.name}}</td>
+				<td class="tb-td posting-dt">{{item.transaction_date}}</td>
+				<td class="tb-td customer">{{item.customer}}</td>
+				<td class="tb-td status">PI Pending</td>
+				<td class="tb-td rate" data-soi-rate="{{item.rate}}">
+					{{item.rate}}
+				</td>	
+				<td class="tb-td amont">{{item.amount}}</td>
+				<td class="tb-td">
+					<input class="pa-qty" type="number" name="">
+				</td>
+				<td class="tb-td pa-amt">0.00</td>
+				<td class="tb-td">
+						<input class="is_approved" type="checkbox"
+							data-item="{{ item.item_code }}">
+					</td></td>
+				<td class="tb-td">
+					<input type="text" name="" class="pa-remark">
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
