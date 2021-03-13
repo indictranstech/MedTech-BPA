@@ -13,11 +13,11 @@ frappe.ui.form.on("Payment Entry", {
 
 	allocate_payment: function(frm) {
 		frappe.route_options = {
-			"payment_allocation_party": frm.doc.party,
+			"stock_allocation_party": frm.doc.party,
 			"unallocated_amt": frm.doc.unallocated_amount,
 			"posting_date": frm.doc.posting_date
 		};
-		frappe.set_route("payment-allocation");
+		frappe.set_route("stock-allocation");
 	}	
 });
 
