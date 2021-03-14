@@ -5,17 +5,18 @@ frappe.ui.form.on("Payment Entry", {
 			&& (!frm.doc.payment_allocation_status ||
 			in_list(["Pending", "Partially Allocated"], frm.doc.payment_allocation_status))
 			&& frm.doc.docstatus === 1) {
-			frm.add_custom_button(__('Allocate Payment'), function () {
-				frm.trigger("allocate_payment");
-			});
+			frm.add_custom_button(__('Stock Allocation'), function () {
+				frm.trigger("redirect_to_stock_allocation");
+			}).addClass("btn-primary");;
 		}
 	},
 
-	allocate_payment: function(frm) {
+	redirect_to_stock_allocation: function(frm) {
 		frappe.route_options = {
 			"stock_allocation_party": frm.doc.party,
 			"unallocated_amt": frm.doc.unallocated_amount,
-			"posting_date": frm.doc.posting_date
+			"posting_date": frm.doc.posting_date,
+			"payment_entry": frm.doc.name
 		};
 		frappe.set_route("stock-allocation");
 	}	

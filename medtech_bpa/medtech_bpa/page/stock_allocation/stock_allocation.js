@@ -37,12 +37,18 @@ frappe.stock_allocation = Class.extend({
 						"data": r.message
 					}))
 
+					console.log("data .........",r.message)
+
 					me.update_localstorage_data("customer", r.message.customer)
-					me.update_localstorage_data("remaining_amt", r.message.closing_bal)
+					me.update_localstorage_data("remaining_amt", r.message.pending_bal)
+					me.update_localstorage_data("closing_bal", r.message.closing_bal)
+					me.update_localstorage_data("pending_bal", r.message.pending_bal)
+					me.update_localstorage_data("total_amt", 0)
 					me.update_qty();
 					me.approval_check();
 					me.update_remark();
 					me.save_doc();
+					me.submit_doc();
 					me.refresh_doc();
 				}
 				else {
@@ -57,49 +63,54 @@ frappe.stock_allocation = Class.extend({
 		var is_update_needed = true
 		$('.pa-qty').on("change", function() {
 			var pa_qty = this.value
-			var curr_amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
-			var remaining_amt = me.get_localstorage_data("remaining_amt")["remaining_amt"] || 0
+			var soi_qty = $(this).closest('tr').find('.soi-qty').attr('data-soi-qty').trim();
+			//var curr_amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
+			//var remaining_amt = me.get_localstorage_data("remaining_amt")["remaining_amt"] || 0
 
 			if(!pa_qty || pa_qty < 0) {
-				var is_update_needed = false
 				this.value = 0
-				var pa_qty = 0
-				var amount = 0
-				var remaining_amt = flt(remaining_amt) + flt(curr_amount)
+				$(this).closest('tr').find('.pa-amt').text(0)
 				$(this).closest('tr').find('.is_approved').prop("checked", false);
 			}
 
-			var rate = $(this).closest('tr').find('.rate').attr('data-soi-rate').trim();
-			var qty = $(this).closest('tr').find('.soi-qty').attr('data-soi-qty').trim();
-			var amount = flt(rate) * cint(pa_qty)
-
 			// validate original qty
-			if((cint(pa_qty) > cint(qty))) {
+			if((cint(pa_qty) > cint(soi_qty))) {
 				this.value = 0
-				var remaining_amt = flt(remaining_amt) + flt(curr_amount)
 				$(this).closest('tr').find('.pa-amt').text(0.00)
 				frappe.msgprint(__("Qty is exceeding original Qty"))
 			}
 
-			// validate amount limit
-			else if(remaining_amt - amount < 0) {
-				this.value = 0
-				var remaining_amt = flt(remaining_amt) + flt(curr_amount)
-				$(this).closest('tr').find('.pa-amt').text(0.00)
-				frappe.msgprint(__("Exceeding Amount Limit"))
-			}
-			else if (!is_update_needed) {
-				$(this).closest('tr').find('.pa-amt').text(amount)
-				var remaining_amt = flt(remaining_amt) - flt(amount)
-			}
-			
-			var qty = $(this).closest('tr').find('.pa-qty').val();
 			var item_code = $(this).closest('tr').find('.soi-code').attr('data-soi-code').trim();
-			var amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
+			var qty = $(this).closest('tr').find('.pa-qty').val();
+			var rate = $(this).closest('tr').find('.rate').attr('data-soi-rate').trim();
+			//var amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
 			var sales_order = $(this).closest('tr').find('.so-name').attr('data-so').trim();
 			var is_approved = $(this).closest('tr').find('.is_approved').prop("checked");
 			var remark = $(this).closest('tr').find('.pa-remark').val().trim();
-			$('.pending_amt').html("<b>Pending Balance:  </b>"+remaining_amt)
+
+			var amount = flt(rate) * cint(qty)
+
+			$(this).closest('tr').find('.pa-amt').text(amount)
+
+			// update stock_qty
+			var stock_qty = $(this).closest('tr').find('.stock_qty').attr('data-stock-qty').trim()
+			var update_stock_qty = cint(stock_qty) - cint(qty)
+			$(this).closest('tr').find('.stock_qty').text(update_stock_qty)
+			$(this).closest('tr').find('.pa-amt').text(amount)
+
+
+			var total_amt = me.calculate_total()
+			var pending_bal = me.get_localstorage_data("pending_bal")["pending_bal"]
+			var remaining_amt = flt(pending_bal) - flt(total_amt)
+
+			console.log(pending_bal, total_amt, "########")
+
+			// validate amount limit
+			if(remaining_amt < 0) {
+				frappe.msgprint(__("Exceeding Amount Limit"))
+			}
+
+			$('.pending_bal').html("<b>Pending Balance:  </b>"+remaining_amt)
 			
 			//update localstorage
 			me.update_localstorage_data("remaining_amt", remaining_amt)
@@ -171,6 +182,15 @@ frappe.stock_allocation = Class.extend({
 		})
 	},
 
+	calculate_total: function() {
+		var total_amt = 0
+		var amt_inputs = $(".pa-amt")
+		$.each(amt_inputs, function(i, row) {
+			total_amt += flt($(amt_inputs[i]).text().trim() || 0)
+		})
+		return total_amt
+	},
+
 	save_doc: function() {
 		var me = this;
 		$('.save_doc').on("click", function() {
@@ -194,6 +214,31 @@ frappe.stock_allocation = Class.extend({
 		})
 	},
 
+	submit_doc: function() {
+		var me = this;
+		$('.submit_doc').on("click", function() {
+			var approved_items = $('.is_approved').filter(':checked').length
+			if(approved_items == 0) {
+				frappe.msgprint(__("No approved allocation found"))
+			}
+			else {
+				var data =  me.get_localstorage_data()
+				frappe.call({
+					method: "medtech_bpa.medtech_bpa.page.stock_allocation.stock_allocation.submit_stock_allocation",
+					args: {"data": data},
+					async: false,
+					callback: function(r) {
+						if(!r.exc) {
+							me.clear_localstorage();
+							me.make();
+							frappe.msgprint(__("Stock Allocation Submitted Successfully ..."))
+						}
+					}
+				})
+			}
+		})
+	},
+
 	refresh_doc: function() {
 		var me = this;
 		$('.refresh_doc').on("click", function() {
@@ -204,7 +249,7 @@ frappe.stock_allocation = Class.extend({
 
 	get_localstorage_data: function(key=false) {
 		data = {}
-		let keys = key ? [key]:["customer", "remaining_amt", "items"]
+		let keys = key ? [key]:["customer", "remaining_amt", "items", "pending_bal"]
 		for (let key of keys) {
 			if(has_common(["items"],[key])) {
 				data[key] = JSON.parse(localStorage.getItem(key)) || {}
@@ -217,7 +262,6 @@ frappe.stock_allocation = Class.extend({
 	},
 
 	update_localstorage_data(key, val) {
-		console.log("update_localstorage_data", key, val)
 		var data = this.get_localstorage_data()
 		if( key == "items") {
 			var items = data["items"]

@@ -1,3 +1,7 @@
+#header {
+	padding-left: 10px;
+}
+
 .item_head {
 	background-color: #5e64ff;
 	color:#FFFFFF;
@@ -7,4 +11,10 @@
 
 .check-item {
 	text-align: center;
+}
+
+.pa-remark {
+	height: 50px;
+	border-radius: 5px;
+	border: 1px solid black;
 }
