@@ -100,6 +100,7 @@ def save_stock_allocation(data)	:
 						"rate": v[1],
 						"amount": int(v[0]) * flt(v[1]),
 						"against_sales_order": v[2],
+						"is_approved": v[3],
 						"remarks": v[4]
 					})
 			sa.flags.ignore_permissions = True
@@ -130,6 +131,7 @@ def submit_stock_allocation(data):
 					"item_code": data.get("item_code"),
 					"item_name": data.get("item_name"),
 					"qty": data.get("qty"),
+					"rate": data.get("rate"),
 					"amount": data.get("amount"),
 					"description": data.get("remarks") or  data.get("item_code"),
 					"against_sales_order": data.get("against_sales_order"),
