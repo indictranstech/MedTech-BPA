@@ -35,3 +35,39 @@ def send_so_notification(sales_order):
 	except Exception as e:
 		print("#####################\n {}".format(str(e)))
 		#frappe.msgprint("Error: {}".format(str(e)))
+
+def on_update_after_submit(doc,method):
+	try:
+		if doc.workflow_state == 'Payment Pending':	
+			#get email ids
+			recipients = [frappe.db.get_value("Customer", doc.customer, "email_id")]
+			cc = []
+			for row in doc.sales_team:
+				if row.sales_person:
+					sp_email = frappe.db.get_value("Sales Person", row.sales_person,\
+						"contact_company_email")
+					if sp_email:
+						cc.append(sp_email)
+
+			if not recipients and not cc:
+				frappe.msgprint("Please add email Ids for Customer and Sales Persons")
+			else:
+				subject = "Sales Order {} Notification".format(doc.name)
+				message = "Hi,\t This is system generated message. Do not reply.\n\
+				In case of query, check with your System Administrative"
+
+				email_args = {
+					"recipients": recipients, 
+					"cc" : cc,
+					"sender": None,
+					"subject": subject,
+					"message": message,
+					"now": True,
+					"attachments": [frappe.attach_print("Sales Order", doc.name)]
+				}
+				enqueue(method=frappe.sendmail, queue='short', timeout=300, is_async=True, **email_args)
+			return doc.name
+	except Exception as e:
+		print("#####################\n {}".format(str(e)))
+		#frappe.msgprint("Error: {}".format(str(e)))
+

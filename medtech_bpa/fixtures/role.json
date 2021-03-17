@@ -988,5 +988,35 @@
   "restrict_to_domain": null,
   "role_name": "Analytics",
   "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "modified": "2021-03-17 10:35:05.661654",
+  "name": "Distributor",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "role_name": "Distributor",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "modified": "2021-03-17 10:35:23.704006",
+  "name": "Sales Executor",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "restrict_to_domain": null,
+  "role_name": "Sales Executor",
+  "two_factor_auth": 0
  }
 ]

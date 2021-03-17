@@ -58,5 +58,15 @@
   "parentfield": null,
   "parenttype": null,
   "workflow_action_name": "Send for Approval"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2021-03-17 10:37:10.512335",
+  "name": "Send Email",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "workflow_action_name": "Send Email"
  }
 ]
