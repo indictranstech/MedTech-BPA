@@ -171,4 +171,7 @@ doc_events = {
 	"Sales Order":{
 		"on_update_after_submit":"medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.on_update_after_submit"
 	},
+	"Delivery Note":{
+		"validate":"medtech_bpa.medtech_bpa.custom_scripts.delivery_note.delivery_note.validate"
+	}
 }
