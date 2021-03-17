@@ -168,4 +168,7 @@ doc_events = {
 	"Purchase Invoice":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.purchase_invoice.purchase_invoice.validate"
 	},
+	"Sales Order":{
+		"on_update_after_submit":"medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.on_update_after_submit"
+	},
 }
