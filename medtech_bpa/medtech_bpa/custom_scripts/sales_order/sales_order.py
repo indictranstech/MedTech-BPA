@@ -1,5 +1,7 @@
 import frappe
 from frappe.utils.background_jobs import enqueue
+from frappe.utils import getdate
+
 
 @frappe.whitelist()
 def send_so_notification(sales_order):
@@ -76,27 +78,34 @@ def validate(doc, method):
 	pricing_rule = frappe.db.get_values("Pricing Rule", {"customer":doc.customer, "is_cummulative_customer":1}, ["max_amt", "valid_from", "valid_upto", "discount_percentage"],as_dict=1)
 
 	if pricing_rule:
-		lst_disc_so = frappe.db.sql("""SELECT MAX(transaction_date) AS max_date  FROM `tabSales Order` where discount_amount>0 and transaction_date>='{0}' and transaction_date<='{1}'""".format(pricing_rule[0].get('valid_from'), pricing_rule[0].get('valid_upto')), as_dict=1)
-
-		if lst_disc_so[0].get('max_date'):
-			so_details = frappe.db.sql("""SELECT name, grand_total, discount_amount from `tabSales Order` where transaction_date>'{0}' and transaction_date>='{1}' and transaction_date<='{2}'""".format(lst_disc_so[0].get('max_date'),pricing_rule[0].get('valid_from'), pricing_rule[0].get('valid_upto')), as_dict=1)
-			discount_calculation(doc,so_details, pricing_rule)
-		else:
-			so_details = frappe.db.sql("""SELECT name, grand_total, discount_amount from `tabSales Order` where transaction_date>='{1}' and transaction_date<='{2}'""".format(lst_disc_so[0].get('max_date'),pricing_rule[0].get('valid_from'), pricing_rule[0].get('valid_upto')), as_dict=1, debug=1)
-			discount_calculation(doc,so_details, pricing_rule)
+		so_details = frappe.db.sql("""SELECT name, grand_total, discount_amount from `tabSales Order` where transaction_date>='{0}' and transaction_date<='{1}' and customer='{2}'""".format(pricing_rule[0].get('valid_from'), pricing_rule[0].get('valid_upto'), doc.customer), as_dict=1)
+		discount_calculation(doc, so_details, pricing_rule)
 
 
 def discount_calculation(doc, so_details, pricing_rule):
 	total_amt=0.0
 	total_amt+=doc.grand_total
 	disc_amt = 0.0
-	
+	so_name = []
 	for row in so_details:
-		total_amt+=row.grand_total
-		if total_amt >= pricing_rule[0].get("max_amt") and not doc.discount_amount:
-			disc_amt = total_amt*pricing_rule[0].get("discount_percentage")/100 
+		if row.get("discount_amount")>0:
+			so_name.append(row.name)
+
+	if getdate(doc.transaction_date) >= getdate(pricing_rule[0].get('valid_from')) and getdate(doc.transaction_date) <= getdate(pricing_rule[0].get('valid_upto')):
+		if so_name:
+			disc_amt = doc.grand_total*pricing_rule[0].get("discount_percentage")/100 
 			doc.discount_amount = disc_amt
 			doc.grand_total = doc.grand_total-disc_amt
 			doc.rounded_total = round(doc.grand_total)
 			in_words = frappe.utils.money_in_words(round(doc.grand_total))
 			doc.in_words = in_words
+		else:
+			for row in so_details:
+				total_amt+=row.grand_total
+				if total_amt >= pricing_rule[0].get("max_amt") and not doc.discount_amount:
+					disc_amt = total_amt*pricing_rule[0].get("discount_percentage")/100 
+					doc.discount_amount = disc_amt
+					doc.grand_total = doc.grand_total-disc_amt
+					doc.rounded_total = round(doc.grand_total)
+					in_words = frappe.utils.money_in_words(round(doc.grand_total))
+					doc.in_words = in_words
