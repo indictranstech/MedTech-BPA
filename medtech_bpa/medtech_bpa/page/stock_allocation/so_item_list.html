@@ -1,4 +1,18 @@
 <div>
+	<!-- <div class="row">
+		<div class="col-xs-9"></div>
+		<div class="col-xs-3">
+			<button type="button" class="btn btn-primary btn-sm refresh_doc">
+				Refresh
+			</button>
+			<button type="button" class="btn btn-primary btn-sm save_doc">
+				Save
+			</button>
+			<button type="button" class="btn btn-primary btn-sm submit_doc">
+				Submit
+			</button>
+		</div>
+	</div><br> -->
 	<div class="row">
 		<!-- <div class="col-xs-1"></div> -->
 		<div class="col-xs-3"><b>Customer: </b>{{data.customer}}</div>
@@ -11,16 +25,8 @@
 		<div class="col-xs-2 pending_bal"><b>Pending Balance: </b>
 			{{ data.pending_bal }}
 		</div>
-		<div class="col-xs-3">
-			<button type="button" class="btn btn-primary btn-sm refresh_doc">
-				Refresh
-			</button>
-			<button type="button" class="btn btn-primary btn-sm save_doc">
-				Save
-			</button>
-			<button type="button" class="btn btn-primary btn-sm submit_doc">
-				Submit
-			</button>
+		<div class="col-xs-3 unpaid_dn_amt"><b>Unpaid Delivery Amount: </b>
+			{{ data.unpaid_dn_amt }}
 		</div>
 		<!-- <div class="col-xs-1"></div> -->
 	</div>

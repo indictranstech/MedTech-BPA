@@ -117,6 +117,7 @@ frappe.stock_allocation = Class.extend({
 			me.update_localstorage_data("items", {
 				"item_code": item_code,
 				"qty": cint(qty),
+				"rate": rate,
 				"amount": flt(amount),
 				"sales_order": sales_order,
 				"remark": remark,
@@ -132,6 +133,7 @@ frappe.stock_allocation = Class.extend({
 			var is_update_needed = false
 			
 			var qty = $(this).closest('tr').find('.pa-qty').val();
+			var rate = $(this).closest('tr').find('.rate').attr('data-soi-rate').trim();
 			var item_code = $(this).closest('tr').find('.soi-code').attr('data-soi-code').trim();
 			var amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
 			
@@ -153,6 +155,7 @@ frappe.stock_allocation = Class.extend({
 				me.update_localstorage_data("items", {
 					"item_code": item_code,
 					"qty": cint(qty),
+					"rate": rate,
 					"amount": flt(amount),
 					"sales_order": sales_order,
 					"is_approved": is_approved,
@@ -168,12 +171,14 @@ frappe.stock_allocation = Class.extend({
 			var item_code = $(this).closest('tr').find('.soi-code').attr('data-soi-code').trim();
 			var sales_order = $(this).closest('tr').find('.so-name').attr('data-so').trim();
 			var remark = $(this).closest('tr').find('.pa-remark').val().trim();
+			var rate = $(this).closest('tr').find('.rate').attr('data-soi-rate').trim();
 			var amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
 			var qty = $(this).closest('tr').find('.pa-qty').val();
 			var is_approved = $(this).closest('tr').find('.is_approved').prop("checked");
 			me.update_localstorage_data("items", {
 				"item_code": item_code,
 				"qty": cint(qty),
+				"rate": flt(rate),
 				"amount": flt(amount),
 				"sales_order": sales_order,
 				"is_approved": is_approved,
@@ -269,7 +274,7 @@ frappe.stock_allocation = Class.extend({
 				delete items[val.item_code]
 			}
 			else {
-				items[val.item_code] = [val.qty, val.amount, val.sales_order, val.is_approved, val.remark]
+				items[val.item_code] = [val.qty, val.rate, val.amount, val.sales_order, val.is_approved, val.remark]
 			}
 			localStorage.setItem('items', JSON.stringify(items));
 		}
