@@ -35,24 +35,24 @@ def get_data(filters):
 				sum(pris.received_qty) 
 				from `tabPurchase Receipt` prs 
 				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
-				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse = 'Rejected Warehouse'
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse = 'Purchase Return'
 				) is null,0,(select 
 				sum(pris.received_qty) 
 				from `tabPurchase Receipt` prs 
 				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
-				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse = 'Rejected Warehouse'
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse = 'Purchase Return'
 				)) as "purchase_rtn_qty",
 			pr.name,
 			if((select 
 				sum(pris.received_qty) 
 				from `tabPurchase Receipt` prs 
 				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
-				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse in ('Short Warehouse', 'Excess Warehouse')
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse in ('Debit Note', 'Credit Note')
 				) is null,0,(select 
 				sum(pris.received_qty) 
 				from `tabPurchase Receipt` prs 
 				INNER JOIN `tabPurchase Receipt Item` pris ON prs.name = pris.parent
-				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse in ('Short Warehouse', 'Excess Warehouse')
+				where prs.is_return=1 and prs.docstatus = 1 and prs.return_against = pr.name and pris.item_name = pri.item_name and prs.return_for_warehouse in ('Debit Note', 'Credit Note')
 				)) as "debit_note_qty",
 			pr.name,
 			if((select  
