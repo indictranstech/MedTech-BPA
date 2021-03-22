@@ -174,5 +174,8 @@ doc_events = {
 	},
 	"Delivery Note":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.delivery_note.delivery_note.validate"
+	},
+	"BOM":{
+	"autoname":"medtech_bpa.medtech_bpa.custom_scripts.bom.bom.autoname"
 	}
 }
