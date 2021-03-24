@@ -305,3 +305,33 @@ def get_items_from_production_plan(production_plan):
 	item_list = [item.item_code for item in items]
 	rm_warehouse = frappe.db.get_value("Production Plan",{'name':production_plan},'for_warehouse')
 	return item_list,rm_warehouse
+
+@frappe.whitelist()
+def get_pending_work_orders(doctype, txt, searchfield, start, page_length, filters, as_dict):
+
+	return frappe.db.sql("""
+		SELECT
+			`name`, `company`, `planned_start_date` , `production_plan` , `production_item`
+		FROM
+			`tabWork Order`
+		WHERE
+			`status` not in ('Completed', 'Stopped')
+			AND `qty` > `material_transferred_for_manufacturing`
+			AND `docstatus` = 1
+			AND `company` = %(company)s
+			AND `production_plan` = %(production_plan)s
+			AND `production_item` = %(production_item)s
+			AND `name` like %(txt)s
+		ORDER BY
+			if(locate(%(_txt)s, name), locate(%(_txt)s, name), 99999), name
+		LIMIT
+			%(start)s, %(page_length)s""",
+		{
+			'txt': "%%%s%%" % txt,
+			'_txt': txt.replace('%', ''),
+			'start': start,
+			'page_length': frappe.utils.cint(page_length),
+			'company': filters.get('company'),
+			'production_plan':filters.get('production_plan'),
+			'production_item':filters.get('production_item')
+		}, as_dict=as_dict)

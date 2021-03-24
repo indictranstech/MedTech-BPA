@@ -23,9 +23,11 @@ frappe.ui.form.on('Production Pick List', {
 		});
 		frm.set_query('work_order', () => {
 			return {
-				query: 'erpnext.stock.doctype.pick_list.pick_list.get_pending_work_orders',
+				query: 'medtech_bpa.medtech_bpa.doctype.production_pick_list.production_pick_list.get_pending_work_orders',
 				filters: {
-					'company': frm.doc.company
+					'company': frm.doc.company,
+					'production_plan':frm.doc.production_plan,
+					'production_item':frm.doc.item
 				}
 			};
 		});
@@ -68,7 +70,7 @@ frappe.ui.form.on('Production Pick List', {
 				callback:function(r){
 					if(r.message){
 						frm.set_value('work_order',r.message)
-						frm.set_df_property("work_order","read_only",1)
+						// frm.set_df_property("work_order","read_only",1)
 					}else{
 						frappe.throw(__("Error: No Work Order Created For Item {0} and Production Plan {1} ",
 					[frm.doc.item,frm.doc.production_plan]
