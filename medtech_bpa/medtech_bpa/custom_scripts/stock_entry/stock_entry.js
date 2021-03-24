@@ -9,6 +9,15 @@ frappe.ui.form.on("Stock Entry", {
 				}
 			};
 		});
+		frm.set_query('work_order', () => {
+			return {
+				filters: {
+					'company': frm.doc.company,
+					'production_plan':frm.doc.production_plan,
+					'production_item':frm.doc.item
+				}
+			};
+		});
 	},
 	production_plan:function(frm){
 		if(frm.doc.production_plan){
@@ -45,7 +54,7 @@ frappe.ui.form.on("Stock Entry", {
 				callback:function(r){
 					if(r.message){
 						frm.set_value('work_order',r.message)
-						frm.set_df_property("work_order","read_only",1)
+						// frm.set_df_property("work_order","read_only",1)
 					}else{
 						frappe.throw(__("Error: No Work Order Created For Item {0} and Production Plan {1} ",
 					[frm.doc.item,frm.doc.production_plan]
