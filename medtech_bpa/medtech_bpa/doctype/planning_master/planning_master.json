@@ -1,24 +1,17 @@
 {
  "actions": [],
- "autoname": "PM./.YYYY./.####",
+ "autoname": "naming_series:",
  "creation": "2021-01-21 11:12:45.180439",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "title",
-  "description",
+  "naming_series",
   "from_date",
-  "to_date"
+  "to_date",
+  "description"
  ],
  "fields": [
-  {
-   "fieldname": "title",
-   "fieldtype": "Data",
-   "in_list_view": 1,
-   "label": "Title",
-   "reqd": 1
-  },
   {
    "fieldname": "from_date",
    "fieldtype": "Date",
@@ -38,11 +31,19 @@
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Description"
+  },
+  {
+   "default": "PM./.YYYY./.####",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "options": "PM./.YYYY./.####",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-03-05 15:50:15.052551",
+ "modified": "2021-03-12 15:15:26.619014",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Planning Master",

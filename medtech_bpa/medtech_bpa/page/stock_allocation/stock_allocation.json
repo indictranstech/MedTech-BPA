@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2021-03-13 18:17:30.496782",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2021-03-13 18:17:30.496782",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "stock-allocation",
+ "owner": "Administrator",
+ "page_name": "Stock Allocation",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Sales Order Stock Allocation"
+}
