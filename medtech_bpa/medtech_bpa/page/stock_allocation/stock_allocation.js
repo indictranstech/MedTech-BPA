@@ -16,6 +16,10 @@ frappe.stock_allocation = Class.extend({
 		this.$wrapper.append(frappe.render_template("layout"));
 		this.clear_localstorage();
 		this.fetch_pending_so();
+		this.refresh_doc();
+		this.change_customer();
+		this.save_doc();
+		this.submit_doc();
 	},
 
 	clear_localstorage: function() {
@@ -26,18 +30,16 @@ frappe.stock_allocation = Class.extend({
 		})
 	},
 
-	fetch_pending_so: function() {
+	fetch_pending_so: function(data) {
 		var me = this;
 		frappe.call({
 			method: "medtech_bpa.medtech_bpa.page.stock_allocation.stock_allocation.get_pending_so",
-			args: frappe.route_options,
+			args: data || frappe.route_options,
 			callback: function(r) {
 				if(!r.exc) {
 					$('.item-tbl').html(frappe.render_template("so_item_list", {
 						"data": r.message
 					}))
-
-					console.log("data .........",r.message)
 
 					me.update_localstorage_data("customer", r.message.customer)
 					me.update_localstorage_data("remaining_amt", r.message.pending_bal)
@@ -47,11 +49,11 @@ frappe.stock_allocation = Class.extend({
 					me.update_qty();
 					me.approval_check();
 					me.update_remark();
-					me.save_doc();
-					me.submit_doc();
-					me.refresh_doc();
 				}
 				else {
+					if (data && cur_dialog) {
+						cur_dialog.hide();
+					}
 					frappe.msgprint("Unable to fetch the data.")
 				}
 			}
@@ -64,8 +66,6 @@ frappe.stock_allocation = Class.extend({
 		$('.pa-qty').on("change", function() {
 			var pa_qty = this.value
 			var soi_qty = $(this).closest('tr').find('.soi-qty').attr('data-soi-qty').trim();
-			//var curr_amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
-			//var remaining_amt = me.get_localstorage_data("remaining_amt")["remaining_amt"] || 0
 
 			if(!pa_qty || pa_qty < 0) {
 				this.value = 0
@@ -83,7 +83,7 @@ frappe.stock_allocation = Class.extend({
 			var item_code = $(this).closest('tr').find('.soi-code').attr('data-soi-code').trim();
 			var qty = $(this).closest('tr').find('.pa-qty').val();
 			var rate = $(this).closest('tr').find('.rate').attr('data-soi-rate').trim();
-			//var amount = flt($(this).closest('tr').find('.pa-amt').text() || 0);
+
 			var sales_order = $(this).closest('tr').find('.so-name').attr('data-so').trim();
 			var is_approved = $(this).closest('tr').find('.is_approved').prop("checked");
 			var remark = $(this).closest('tr').find('.pa-remark').val().trim();
@@ -196,6 +196,63 @@ frappe.stock_allocation = Class.extend({
 		return total_amt
 	},
 
+	change_customer: function() {
+		var me = this;
+
+		function _change_customer(me) {
+			var d = new frappe.ui.Dialog({
+				title: __('Select Customer and Posting Date to getting entries.'),
+				fields: [
+					{
+						"label" : "Customer",
+						"fieldname": "customer",
+						"fieldtype": "Link",
+						"options": "Customer",
+						"reqd": 1
+					},
+					{
+						"fieldtype": 'Column Break',
+						"fieldname": 'col_break_1'
+					},
+					{
+						"label": "Posting Date",
+						"fieldname": "posting_date",
+						"fieldtype": "Date",
+						"reqd": 1
+					}
+				],
+				primary_action: function() {
+					var data = d.get_values();
+
+					// set route options to avoid refresh trigger conflicts
+					frappe.route_options = {
+						"stock_allocation_party": data.customer,
+						"posting_date": data.posting_date,
+					};
+					me.clear_localstorage()
+					me.fetch_pending_so(data)
+					d.hide();
+				},
+				primary_action_label: __('Fetch Data')
+			});
+			d.show();
+		}
+
+		$('.change_customer').on("click", function() {
+			existing_data = me.get_localstorage_data("items")["items"]
+			if(Object.keys(existing_data).length) {
+				frappe.confirm(__("Please save the changes, if there is any.\
+					This action will fetch the data again. \
+					Are you certain ?"), function() {
+					_change_customer(me);
+				});
+			}
+			else {
+				_change_customer(me);
+			}
+		})
+	},
+
 	save_doc: function() {
 		var me = this;
 		$('.save_doc').on("click", function() {
@@ -211,7 +268,8 @@ frappe.stock_allocation = Class.extend({
 					async: false,
 					callback: function(r) {
 						if(!r.exc) {
-							frappe.msgprint(__("Stock Allocation Saved Successfully ..."))
+							frappe.msgprint(__("Stock Allocation {0} Saved Successfully.",
+								['<a class="bold" href="#Form/Stock Allocation/'+ r.message + '">' + r.message + '</a>']))
 						}
 					}
 				})
@@ -236,7 +294,10 @@ frappe.stock_allocation = Class.extend({
 						if(!r.exc) {
 							me.clear_localstorage();
 							me.make();
-							frappe.msgprint(__("Stock Allocation Submitted Successfully ..."))
+							frappe.msgprint(__("Stock Allocation {0} Submitted Successfully.\
+								Delivery Note: {1}",
+								['<a class="bold" href="#Form/Stock Allocation/'+ r.message.stock_allocation + '">' + r.message.stock_allocation + '</a>',
+								'<a class="bold" href="#Form/Delivery Note/'+ r.message.delivery_note + '">' + r.message.delivery_note + '</a>']))
 						}
 					}
 				})
@@ -247,9 +308,18 @@ frappe.stock_allocation = Class.extend({
 	refresh_doc: function() {
 		var me = this;
 		$('.refresh_doc').on("click", function() {
-			//me.clear_localstorage();
-			me.make();
-		})
+			existing_data = me.get_localstorage_data("items")["items"]
+			if(Object.keys(existing_data).length) {
+				frappe.confirm(__("This action will fetch the data again. \
+					Please save the changes if there is any. \
+					Are you certain ?"), function() {
+					me.make();
+				});
+			}
+			else {
+				me.make();
+			}
+		});
 	},
 
 	get_localstorage_data: function(key=false) {
@@ -282,4 +352,4 @@ frappe.stock_allocation = Class.extend({
 			localStorage.setItem(key, val);
 		}
 	}
-})	
+})

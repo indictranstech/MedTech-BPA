@@ -10,10 +10,11 @@ def get_pending_so(**kwargs):
 		data = {"items": [], "customer": "", "pending_bal": 0, "closing_bal": 0}
 		customer = ''
 		unpaid_dn_amt = 0
+		payment_entry = kwargs.get("payment_entry")
+		customer = kwargs.get("customer") or \
+			kwargs.get("stock_allocation_party")
 
-		if kwargs.get("stock_allocation_party"):
-
-			customer = kwargs.get("stock_allocation_party")
+		if customer:
 
 			# unpaid delivery note amount
 			unpaid_dn_amt = frappe.db.sql("""
@@ -63,9 +64,20 @@ def get_pending_so(**kwargs):
 
 			gl_data = execute(filters)
 
-			for row in gl_data[1]:
-				if row.get("voucher_no") == kwargs.get("payment_entry"):
-					closing_bal = row.get("balance")
+
+			if not payment_entry:
+				pe_data = frappe.db.sql("""select name
+					from `tabPayment Entry` where party = '{0}'
+					and docstatus = 1  and posting_date = '{1}'
+					order by creation desc limit 1
+				""".format(customer, kwargs.get("posting_date")), as_dict=True)
+				if len(pe_data):
+					payment_entry = pe_data[0]["name"]
+
+			if payment_entry:
+				for row in gl_data[1]:
+					if row.get("voucher_no") == payment_entry:
+						closing_bal = row.get("balance")
 
 			query = """
 				select
@@ -188,7 +200,7 @@ def submit_stock_allocation(data):
 			dn.set_missing_values()
 			dn.save()
 			dn.submit()
-			return dn.name
+			return {"stock_allocation": sa.name, "delivery_note": dn.name}
 	except Exception as e:
 		print("################################", str(e))
 		frappe.msgprint(_("Something went wrong, while submitting the document"))
