@@ -8,8 +8,11 @@ from erpnext.accounts.report.general_ledger.general_ledger import execute
 def get_pending_so(**kwargs):
 	try:
 		data = {"items": [], "customer": "", "pending_bal": 0, "closing_bal": 0}
+		sa_data = {}
 		customer = ''
 		unpaid_dn_amt = 0
+		sa_total_amt = 0
+		sa_items = {}
 		payment_entry = kwargs.get("payment_entry")
 		customer = kwargs.get("customer") or \
 			kwargs.get("stock_allocation_party")
@@ -64,7 +67,6 @@ def get_pending_so(**kwargs):
 
 			gl_data = execute(filters)
 
-
 			if not payment_entry:
 				pe_data = frappe.db.sql("""select name
 					from `tabPayment Entry` where party = '{0}'
@@ -84,7 +86,7 @@ def get_pending_so(**kwargs):
 					so.name, so.customer, so.status, 
 					so.transaction_date, soi.item_code, soi.item_name,
 					(soi.qty - soi.delivered_qty) as qty, soi.rate, soi.amount,
-					b.actual_qty as stock_qty
+					b.actual_qty as stock_qty, 0 as carton_qty, 0 as revised_amt, 0 as approval, '' as remark
 				from
 					`tabSales Order` so
 				left join
@@ -98,12 +100,43 @@ def get_pending_so(**kwargs):
 				where
 					so.customer = '{}'
 					and so.delivery_status in ('Not Delivered', 'Partly Delivered')
-					and so.docstatus = 1""".format(warehouse_cond, customer)
+					and so.docstatus = 1
+			""".format(warehouse_cond, customer)
 			so_data = frappe.db.sql(query, as_dict=True)
 
+			# existing stock allocation data merge
+			if int(kwargs.get("fetch_existing")):
+				sa = frappe.db.get_value("Stock Allocation", {
+					"customer": customer,
+					"docstatus": 0
+				})
+				if sa:
+					sa_doc = frappe.get_doc("Stock Allocation", sa)
+
+					# localstorage seq: [0:qty, 1:rate, 2:amount, 3:sales_order, 4:is_approved, 5:remark]
+					for row in sa_doc.items:
+						sa_items[row.item_code] = [row.qty, row.rate, row.amount,
+							row.against_sales_order, row.is_approved, row.remarks
+						]
+
+					# merge
+					for r in so_data:
+						if r.item_code in sa_items and \
+						r.name == sa_items[r.item_code][3]:
+							r["carton_qty"] = sa_items[r.item_code][0]
+							r["rate"] = sa_items[r.item_code][1]
+							r["revised_amt"] = sa_items[r.item_code][2]
+							r["approval"] = sa_items[r.item_code][4]
+							r["remark"] = sa_items[r.item_code][5]
+							sa_total_amt += sa_items[r.item_code][2]
+
+					sa_data["total_amount"] = sa_total_amt
+
+			data["sa_items"] = sa_items
+			data["sa_total_amt"] = sa_total_amt
 			data["items"] = so_data
 			data["customer"] = customer
-			data["pending_bal"] = (closing_bal * -1) - unpaid_dn_amt
+			data["pending_bal"] = (closing_bal * -1) - (unpaid_dn_amt + sa_total_amt)
 			data["closing_bal"] = closing_bal * -1
 			data["ledger_bal"] = ledger_bal * -1
 			data["unpaid_dn_amt"] = unpaid_dn_amt

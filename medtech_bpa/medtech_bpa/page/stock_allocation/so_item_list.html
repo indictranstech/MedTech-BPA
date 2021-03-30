@@ -62,18 +62,19 @@
 				</td>	
 				<td class="tb-td amont">{{item.amount}}</td>
 				<td class="tb-td">
-					<input class="pa-qty" type="number" name="">
+					<input class="pa-qty" type="number" name="", value="{{ item.carton_qty }}">
 				</td>
-				<td class="tb-td pa-amt">0.00</td>
+				<td class="tb-td pa-amt">{{ item.revised_amt }}</td>
 				<td class="tb-td">
 					<input class="is_approved" type="checkbox"
-							data-item="{{ item.item_code }}">
+							data-item="{{ item.item_code }}"
+							{% if cint(item.approval) %} checked {% endif %}>
 				</td>
 				<td class="tb-td stock_qty" data-stock-qty="{{ item.stock_qty }}">
 					{{ item.stock_qty }}
 				</td>
 				<td class="tb-td">
-					<input type="text" name="" class="pa-remark">
+					<input type="text" name="" class="pa-remark" value="{{ item.remark }}">
 				</td>
 			</tr>
 			{% endfor %}

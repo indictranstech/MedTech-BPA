@@ -32,9 +32,11 @@ frappe.stock_allocation = Class.extend({
 
 	fetch_pending_so: function(data) {
 		var me = this;
+		var data = data ? data: frappe.route_options
+		//data["fetch_existing"] = 1
 		frappe.call({
 			method: "medtech_bpa.medtech_bpa.page.stock_allocation.stock_allocation.get_pending_so",
-			args: data || frappe.route_options,
+			args: data,
 			callback: function(r) {
 				if(!r.exc) {
 					$('.item-tbl').html(frappe.render_template("so_item_list", {
@@ -45,7 +47,14 @@ frappe.stock_allocation = Class.extend({
 					me.update_localstorage_data("remaining_amt", r.message.pending_bal)
 					me.update_localstorage_data("closing_bal", r.message.closing_bal)
 					me.update_localstorage_data("pending_bal", r.message.pending_bal)
-					me.update_localstorage_data("total_amt", 0)
+					me.update_localstorage_data("total_amt", r.message.sa_total_amt)
+
+					console.log("items", r.message.sa_items)
+					// set localstorage with existing data
+					if(r.message.sa_items) {
+						localStorage.setItem('items', JSON.stringify(r.message.sa_items));
+					}
+
 					me.update_qty();
 					me.approval_check();
 					me.update_remark();
@@ -114,6 +123,7 @@ frappe.stock_allocation = Class.extend({
 			
 			//update localstorage
 			me.update_localstorage_data("remaining_amt", remaining_amt)
+			me.update_localstorage_data("total_amt", total_amt)
 			me.update_localstorage_data("items", {
 				"item_code": item_code,
 				"qty": cint(qty),
@@ -209,6 +219,12 @@ frappe.stock_allocation = Class.extend({
 						"fieldtype": "Link",
 						"options": "Customer",
 						"reqd": 1
+					},
+					{
+						"label": __("Fetch With Existing"),
+						"fieldname": "fetch_existing",
+						"fieldtype": "Check",
+						"default": 0
 					},
 					{
 						"fieldtype": 'Column Break',
