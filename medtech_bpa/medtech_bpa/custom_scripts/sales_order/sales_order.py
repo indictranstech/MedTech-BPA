@@ -1,6 +1,7 @@
+import json
 import frappe
+from frappe.utils import getdate, flt
 from frappe.utils.background_jobs import enqueue
-from frappe.utils import getdate
 
 
 @frappe.whitelist()
@@ -109,3 +110,27 @@ def discount_calculation(doc, so_details, pricing_rule):
 					doc.rounded_total = round(doc.grand_total)
 					in_words = frappe.utils.money_in_words(round(doc.grand_total))
 					doc.in_words = in_words
+
+def update_rate_with_taxes(doc, method):
+	item_taxes = frappe._dict()
+	# get item_wise_taxes
+	if doc.taxes_and_charges or len(doc.get("taxes")):
+		for tax in doc.get("taxes"):
+			if tax.item_wise_tax_detail:
+				tax_detail = json.loads(tax.item_wise_tax_detail)
+				for k, v in tax_detail.items():
+					if not k in item_taxes:
+						item_taxes[k] = flt(v[1])
+					else:
+						item_taxes[k] = item_taxes.get(k, 0) + flt(v[1])
+
+	#update item table with tax rate
+	for item in doc.get("items"):
+		if item.rate:
+			tax_amt = item_taxes.get(item.item_code) or item_taxes.get(item.item_name)
+			if tax_amt and tax_amt > 0:
+				item.rate_with_tax = item.rate + flt(tax_amt/item.qty)
+			else:
+				item.rate_with_tax = item.rate
+	doc.flags.ignore_permissions = True
+	#doc.save()

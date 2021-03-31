@@ -83,9 +83,13 @@ def get_pending_so(**kwargs):
 
 			query = """
 				select
-					so.name, so.customer, so.status, 
+					so.name, so.customer, so.workflow_state as status, 
 					so.transaction_date, soi.item_code, soi.item_name,
-					(soi.qty - soi.delivered_qty) as qty, soi.rate, soi.amount,
+					(soi.qty - soi.delivered_qty) as qty,
+					CASE WHEN (soi.rate_with_tax = 0)
+						THEN soi.rate
+						ELSE soi.rate_with_tax
+					END as rate, soi.amount,
 					b.actual_qty as stock_qty, 0 as carton_qty, 0 as revised_amt, 0 as approval, '' as remark
 				from
 					`tabSales Order` so
@@ -100,12 +104,13 @@ def get_pending_so(**kwargs):
 				where
 					so.customer = '{}'
 					and so.delivery_status in ('Not Delivered', 'Partly Delivered')
+					and so.workflow_state = 'PI Pending'
 					and so.docstatus = 1
 			""".format(warehouse_cond, customer)
 			so_data = frappe.db.sql(query, as_dict=True)
 
 			# existing stock allocation data merge
-			if int(kwargs.get("fetch_existing")):
+			if int(kwargs.get("fetch_existing", 0)):
 				sa = frappe.db.get_value("Stock Allocation", {
 					"customer": customer,
 					"docstatus": 0

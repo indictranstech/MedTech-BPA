@@ -170,7 +170,8 @@ doc_events = {
 	},
 	"Sales Order":{
 		"on_update_after_submit":"medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.on_update_after_submit",
-		"validate": "medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.validate"
+		"validate": ["medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.validate",
+			"medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.update_rate_with_taxes"]
 	},
 	"Delivery Note":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.delivery_note.delivery_note.validate"
