@@ -53,6 +53,11 @@ frappe.ui.form.on("Production Plan", {
 
 			dialog.set_primary_action(__("Get Items"), () => {
 				let warehouses = dialog.get_values().warehouses;
+				$.each(warehouses, function(idx, item_row){
+					var row = frappe.model.add_child(frm.doc, "Material Request Warehouses Production Plan", "material_request_warehouses");
+					frappe.model.set_value(row.doctype, row.name, 'warehouse', item_row['warehouse']);
+				});
+				refresh_field("material_request_warehouses")
 				frm.events.get_items_for_material_requests(frm, warehouses);
 				dialog.hide();
 			});
@@ -86,6 +91,11 @@ frappe.ui.form.on("Production Plan", {
 
 			dialog.set_primary_action(__("Get Items"), () => {
 				let warehouses = dialog.get_values().warehouses;
+				$.each(warehouses, function(idx, item_row){
+					var row = frappe.model.add_child(frm.doc, "WIP Warehouses Production Plan", "wip_warehouses_production_plan");
+					frappe.model.set_value(row.doctype, row.name, 'warehouse', item_row['warehouse']);
+				});
+				refresh_field("wip_warehouses_production_plan")
 				frm.events.get_items_for_material_requests(frm, warehouses);
 				dialog.hide();
 			});

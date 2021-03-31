@@ -6,8 +6,12 @@ from erpnext.manufacturing.doctype.production_plan.production_plan import Produc
 
 def validate(doc,method):
 	items = [item.item_code for item in doc.mr_items]
-	stock_qty_in_material_issue_warehouse = get_stock_balance(items,doc.posting_date,doc.for_warehouse)
-	stock_qty_in_wip_warehouse = get_stock_balance(items,doc.posting_date,doc.wip_warehouse)
+	mr_warehouse_list = [item.warehouse for item in doc.material_request_warehouses]
+	mr_warehouse_list.append(doc.for_warehouse)
+	wip_warehouse_list = [item.warehouse for item in doc.wip_warehouses_production_plan]
+	wip_warehouse_list.append(doc.wip_warehouse)
+	stock_qty_in_material_issue_warehouse = get_stock_balance(items,doc.posting_date,mr_warehouse_list)
+	stock_qty_in_wip_warehouse = get_stock_balance(items,doc.posting_date,wip_warehouse_list)
 	for item in doc.mr_items:
 		if item.item_code in stock_qty_in_material_issue_warehouse:
 			item.qty_in_material_issue_warehouse = stock_qty_in_material_issue_warehouse.get(item.item_code)
@@ -27,12 +31,17 @@ def on_submit(doc,method):
 	doc.reload()
 	
 def get_stock_balance(item_set,date,wip_warehouse):
-	from_warehouses = None
+	from_warehouses = []
 	if wip_warehouse:
-		from_warehouses = frappe.db.get_descendants('Warehouse', wip_warehouse)
-		
-	if not from_warehouses:
-		from_warehouses = [wip_warehouse]
+		for row in wip_warehouse:
+			warehouse_list = frappe.db.get_descendants('Warehouse', row)
+			if warehouse_list:
+				for item in warehouse_list:
+					from_warehouses.append(item)
+			else:
+				from_warehouses.append(row)
+	# if not from_warehouses:
+	# 	from_warehouses = [wip_warehouse]
 
 	if len(from_warehouses) == 1:
 		stock_qty = frappe.db.sql("SELECT item.item_code, sum(IFNULL (bin.actual_qty,0.0)) as ohs from `tabItem` item LEFT JOIN `tabBin` bin on item.item_code = bin.item_code  and item.disabled = 0 and bin.warehouse = '{0}' group by item.item_code".format(from_warehouses[0]), as_dict=1,debug=1)
@@ -40,3 +49,5 @@ def get_stock_balance(item_set,date,wip_warehouse):
 		stock_qty = frappe.db.sql("SELECT item.item_code, sum(IFNULL (bin.actual_qty,0.0)) as ohs from `tabItem` item LEFT JOIN `tabBin` bin on item.item_code = bin.item_code  and item.disabled = 0 and bin.warehouse in {0} group by item.item_code".format(tuple(from_warehouses)), as_dict=1,debug=1)
 	stock_dict = {row.item_code : row.ohs for row in stock_qty}
 	return stock_dict
+
+
