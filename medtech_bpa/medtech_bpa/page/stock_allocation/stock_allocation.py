@@ -8,12 +8,16 @@ from erpnext.accounts.report.general_ledger.general_ledger import execute
 def get_pending_so(**kwargs):
 	try:
 		data = {"items": [], "customer": "", "pending_bal": 0, "closing_bal": 0}
+		sa_data = {}
 		customer = ''
 		unpaid_dn_amt = 0
+		sa_total_amt = 0
+		sa_items = {}
+		payment_entry = kwargs.get("payment_entry")
+		customer = kwargs.get("customer") or \
+			kwargs.get("stock_allocation_party")
 
-		if kwargs.get("stock_allocation_party"):
-
-			customer = kwargs.get("stock_allocation_party")
+		if customer:
 
 			# unpaid delivery note amount
 			unpaid_dn_amt = frappe.db.sql("""
@@ -63,16 +67,30 @@ def get_pending_so(**kwargs):
 
 			gl_data = execute(filters)
 
-			for row in gl_data[1]:
-				if row.get("voucher_no") == kwargs.get("payment_entry"):
-					closing_bal = row.get("balance")
+			if not payment_entry:
+				pe_data = frappe.db.sql("""select name
+					from `tabPayment Entry` where party = '{0}'
+					and docstatus = 1  and posting_date = '{1}'
+					order by creation desc limit 1
+				""".format(customer, kwargs.get("posting_date")), as_dict=True)
+				if len(pe_data):
+					payment_entry = pe_data[0]["name"]
+
+			if payment_entry:
+				for row in gl_data[1]:
+					if row.get("voucher_no") == payment_entry:
+						closing_bal = row.get("balance")
 
 			query = """
 				select
-					so.name, so.customer, so.status, 
+					so.name, so.customer, so.workflow_state as status, 
 					so.transaction_date, soi.item_code, soi.item_name,
-					(soi.qty - soi.delivered_qty) as qty, soi.rate, soi.amount,
-					b.actual_qty as stock_qty
+					(soi.qty - soi.delivered_qty) as qty,
+					CASE WHEN (soi.rate_with_tax = 0)
+						THEN soi.rate
+						ELSE soi.rate_with_tax
+					END as rate, soi.amount,
+					b.actual_qty as stock_qty, 0 as carton_qty, 0 as revised_amt, 0 as approval, '' as remark
 				from
 					`tabSales Order` so
 				left join
@@ -86,12 +104,44 @@ def get_pending_so(**kwargs):
 				where
 					so.customer = '{}'
 					and so.delivery_status in ('Not Delivered', 'Partly Delivered')
-					and so.docstatus = 1""".format(warehouse_cond, customer)
+					and so.workflow_state = 'PI Pending'
+					and so.docstatus = 1
+			""".format(warehouse_cond, customer)
 			so_data = frappe.db.sql(query, as_dict=True)
 
+			# existing stock allocation data merge
+			if int(kwargs.get("fetch_existing", 0)):
+				sa = frappe.db.get_value("Stock Allocation", {
+					"customer": customer,
+					"docstatus": 0
+				})
+				if sa:
+					sa_doc = frappe.get_doc("Stock Allocation", sa)
+
+					# localstorage seq: [0:qty, 1:rate, 2:amount, 3:sales_order, 4:is_approved, 5:remark]
+					for row in sa_doc.items:
+						sa_items[row.item_code] = [row.qty, row.rate, row.amount,
+							row.against_sales_order, row.is_approved, row.remarks
+						]
+
+					# merge
+					for r in so_data:
+						if r.item_code in sa_items and \
+						r.name == sa_items[r.item_code][3]:
+							r["carton_qty"] = sa_items[r.item_code][0]
+							r["rate"] = sa_items[r.item_code][1]
+							r["revised_amt"] = sa_items[r.item_code][2]
+							r["approval"] = sa_items[r.item_code][4]
+							r["remark"] = sa_items[r.item_code][5]
+							sa_total_amt += sa_items[r.item_code][2]
+
+					sa_data["total_amount"] = sa_total_amt
+
+			data["sa_items"] = sa_items
+			data["sa_total_amt"] = sa_total_amt
 			data["items"] = so_data
 			data["customer"] = customer
-			data["pending_bal"] = (closing_bal * -1) - unpaid_dn_amt
+			data["pending_bal"] = (closing_bal * -1) - (unpaid_dn_amt + sa_total_amt)
 			data["closing_bal"] = closing_bal * -1
 			data["ledger_bal"] = ledger_bal * -1
 			data["unpaid_dn_amt"] = unpaid_dn_amt
@@ -188,7 +238,7 @@ def submit_stock_allocation(data):
 			dn.set_missing_values()
 			dn.save()
 			dn.submit()
-			return dn.name
+			return {"stock_allocation": sa.name, "delivery_note": dn.name}
 	except Exception as e:
 		print("################################", str(e))
 		frappe.msgprint(_("Something went wrong, while submitting the document"))

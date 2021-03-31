@@ -1,18 +1,4 @@
 <div>
-	<!-- <div class="row">
-		<div class="col-xs-9"></div>
-		<div class="col-xs-3">
-			<button type="button" class="btn btn-primary btn-sm refresh_doc">
-				Refresh
-			</button>
-			<button type="button" class="btn btn-primary btn-sm save_doc">
-				Save
-			</button>
-			<button type="button" class="btn btn-primary btn-sm submit_doc">
-				Submit
-			</button>
-		</div>
-	</div><br> -->
 	<div class="row">
 		<!-- <div class="col-xs-1"></div> -->
 		<div class="col-xs-3"><b>Customer: </b>{{data.customer}}</div>
@@ -76,18 +62,19 @@
 				</td>	
 				<td class="tb-td amont">{{item.amount}}</td>
 				<td class="tb-td">
-					<input class="pa-qty" type="number" name="">
+					<input class="pa-qty" type="number" name="", value="{{ item.carton_qty }}">
 				</td>
-				<td class="tb-td pa-amt">0.00</td>
+				<td class="tb-td pa-amt">{{ item.revised_amt }}</td>
 				<td class="tb-td">
 					<input class="is_approved" type="checkbox"
-							data-item="{{ item.item_code }}">
+							data-item="{{ item.item_code }}"
+							{% if cint(item.approval) %} checked {% endif %}>
 				</td>
 				<td class="tb-td stock_qty" data-stock-qty="{{ item.stock_qty }}">
 					{{ item.stock_qty }}
 				</td>
 				<td class="tb-td">
-					<input type="text" name="" class="pa-remark">
+					<input type="text" name="" class="pa-remark" value="{{ item.remark }}">
 				</td>
 			</tr>
 			{% endfor %}

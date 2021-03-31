@@ -129,7 +129,7 @@ app_license = "MIT"
 
 fixtures = ['Custom Field', 'Property Setter', 'Print Format', 'Role', 
 	'Letter Head', 'Print Style', 'Print Settings',
- 	'Workflow', 'Workflow State', 'Workflow Action Master',"Custom Script","Page","Translation","Stock Entry Type", "Report"]
+ 	'Workflow', 'Workflow State', 'Workflow Action Master',"Custom Script","Translation"]
 
 doctype_js = {
 	"Purchase Receipt" : "medtech_bpa/custom_scripts/purchase_receipt/purchase_receipt.js",
@@ -170,7 +170,8 @@ doc_events = {
 	},
 	"Sales Order":{
 		"on_update_after_submit":"medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.on_update_after_submit",
-		"validate": "medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.validate"
+		"validate": ["medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.validate",
+			"medtech_bpa.medtech_bpa.custom_scripts.sales_order.sales_order.update_rate_with_taxes"]
 	},
 	"Delivery Note":{
 		"validate":"medtech_bpa.medtech_bpa.custom_scripts.delivery_note.delivery_note.validate"

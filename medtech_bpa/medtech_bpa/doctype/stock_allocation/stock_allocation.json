@@ -65,13 +65,14 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2021-03-14 08:56:15.859121",
+ "modified": "2021-03-29 08:43:12.897671",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Stock Allocation",
  "owner": "Administrator",
  "permissions": [
   {
+   "cancel": 1,
    "create": 1,
    "delete": 1,
    "email": 1,
@@ -81,6 +82,7 @@
    "report": 1,
    "role": "System Manager",
    "share": 1,
+   "submit": 1,
    "write": 1
   }
  ],

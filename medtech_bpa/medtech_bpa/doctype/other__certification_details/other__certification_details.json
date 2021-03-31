@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "creation": "2021-01-22 16:31:20.808282",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "certification_name",
+  "expiry_date",
+  "attachment"
+ ],
+ "fields": [
+  {
+   "fieldname": "certification_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Certification Name"
+  },
+  {
+   "fieldname": "expiry_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expiry Date"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "in_list_view": 1,
+   "label": "Attachment"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2021-03-31 20:07:03.837624",
+ "modified_by": "Administrator",
+ "module": "MedTech-BPA",
+ "name": "Other  Certification Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "quick_entry": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "track_changes": 1
+}
