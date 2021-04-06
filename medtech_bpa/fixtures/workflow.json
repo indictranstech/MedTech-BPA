@@ -167,7 +167,7 @@
   "doctype": "Workflow",
   "document_type": "Sales Order",
   "is_active": 1,
-  "modified": "2021-03-18 09:11:01.798179",
+  "modified": "2021-04-06 20:20:17.993594",
   "name": "Sales Order",
   "override_status": 0,
   "parent": null,
@@ -175,6 +175,19 @@
   "parenttype": null,
   "send_email_alert": 0,
   "states": [
+   {
+    "allow_edit": "Sales Executor",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Sales Order",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "SO In-Process",
+    "update_field": null,
+    "update_value": null
+   },
    {
     "allow_edit": "Distributor",
     "doc_status": "0",
@@ -189,7 +202,7 @@
     "update_value": null
    },
    {
-    "allow_edit": "Sales Executor",
+    "allow_edit": "Sales Manager",
     "doc_status": "0",
     "is_optional_state": 0,
     "message": null,
@@ -202,6 +215,19 @@
     "update_value": null
    },
    {
+    "allow_edit": "Sales Executor",
+    "doc_status": "0",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Sales Order",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Modified",
+    "update_field": null,
+    "update_value": null
+   },
+   {
     "allow_edit": "Sales Manager",
     "doc_status": "0",
     "is_optional_state": 0,
@@ -210,7 +236,7 @@
     "parent": "Sales Order",
     "parentfield": "states",
     "parenttype": "Workflow",
-    "state": "SO In-Process",
+    "state": "Modified",
     "update_field": null,
     "update_value": null
    },
@@ -315,6 +341,32 @@
     "parentfield": "states",
     "parenttype": "Workflow",
     "state": "Pending Dispatch",
+    "update_field": null,
+    "update_value": null
+   },
+   {
+    "allow_edit": "Sales Manager",
+    "doc_status": "1",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Sales Order",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Pending For Bill",
+    "update_field": null,
+    "update_value": null
+   },
+   {
+    "allow_edit": "Sales Executor",
+    "doc_status": "1",
+    "is_optional_state": 0,
+    "message": null,
+    "next_action_email_template": null,
+    "parent": "Sales Order",
+    "parentfield": "states",
+    "parenttype": "Workflow",
+    "state": "Completed",
     "update_field": null,
     "update_value": null
    }
@@ -385,6 +437,50 @@
     "parentfield": "transitions",
     "parenttype": "Workflow",
     "state": "SO In-Process"
+   },
+   {
+    "action": "Modify",
+    "allow_self_approval": 1,
+    "allowed": "Sales Executor",
+    "condition": null,
+    "next_state": "Modified",
+    "parent": "Sales Order",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "SO In-Process"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 1,
+    "allowed": "Sales Executor",
+    "condition": null,
+    "next_state": "PI Pending",
+    "parent": "Sales Order",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Modified"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 1,
+    "allowed": "Sales Executor",
+    "condition": null,
+    "next_state": "PI Pending",
+    "parent": "Sales Order",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Rejected"
+   },
+   {
+    "action": "Approve",
+    "allow_self_approval": 1,
+    "allowed": "Sales Manager",
+    "condition": null,
+    "next_state": "PI Pending",
+    "parent": "Sales Order",
+    "parentfield": "transitions",
+    "parenttype": "Workflow",
+    "state": "Rejected"
    }
   ],
   "workflow_name": "Sales Order",
