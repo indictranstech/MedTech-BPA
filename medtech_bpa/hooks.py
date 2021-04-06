@@ -178,5 +178,9 @@ doc_events = {
 	},
 	"BOM":{
 	"autoname":"medtech_bpa.medtech_bpa.custom_scripts.bom.bom.autoname"
+	},
+	"Sales Invoice":{
+		"validate":"medtech_bpa.medtech_bpa.custom_scripts.sales_invoice.sales_invoice.validate",
+		"on_submit":"medtech_bpa.medtech_bpa.custom_scripts.sales_invoice.sales_invoice.on_submit"
 	}
 }
