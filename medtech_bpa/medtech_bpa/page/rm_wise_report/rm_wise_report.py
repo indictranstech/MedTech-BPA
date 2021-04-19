@@ -154,12 +154,24 @@ def get_po_qty_detail(planning_master, pm_from_date):
 
 def get_ohs_qty():
 	# warehouse list
-	fg_warehouse = frappe.db.sql("select warehouse from `tabFG Warehouse Group`", as_dict = 1)
+	fg_warehouse = frappe.db.sql("select warehouse from `tabRM Warehouse List`", as_dict = 1)
+	from_warehouses = []
+
 	if fg_warehouse:
-		fg_warehouse_ll = ["'" + row.warehouse + "'" for row in fg_warehouse]
+		# fg_warehouse_ll = ["'" + row.warehouse + "'" for row in fg_warehouse]
+		# fg_warehouse_list = ','.join(fg_warehouse_ll)
+		for row in fg_warehouse:
+			warehouse_list = frappe.db.get_descendants('Warehouse', row.warehouse)
+			if warehouse_list:
+				for item in warehouse_list:
+					from_warehouses.append(item)
+			else:
+				from_warehouses.append(row.warehouse)
+		fg_warehouse_ll = ["'" + row + "'" for row in from_warehouses]
 		fg_warehouse_list = ','.join(fg_warehouse_ll)
 	else:
 	    fg_warehouse_list = "' '"
+	
 
 	# group list
 	fg_item_group = frappe.db.sql("select item_group from `tabFG Item Group`", as_dict = 1)
