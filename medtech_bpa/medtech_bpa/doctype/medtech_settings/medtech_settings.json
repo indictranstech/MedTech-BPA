@@ -50,6 +50,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "description": "Item with item group from this list will be considered as FG Item",
    "fieldname": "fg_item_group",
    "fieldtype": "Table",
    "label": "FG Item Group",
@@ -61,6 +62,7 @@
    "fieldtype": "Section Break"
   },
   {
+   "description": "Warehouse from this list will be considered as FG Warehouse (Used to find current stock on MRP FG Wise Report)",
    "fieldname": "fg_warehouse_group",
    "fieldtype": "Table",
    "label": "FG Warehouse Group",
@@ -105,12 +107,14 @@
    "fieldtype": "Section Break"
   },
   {
+   "description": "Warehouse from this list will be considered as Raw Material Warehouse(Used for stock transfer from RM Warehouse to QC Warehouse,to find current stock of raw material on RM Wise Report)",
    "fieldname": "rm_warehouse_list",
    "fieldtype": "Table",
    "label": "RM Warehouse List",
    "options": "RM Warehouse List"
   },
   {
+   "description": "Quality Inspection is  mandatory only when Target Warehouse is selected from this list on Stock Entry ",
    "fieldname": "qc_warehouse_list",
    "fieldtype": "Table",
    "label": "QC Warehouse List",
@@ -120,7 +124,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-03-25 13:10:15.499131",
+ "modified": "2021-04-19 17:27:31.832143",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "MedTech Settings",
