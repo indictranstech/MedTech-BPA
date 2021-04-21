@@ -41,13 +41,13 @@ def send_so_notification(sales_order):
 
 def on_update_after_submit(doc,method):
 	try:
-		if doc.workflow_state == 'Payment Pending':	
+		if doc.workflow_state == 'Payment Pending':
 			#get email ids
 			recipients = [frappe.db.get_value("Customer", doc.customer, "email_id")]
 			cc = []
 			for row in doc.sales_team:
 				if row.sales_person:
-					sp_email = frappe.db.get_value("Sales Person", row.sales_person,\
+					sp_email = frappe.db.get_value("Sales Person", row.sales_person,
 						"contact_company_email")
 					if sp_email:
 						cc.append(sp_email)
@@ -134,3 +134,17 @@ def update_rate_with_taxes(doc, method):
 				item.rate_with_tax = item.rate
 	doc.flags.ignore_permissions = True
 	#doc.save()
+
+
+@frappe.whitelist()
+def reason_of_rejection(reason, name):
+	doc = frappe.new_doc("Comment")
+	doc.comment_type = "Comment"
+	doc.reference_doctype = "Sales Order"
+	doc.reference_name = name
+	doc.comment_email = frappe.session.user
+	doc.comment_by = frappe.db.get_value("User", {'name':frappe.session.user}, 'full_name')
+	doc.content = reason
+	doc.save()
+
+	return True

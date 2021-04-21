@@ -235,6 +235,7 @@ def submit_stock_allocation(data):
 					row_data["warehouse"] = warehouse
 				dn.append("items", row_data)
 			dn.flags.ignore_permissions = True
+			dn.is_allocated = True
 			dn.set_missing_values()
 			dn.save()
 			dn.submit()

@@ -68,5 +68,15 @@
   "parentfield": null,
   "parenttype": null,
   "workflow_action_name": "Send Email"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow Action Master",
+  "modified": "2021-04-06 20:10:43.135454",
+  "name": "Modify",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "workflow_action_name": "Modify"
  }
 ]
