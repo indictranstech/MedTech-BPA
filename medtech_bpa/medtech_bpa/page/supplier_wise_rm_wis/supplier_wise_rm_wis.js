@@ -6,7 +6,7 @@ frappe.supplier_wise_rm_wis = Class.extend({
 	init : function(wrapper){
 		this.page = frappe.ui.make_app_page({
 			parent: wrapper,
-			title: 'MRP Supplier Wise Report',
+			title: 'RM & Supplier wise Report',
 			single_column: true
 		});
     	this.wrapper = wrapper
