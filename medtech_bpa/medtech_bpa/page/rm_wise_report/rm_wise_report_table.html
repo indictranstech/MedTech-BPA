@@ -166,52 +166,96 @@
             <td class="fixed sticky ta fixcolor">{{count}}</td>
             <td class="ta col2 fixcolor word" >{{row.item_code}} - {{row.item_name}}</td>
             <td class="ta col3 fixcolor">{{row.stock_uom}}</td>
-            {% if row.planned_qty >= 0 %}
+            {% if row.planned_qty == 0 %}
                 <td class="ta col4 fixcolor">{{row.planned_qty}}</td>
-            {% else %}
-                <td class="ta col4 fixcolor" style="background-color:#ff0000;">{{row.planned_qty}}</td>
+            {% endif %}
+            {% if row.planned_qty > 0 %}
+                 <td class="ta col4 fixcolor" style="background-color:#ffff00;">{{row.planned_qty}}</td>
+            {% endif %}
+            {% if row.planned_qty < 0 %}
+                 <td class="ta col4 fixcolor" style="background-color:#ff0000;">{{row.planned_qty}}</td>
             {% endif %}
 
-
-            {% if row.pending_qty >= 0 %}
+            {% if row.pending_qty == 0 %}
                 <td class="ta col5 fixcolor" >{{row.pending_qty}}</td>
-            {% else %}
-                <td class="ta col5 fixcolor" style="background-color:#ff0000;">{{row.pending_qty}}</td>
             {% endif %}
 
-            {% if row.ohs_qty >= 0 %}
+             {% if row.pending_qty > 0 %}
+              <td class="ta col5 fixcolor" style="background-color:#ffff00;">{{row.pending_qty}}</td>
+             {% endif %}
+
+             {% if row.pending_qty < 0 %}
+              <td class="ta col5 fixcolor" style="background-color:#ff0000;">{{row.pending_qty}}</td>
+             {% endif %}
+
+            {% if row.ohs_qty == 0 %}
                 <td class="ta col6 fixcolor">{{row.ohs_qty}}</td>
-            {% else %}
-                <td class="ta col6 fixcolor" style="background-color:#ff0000;">{{row.ohs_qty}}</td>
             {% endif %}
             
+            {% if row.ohs_qty > 0 %}
+                <td class="ta col6 fixcolor" style="background-color:#ffff00;">{{row.ohs_qty}}</td>
+             {% endif %}
             
-            
+
+             {% if row.ohs_qty < 0 %}
+                <td class="ta col6 fixcolor" style="background-color:#ff0000;">{{row.ohs_qty}}</td>
+             {% endif %}
+
+
             {% count = count + 1 %}
 
             {%for date in data.date_list%}
-                {% if row[date].required_qty >= 0 %}
+                {% if row[date].required_qty == 0 %}
                     <td class="ta">{{row[date].required_qty}}</td>
-                {% else %}
-                    <td class="ta" style="background-color:#ff0000;">{{row[date].required_qty}}</td>
                 {% endif %}
 
-                {% if row[date].expected_po >= 0 %}
+                {% if row[date].required_qty > 0 %}
+                    <td class="ta" style="background-color:#ffff00;">{{row[date].required_qty}}</td> 
+                {% endif %}
+
+                {% if row[date].required_qty < 0 %}
+                    <td class="ta" style="background-color:#ff0000;">{{row[date].required_qty}}</td> 
+                {% endif %}
+
+                {% if row[date].expected_po == 0 %}
                     <td class="ta">{{row[date].expected_po}}</td>
-                {% else %}
+                {% endif %}
+
+
+                {% if row[date].expected_po > 0 %}
+                 
+                    <td class="ta"  style="background-color:#ffff00;">{{row[date].expected_po}}</td> 
+                {% endif %}
+
+
+                {% if row[date].expected_po < 0 %}
                     <td class="ta"  style="background-color:#ff0000;">{{row[date].expected_po}}</td>
                 {% endif %}
 
-                {% if row[date].with_po >= 0 %}
+                {% if row[date].with_po == 0 %}
                     <td class="ta">{{row[date].with_po}}</td>
-                {% else %}
-                    <td class="ta"  style="background-color:#ff0000;">{{row[date].with_po}}</td>
                 {% endif %}
 
-                {% if row[date].with_out_po >= 0 %}
+                {% if row[date].with_po > 0 %}
+                    <td class="ta"  style="background-color:#ffff00;">{{row[date].with_po}}</td> 
+                {% endif %}
+
+                {% if row[date].with_po < 0 %}
+                    <td class="ta"  style="background-color:#ff0000;">{{row[date].with_po}}</td> 
+                {% endif %}
+
+                {% if row[date].with_out_po == 0 %}
                     <td class="ta">{{row[date].with_out_po}}</td>
-                {% else %}
-                    <td class="ta"  style="background-color:#ff0000;">{{row[date].with_out_po}}</td>
+                {% endif %}
+
+                 {% if row[date].with_out_po > 0 %}
+                   
+                    <td class="ta"  style="background-color:#ffff00;">{{row[date].with_out_po}}</td> 
+                {% endif %}
+
+                 {% if row[date].with_out_po < 0 %}
+                   
+                    <td class="ta"  style="background-color:#ff0000;">{{row[date].with_out_po}}</td> 
                 {% endif %}
                 
             {%endfor%}

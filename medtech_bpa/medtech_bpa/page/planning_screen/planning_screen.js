@@ -613,8 +613,20 @@ save_data:function(){
                       dict[element]=values
                   })
                     
-                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined &&  !jQuery.isEmptyObject(dict)  && me.description_name != undefined)
-                  {frappe.call({
+                var dictvalues = 0;
+                for (var key in dict){
+                
+                if (dict[key].length > 0){
+                dictvalues = 1
+                }
+                
+                }
+                if (dictvalues==0){
+                frappe.throw("Please add a row.")
+                }
+                if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined &&  !jQuery.isEmptyObject(dict)  && me.description_name != undefined && dictvalues == 1)
+                  {
+                  frappe.call({
                   method:"medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.save_items_data",
                   async:false,
                   args:{
