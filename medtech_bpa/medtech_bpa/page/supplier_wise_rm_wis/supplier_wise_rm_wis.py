@@ -63,8 +63,8 @@ def get_planing_master_details(filters=None):
 	new_data=[{'item_code':k, 'planing_qty':sum(v)} for k, v in values_by_item.items()]
 
 	
-	warehouse = frappe.db.sql("""SELECT warehouse from `tabFG Warehouse Group` where parent='MedTech Settings'""", as_dict=1)
-
+	warehouse = frappe.db.sql("""SELECT warehouse from `tabRM Warehouse List` where parent='MedTech Settings'""", as_dict=1)
+	
 	posting_time = nowtime()
 	for row in new_data:
 		row['from_date'] = from_date
@@ -75,17 +75,28 @@ def get_planing_master_details(filters=None):
 
 		#current stock calculation of item
 		for wh in warehouse:
-			last_entry = get_previous_sle({
-				"item_code": row.get('item_code'),
-				"warehouse" : wh.warehouse,
-				"posting_date": from_date,
-				"posting_time": posting_time })
-			row['current_stock'] += last_entry.qty_after_transaction if last_entry else 0.0
-
+			child_warehouse = frappe.db.get_descendants('Warehouse', wh.warehouse)
+			
+			if len(child_warehouse) > 0:
+				for ware in child_warehouse:
+					last_entry = get_previous_sle({
+						"item_code": row.get('item_code'),
+						"warehouse" : ware,
+						"posting_date": from_date,
+						"posting_time": posting_time })
+					row['current_stock'] += last_entry.qty_after_transaction if last_entry else 0.0
+			else:
+				last_entry = get_previous_sle({
+						"item_code": row.get('item_code'),
+						"warehouse" :  wh.warehouse,
+						"posting_date": from_date,
+						"posting_time": posting_time })
+				row['current_stock'] += last_entry.qty_after_transaction if last_entry else 0.0
+	
 	#calculate pending po qty
 	po_data = []
 	for row in new_data:
-		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code, b.qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1 and b.expected_delivery_date <= '{0}' and b.item_code='{1}'""".format(row.get('to_date'), row.get('item_code')), as_dict=1)
+		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code, b.qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}'""".format(row.get('item_code')), as_dict=1)
 
 		for po in po_details:
 			accept_qty = frappe.db.get_values("Purchase Receipt Item", {'purchase_order':po.get('name'), 'item_code':po.get('item_code')}, ['item_code', 'actual_accepted_qty', 'parent', 'purchase_order'], as_dict=1)
@@ -244,7 +255,7 @@ def make_xlsx_file(renderd_data):
 
 	col = 4
 	cell = sheet.cell(row=row,column=col)
-	cell.value ='Considered PO'
+	cell.value ='Not Considered PO'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 	sheet.merge_cells(start_row=5, start_column=4, end_row=5, end_column=4)
