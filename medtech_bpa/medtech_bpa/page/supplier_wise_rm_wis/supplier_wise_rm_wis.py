@@ -96,22 +96,22 @@ def get_planing_master_details(filters=None):
 	#calculate pending po qty
 	po_data = []
 	for row in new_data:
-		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code, b.qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}'""".format(row.get('item_code')), as_dict=1)
+		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code,(b.qty-b.received_qty) as qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}'""".format(row.get('item_code')), as_dict=1,debug=1)
 
 		for po in po_details:
-			accept_qty = frappe.db.get_values("Purchase Receipt Item", {'purchase_order':po.get('name'), 'item_code':po.get('item_code')}, ['item_code', 'actual_accepted_qty', 'parent', 'purchase_order'], as_dict=1)
-			if accept_qty and po.get('item_code') == accept_qty[0].get('item_code'):
-				po['qty'] = po.get('qty')-accept_qty[0].get('actual_accepted_qty')
-
+			# accept_qty = frappe.db.get_values("Purchase Receipt Item", {'purchase_order':po.get('name'), 'item_code':po.get('item_code')}, ['item_code', 'actual_accepted_qty', 'parent', 'purchase_order'], as_dict=1)
+			# if accept_qty and po.get('item_code') == accept_qty[0].get('item_code'):
+			po['qty'] = po.get('qty')
 			po_data.append(po)
-
+		
 	#calculate pending po qty for supplier
 	supplier = []
 	for row in new_data:			
 		for poqty in po_data:
 			if row.get('item_code') == poqty.item_code:
 				row['po_qty']+=flt(poqty.qty, precision)
-				supplier.append({'supplier':poqty.supplier, 'qty':poqty.qty, 'item_code':poqty.item_code})
+				if row['po_qty'] > 0 :
+					supplier.append({'supplier':poqty.supplier, 'qty':poqty.qty, 'item_code':poqty.item_code})
 	
 	outputList=[]
 	for i,g in itertools.groupby(supplier, key=operator.itemgetter("item_code")):
