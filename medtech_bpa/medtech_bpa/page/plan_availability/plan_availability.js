@@ -57,6 +57,7 @@ frappe.plan_availability = Class.extend({
 		
 						$("[data-fieldname=from_date]").val(r.message['from_date'])
 						$("[data-fieldname=to_date]").val(r.message['to_date'])
+						$("[data-fieldname=description]").val(r.message['description'])
 					}
 				})
 				
@@ -84,6 +85,16 @@ frappe.plan_availability = Class.extend({
 			read_only:1,
 			onchange: function() {
 				me.to_date = this.value?this.value:null
+			}
+		})
+		me.page.add_field({
+			fieldtype: 'Data',
+			label: __('Description'),
+			fieldname: 'description',
+			default:"",
+			read_only:1,
+			onchange: function() {
+				me.description = this.value?this.value:null
 			}
 		})
   	},
