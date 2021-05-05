@@ -183,7 +183,7 @@ def get_available_item_qty(item_code, warehouses, company):
 	return item_locations
 
 def get_current_stock(fg_warehouse_list):
-	current_stock = frappe.db.sql("""SELECT item_code,sum(actual_qty) as qty from `tabBin` where warehouse in {0} group by item_code """.format(tuple(fg_warehouse_list)),as_dict=1)
+	current_stock = frappe.db.sql("""SELECT item_code,sum(actual_qty) as qty from `tabBin` where warehouse in ({0}) group by item_code """.format(fg_warehouse_list),as_dict=1,debug=1)
 	ohs_dict = {item.item_code : item.qty for item in current_stock}
 	return ohs_dict
 
