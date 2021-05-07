@@ -912,6 +912,8 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                   me.update_values=[]
                   $('.planning_screen').html($(frappe.render_template('create_new')));
                   $('label[for="from_date"]').hide()
+                  $(".export_data").hide()
+                  $(".import").hide()
                   $('label[for="to_date"]').hide()
                   $('label[for="title"]').hide()
                   $('label[for="description"]').hide()
@@ -958,13 +960,21 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                 {   if ($('.create').is(':hidden')){
                   if($(this)[0].innerHTML != $(this).data().initial)
                 {
-                 
                  me.update_values.push([$(this).attr("class").split(' ')[1],$(this)[0].innerHTML,$(this).data().initial])
                 }}
                 });
                 
                 $(".update").click(function(){
                 me.update_data()
+                })
+
+                $(".export_data").click(function(){
+                  me.export()
+                })
+
+                $(".import").click(function(){
+                  me.import()
+                  $(".update").hide()
                 })
 
                 $(".delete").click(function(){
@@ -1010,6 +1020,8 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                     $("label[for=description]").css({'margin-top':'-25px'});
                     $(".description").css({'margin-top':'-15px'});
                     $('.planning_master').hide()
+                    $(".export_data").hide()
+                    $(".import").hide()
                     $('.delete').hide()
                     $('label[for="planning_master"]').hide()
                     $('label[for="title"]').show()
@@ -1379,8 +1391,8 @@ update_data:function(){
                   if (r.message.length== 2){
                   frappe.msgprint(__(r.message[1]))
                   }
-                  else
-                 { frappe.msgprint(__("Nothing to update"))}
+                  else{
+                    frappe.msgprint(__("Nothing to update"))}
                   }
                   if (r.message[0]=='1')
                   {
@@ -1818,9 +1830,13 @@ planning_master:function()
           fieldname: 'planning_master',
           options: 'Planning Master',
           change:function(){
+
           if( Boolean(planning_master.get_value())){
+            $(".export_data").show()
+            $(".import").show()
           me.delete_name=planning_master.get_value();
           me.planning_master1 = planning_master.get_value();
+          me.plan_master_data = planning_master.get_value()
           me.fetch_data(planning_master.get_value())}
           }
           },
@@ -1828,4 +1844,48 @@ planning_master:function()
         })
         planning_master.refresh();
         },
+  export:function(){
+    var me= this;
+    export_type = "Excel"
+    frappe.call({
+          method: "medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.create_file",
+          freeze_message:"Loading ...Please Wait",
+          args: {
+            name : me.plan_master_data
+          },
+          callback:function(r){
+            if (export_type == 'Excel'){
+              var w = window.open(frappe.urllib.get_full_url("/api/method/medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.download_xlsx?"+ "&name=" + encodeURIComponent(r.message)));
+              }
+            if(!w){
+                    frappe.msgprint(__("Please enable pop-ups")); return;
+                }
+        }
+      });
+  },
+  import:function(){
+    var me= this;
+    var d = new frappe.ui.FileUploader({
+     allow_multiple:0,
+     on_success: function(test_senarios_attachment,r){
+          frappe.call({
+            method:"medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.import_data",
+            async: true,
+            args: {filters:me.plan_master_data},
+            callback:function(r){
+              if(r.message){
+                data=r.message
+                frappe.msgprint(__(data))
+            
+                /*$('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
+                $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}));
+                $(".add_row").hide()
+                $(".delete_row").hide()*/
+              }
+
+            }
+        });
+     }
+    });
+  }      
 })
