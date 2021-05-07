@@ -912,8 +912,8 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                   me.update_values=[]
                   $('.planning_screen').html($(frappe.render_template('create_new')));
                   $('label[for="from_date"]').hide()
-                  $(".export_data").hide()
-                  $(".import").hide()
+                  /*$(".export_data").hide()
+                  $(".import").hide()*/
                   $('label[for="to_date"]').hide()
                   $('label[for="title"]').hide()
                   $('label[for="description"]').hide()
@@ -960,6 +960,7 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                 {   if ($('.create').is(':hidden')){
                   if($(this)[0].innerHTML != $(this).data().initial)
                 {
+
                  me.update_values.push([$(this).attr("class").split(' ')[1],$(this)[0].innerHTML,$(this).data().initial])
                 }}
                 });
@@ -968,14 +969,14 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                 me.update_data()
                 })
 
-                $(".export_data").click(function(){
+               /* $(".export_data").click(function(){
                   me.export()
                 })
 
                 $(".import").click(function(){
                   me.import()
                   $(".update").hide()
-                })
+                })*/
 
                 $(".delete").click(function(){
                 if(me.delete_name != ""){
@@ -1391,8 +1392,8 @@ update_data:function(){
                   if (r.message.length== 2){
                   frappe.msgprint(__(r.message[1]))
                   }
-                  else{
-                    frappe.msgprint(__("Nothing to update"))}
+                  else
+                    {frappe.msgprint(__("Nothing to update"))}
                   }
                   if (r.message[0]=='1')
                   {
@@ -1830,13 +1831,12 @@ planning_master:function()
           fieldname: 'planning_master',
           options: 'Planning Master',
           change:function(){
-
           if( Boolean(planning_master.get_value())){
-            $(".export_data").show()
-            $(".import").show()
+            /*$(".export_data").show()
+            $(".import").show()*/
           me.delete_name=planning_master.get_value();
           me.planning_master1 = planning_master.get_value();
-          me.plan_master_data = planning_master.get_value()
+          /*me.plan_master_data = planning_master.get_value()*/
           me.fetch_data(planning_master.get_value())}
           }
           },
@@ -1844,7 +1844,7 @@ planning_master:function()
         })
         planning_master.refresh();
         },
-  export:function(){
+  /*export:function(){
     var me= this;
     export_type = "Excel"
     frappe.call({
@@ -1862,8 +1862,8 @@ planning_master:function()
                 }
         }
       });
-  },
-  import:function(){
+  },*/
+  /*import:function(){
     var me= this;
     var d = new frappe.ui.FileUploader({
      allow_multiple:0,
@@ -1877,15 +1877,15 @@ planning_master:function()
                 data=r.message
                 frappe.msgprint(__(data))
             
-                /*$('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
+                $('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
                 $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}));
                 $(".add_row").hide()
-                $(".delete_row").hide()*/
+                $(".delete_row").hide()
               }
 
             }
         });
      }
     });
-  }      
+  }    */  
 })
