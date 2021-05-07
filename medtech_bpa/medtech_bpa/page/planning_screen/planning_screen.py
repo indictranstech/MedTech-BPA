@@ -127,25 +127,25 @@ def get_items_data(from_date, to_date,listview=None):
         data = dict()
         data['header_list'] = date_dict
 
-        ig_list = []
+        # ig_list = []
         fg_item_group = frappe.db.sql("select item_group from `tabFG Item Group`", as_dict = 1)
-        for ig in fg_item_group:
-            child_ig = frappe.db.get_descendants('Item Group', ig.item_group)
-            if child_ig:
-                for row in child_ig:
-                    ig_list.append(row)
-            else:
-                ig_list.append(ig.item_group)
+        # for ig in fg_item_group:
+        #     child_ig = frappe.db.get_descendants('Item Group', ig.item_group)
+        #     if child_ig:
+        #         for row in child_ig:
+        #             ig_list.append(row)
+        #     else:
+        #         ig_list.append(ig.item_group)
         if fg_item_group:
             fg_group_list = ["'" + row.item_group + "'" for row in fg_item_group]
             fg_item_group_list = ','.join(fg_group_list)
         else:
             fg_item_group_list = "' '"
 
-        item_detail = frappe.db.sql("select i.item_code,i.item_name, i.item_group, i.stock_uom from `tabItem` i join `tabBOM` b on i.item_code = b.item where b.docstatus = 1 and i.item_group in {0} group by i.item_code order by i.item_group, i.item_code".format(tuple(ig_list)), as_dict=1)
-        # bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = (select max(b2.is_default) from `tabBOM` b2 where b2.item = b.item and b.docstatus = 1)", as_dict = 1)
+        item_detail = frappe.db.sql("select i.item_code,i.item_name, i.item_group, i.stock_uom from `tabItem` i join `tabBOM` b on i.item_code = b.item where b.docstatus = 1 and i.item_group in ({0}) group by i.item_code order by i.item_group, i.item_code".format(fg_item_group_list), as_dict=1)
+        bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = (select max(b2.is_default) from `tabBOM` b2 where b2.item = b.item and b.docstatus = 1)", as_dict = 1)
 
-        bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = 1 and b.is_active = 1", as_dict = 1)
+        # bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = 1 and b.is_active = 1", as_dict = 1)
         bom_dict = {bom.get('item') : bom.get('name') for bom in bom_query}
         uom_dict={}
         
