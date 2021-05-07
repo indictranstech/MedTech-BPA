@@ -31,6 +31,9 @@ def get_planning_master_data(filters=None):
 	data = dict()
 	precision=frappe.db.get_singles_value('System Settings', 'float_precision')
 	planning_master = filters.get("planning_master")
+	pm_from_date = frappe.db.get_value('Planning Master', {'name' : planning_master}, 'from_date')
+	pm_to_date = frappe.db.get_value('Planning Master', {'name' : planning_master}, 'to_date')
+	pm_description = frappe.db.get_value('Planning Master', {'name' : planning_master}, 'description')
 	# fetch date_data 
 	date_data = get_date_data(planning_master)
 
@@ -100,6 +103,10 @@ def get_planning_master_data(filters=None):
 				raw[date.get('date').strftime('%d-%m-%Y')] = flt(remaining_qty, precision) if remaining_qty < 0 else flt(required_qty, precision)
 
 	data.update({'planning_data':item_details})
+	data['planning_master'] = planning_master if planning_master else ''
+	data['from_date'] = (pm_from_date).strftime('%d-%m-%Y') if pm_from_date else ''
+	data['to_date'] = (pm_to_date).strftime('%d-%m-%Y') if pm_to_date else ''
+	data['description'] = pm_description if pm_description else ''
 	final_data = data
 	path = 'medtech_bpa/medtech_bpa/page/plan_availability/plan_availability.html'
 	html=frappe.render_template(path,{'data':data})
@@ -130,8 +137,27 @@ def get_planning_data(planning_master):
 
 # fetch warehouse from medtech settings
 def get_warehouses():
-	fg_warehouse = frappe.db.sql("SELECT warehouse from `tabFG Warehouse Group`", as_dict = 1)
-	fg_warehouse_list = tuple([item.warehouse for item in fg_warehouse])
+	# warehouse list
+	fg_warehouse = frappe.db.sql("select warehouse from `tabRM Warehouse List`", as_dict = 1)
+	from_warehouses = []
+
+	if fg_warehouse:
+		# fg_warehouse_ll = ["'" + row.warehouse + "'" for row in fg_warehouse]
+		# fg_warehouse_list = ','.join(fg_warehouse_ll)
+		for row in fg_warehouse:
+			warehouse_list = frappe.db.get_descendants('Warehouse', row.warehouse)
+			if warehouse_list:
+				for item in warehouse_list:
+					from_warehouses.append(item)
+			else:
+				from_warehouses.append(row.warehouse)
+		fg_warehouse_ll = ["'" + row + "'" for row in from_warehouses]
+		fg_warehouse_list = ','.join(fg_warehouse_ll)
+	else:
+	    fg_warehouse_list = "' '"
+	
+	# fg_warehouse = frappe.db.sql("SELECT warehouse from `tabFG Warehouse Group`", as_dict = 1)
+	# fg_warehouse_list = tuple([item.warehouse for item in fg_warehouse])
 	return fg_warehouse_list
 
 def get_bom_data(bom):
@@ -157,7 +183,7 @@ def get_available_item_qty(item_code, warehouses, company):
 	return item_locations
 
 def get_current_stock(fg_warehouse_list):
-	current_stock = frappe.db.sql("""SELECT item_code,sum(actual_qty) as qty from `tabBin` where warehouse in {0} group by item_code """.format(fg_warehouse_list),as_dict=1)
+	current_stock = frappe.db.sql("""SELECT item_code,sum(actual_qty) as qty from `tabBin` where warehouse in ({0}) group by item_code """.format(fg_warehouse_list),as_dict=1,debug=1)
 	ohs_dict = {item.item_code : item.qty for item in current_stock}
 	return ohs_dict
 
@@ -170,16 +196,17 @@ def get_expected_stock(item,date):
 
 @frappe.whitelist()
 def get_planning_dates(planning_master):
-	planning_dates = frappe.db.sql("""SELECT from_date ,to_date from `tabPlanning Master` where name = '{0}'""".format(planning_master),as_dict=1)
+	planning_dates = frappe.db.sql("""SELECT from_date ,to_date ,description from `tabPlanning Master` where name = '{0}'""".format(planning_master),as_dict=1)
 	date_dict = dict()
 	date_dict['from_date'] =planning_dates[0].get('from_date').strftime('%d-%m-%Y')
 	date_dict['to_date'] = planning_dates[0].get("to_date").strftime('%d-%m-%Y') 
+	date_dict['description'] = planning_dates[0].get("description")
 	return date_dict
 
 @frappe.whitelist()
 def make_xlsx_file(renderd_data):
 	data =json.loads(renderd_data)
-
+	
 	header = ['Sr.No','FG Items','FG Item Name','UOM','FG Qty','BOM Items','BOM UOM']
 	
 	book = Workbook()
@@ -188,24 +215,79 @@ def make_xlsx_file(renderd_data):
 	row = 1
 	col = 1
 
+	cell = sheet.cell(row=row,column=col)
+	cell.value = 'Planning Master'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+1)
+	cell.value = data.get("planning_master")
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+3)
+	cell.value = 'From Date'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+4)
+	cell.value = data.get('from_date')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+
+	cell = sheet.cell(row=row,column=col+6)
+	cell.value = 'To Date'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+7)
+	cell.value = data.get('to_date')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+
+	cell = sheet.cell(row=row,column=col+9)
+	cell.value = 'Description'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+10)
+	cell.value = data.get('description')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	row = 2
+	col = 1
+
 	for item in header:
 		cell = sheet.cell(row=row,column=col)
 		cell.value = item
 		cell.font = cell.font.copy(bold=True)
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
 		
 		col+=1
 
 
 	col = 8
 	for date in data.get("date_data"):
-		cell = sheet.cell(row=1,column=col)
+		cell = sheet.cell(row=2,column=col)
 		cell.value = date
 		cell.font = cell.font.copy(bold=True)
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
 		col+=1
 	
-	row = 2 
+	row = 3 
 	col  = 1
 	count = 0
 	
@@ -233,6 +315,8 @@ def make_xlsx_file(renderd_data):
 
 		cell = sheet.cell(row=row,column=col+4)
 		cell.value = item_dict.get("amount")
+		if item_dict.get("amount") < 0 :
+			cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
 
@@ -251,6 +335,8 @@ def make_xlsx_file(renderd_data):
 		for date in data.get("date_data"):
 			cell = sheet.cell(row=row,column=col_date)
 			cell.value = item_dict.get(date)
+			if item_dict.get(date) < 0:
+				cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 			sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
 			col_date+=1
@@ -272,6 +358,8 @@ def make_xlsx_file(renderd_data):
 			for date in data.get("date_data"):
 				cell = sheet.cell(row=row,column=date_col)
 				cell.value = bom_item.get(date)
+				if bom_item.get(date) < 0 :
+					cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 				sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
 				date_col+=1

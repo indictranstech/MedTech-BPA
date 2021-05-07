@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2021-02-05 15:12:56.546549",
+ "modified": "2021-05-07 10:24:46.887429",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "rm-wise-report",
@@ -13,6 +13,12 @@
  "roles": [
   {
    "role": "Administrator"
+  },
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "All"
   }
  ],
  "script": null,

@@ -50,10 +50,55 @@ frappe.supplier_wise_rm_wis = Class.extend({
 			options: "Planning Master",
 			reqd: 1,
 			onchange: function() {
+				// me.planning_master = this.value?this.value:null
 				me.planning_master = this.value?this.value:null
+				frappe.call({
+					method:"medtech_bpa.medtech_bpa.page.plan_availability.plan_availability.get_planning_dates",
+					args :{
+						planning_master : me.planning_master
+					},
+					callback:function(r){
+		
+						$("[data-fieldname=from_date]").val(r.message['from_date'])
+						$("[data-fieldname=to_date]").val(r.message['to_date'])
+						$("[data-fieldname=description]").val(r.message['description'])
+					}
+				})
+				
 				me.get_imp_data()
 			}
 
+		})
+		const today = frappe.datetime.get_today();
+		me.page.add_field({
+			fieldtype: 'Date',
+			label: __('From Date'),
+			fieldname: 'from_date',
+			default:"",
+			read_only:1,
+			onchange: function() {
+				me.from_date = this.value?this.value:null
+			}
+		})
+		me.page.add_field({
+			fieldtype: 'Date',
+			label: __('To Date'),
+			fieldname: 'to_date',
+			default:"",
+			read_only:1,
+			onchange: function() {
+				me.to_date = this.value?this.value:null
+			}
+		})
+		me.page.add_field({
+			fieldtype: 'Data',
+			label: __('Description'),
+			fieldname: 'description',
+			default:"",
+			read_only:1,
+			onchange: function() {
+				me.description = this.value?this.value:null
+			}
 		})
   	},
 

@@ -42,6 +42,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.utils.cell import get_column_letter
 
+
 @frappe.whitelist()
 def get_rm_report_details(planning_master= ''):
 
@@ -50,6 +51,8 @@ def get_rm_report_details(planning_master= ''):
 	pm_dates = get_pm_details(planning_master)
 	# planning master detail
 	pm_from_date = frappe.db.get_value('Planning Master', {'name' : planning_master}, 'from_date')
+	pm_to_date = frappe.db.get_value('Planning Master', {'name' : planning_master}, 'to_date')
+	pm_description = frappe.db.get_value('Planning Master', {'name' : planning_master}, 'description')
 	# date list
 	pm_date_list = [(pmi.get('date')).strftime('%d-%m-%Y') for pmi in pm_dates]
 	pm_date_ll = [pmi.get('date') for pmi in pm_dates]
@@ -105,6 +108,8 @@ def get_rm_report_details(planning_master= ''):
 	data['date_list'] = pm_date_list
 	data['table_data'] = table_data
 	data['from_date'] = (pm_from_date).strftime('%d-%m-%Y') if pm_from_date else ''
+	data['to_date'] = (pm_to_date).strftime('%d-%m-%Y') if pm_to_date else ''
+	data['description'] = pm_description if pm_description else ''
 	data['planning_master'] = planning_master
 
 	return data
@@ -235,17 +240,18 @@ def get_po_qty_date_wise(planning_master):
 
 @frappe.whitelist()
 def get_planning_dates(planning_master):
-	planning_dates = frappe.db.sql("""SELECT from_date ,to_date from `tabPlanning Master` where name = '{0}'""".format(planning_master),as_dict=1)
+	planning_dates = frappe.db.sql("""SELECT from_date ,to_date,description from `tabPlanning Master` where name = '{0}'""".format(planning_master),as_dict=1)
 	date_dict = dict()
 	date_dict['from_date'] =planning_dates[0].get('from_date').strftime('%d-%m-%Y')
 	date_dict['to_date'] = planning_dates[0].get("to_date").strftime('%d-%m-%Y') 
+	date_dict['description'] = planning_dates[0].get('description')
 	return date_dict
 
 	
 @frappe.whitelist()
 def make_xlsx_file(renderd_data):
 	data =json.loads(renderd_data)
-
+	
 	header = ['Sr.No','RM Name','UOM','Total Production Qty Till {0}'.format(data.get("from_date")),'Pending PO Qty Till {0}'.format(data.get("from_date")),'Current Stock']
 	header_2 = ['Required','Expected PO','Short/Excess with PO','Short/Excess without PO']
 	
@@ -255,12 +261,67 @@ def make_xlsx_file(renderd_data):
 	row = 1
 	col = 1
 
+	cell = sheet.cell(row=row,column=col)
+	cell.value = 'Planning Master'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+1)
+	cell.value = data.get("planning_master")
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+3)
+	cell.value = 'From Date'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+4)
+	cell.value = data.get('from_date')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+
+	cell = sheet.cell(row=row,column=col+6)
+	cell.value = 'To Date'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+7)
+	cell.value = data.get('to_date')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+
+	cell = sheet.cell(row=row,column=col+9)
+	cell.value = 'Description'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+10)
+	cell.value = data.get('description')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+	
+
+	row = 2
+	col = 1
+
 	for item in header:
 		cell = sheet.cell(row=row,column=col)
 		cell.value = item
 		cell.font = cell.font.copy(bold=True)
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-		sheet.merge_cells(start_row=1, start_column=col, end_row=2, end_column=col)
+		cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+		sheet.merge_cells(start_row=2, start_column=col, end_row=3, end_column=col)
 
 		col+=1
 
@@ -269,22 +330,24 @@ def make_xlsx_file(renderd_data):
 	end_col = 10
 	col_1 = 7
 	for date in data.get("date_list"):
-		cell = sheet.cell(row=1,column=col)
+		cell = sheet.cell(row=2,column=col)
 		cell.value = date
 		cell.font = cell.font.copy(bold=True)
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-		sheet.merge_cells(start_row=1, start_column=col, end_row=1, end_column=end_col)	
+		cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+		sheet.merge_cells(start_row=2, start_column=col, end_row=2, end_column=end_col)	
 		for raw in header_2:
-			cell = sheet.cell(row=2,column=col_1)
+			cell = sheet.cell(row=3,column=col_1)
 			cell.value = raw
 			cell.font = cell.font.copy(bold=True)
 			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-			sheet.merge_cells(start_row=2, start_column=col_1, end_row=2, end_column=col_1)
+			cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+			sheet.merge_cells(start_row=3, start_column=col_1, end_row=3, end_column=col_1)
 			col_1+=1
 		end_col+=4
 		col+=4
 
-	row = 3 
+	row = 4 
 	col  = 1
 	count = 0
 	
@@ -306,17 +369,23 @@ def make_xlsx_file(renderd_data):
 
 		cell = sheet.cell(row=row,column=col+3)
 		cell.value = item.get("planned_qty")
+		if item.get("planned_qty") < 0 :
+			cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
 
 		cell = sheet.cell(row=row,column=col+4)
 		cell.value = item.get("pending_qty")
+		if item.get("pending_qty") < 0 :
+			cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
 
 
 		cell = sheet.cell(row=row,column=col+5)
 		cell.value = item.get("ohs_qty")
+		if item.get("ohs_qty") < 0 :
+			cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 		sheet.merge_cells(start_row=row, start_column=col, end_row=row, end_column=col)
 
@@ -325,6 +394,8 @@ def make_xlsx_file(renderd_data):
 
 			cell = sheet.cell(row=row,column=date_col)
 			cell.value = item.get(date).get("required_qty")
+			if flt(item.get(date).get("required_qty")) < 0 :
+				cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
 
@@ -332,6 +403,10 @@ def make_xlsx_file(renderd_data):
 
 			cell = sheet.cell(row=row,column=date_col)
 			cell.value = item.get(date).get("expected_po")
+			if flt(item.get(date).get("expected_po")) < 0 :
+				cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
+			elif flt(item.get(date).get("expected_po")) > 0:
+				cell.fill = PatternFill(start_color='ffff00', end_color='ff0000', fill_type = 'solid')
 			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
 			
@@ -339,6 +414,8 @@ def make_xlsx_file(renderd_data):
 
 			cell = sheet.cell(row=row,column=date_col)
 			cell.value = item.get(date).get("with_po")
+			if flt(item.get(date).get("with_po")) < 0 :
+				cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
 			
@@ -346,6 +423,8 @@ def make_xlsx_file(renderd_data):
 
 			cell = sheet.cell(row=row,column=date_col)
 			cell.value = item.get(date).get("with_out_po")
+			if flt(item.get(date).get("with_out_po")) < 0 :
+				cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 			sheet.merge_cells(start_row=row, start_column=date_col, end_row=row, end_column=date_col)
 

@@ -29,11 +29,13 @@ from openpyxl.utils.cell import get_column_letter
 @frappe.whitelist()
 def get_planing_master_details(filters=None):
 	filters = json.loads(filters)
+	
 	data =[]
 	from_date = datetime.date.today()
 	precision=frappe.db.get_singles_value('System Settings', 'float_precision')
-	planning_master=frappe.db.sql("""SELECT name, from_date, to_date from `tabPlanning Master` where {0} """.format(get_filters_codition(filters)), as_dict=1)
-
+	planning_master=frappe.db.sql("""SELECT name, date(from_date) as from_date , date(to_date) as to_date ,description  from `tabPlanning Master` where {0} """.format(get_filters_codition(filters)), as_dict=1)
+	pm_from_date = frappe.db.get_value('Planning Master', {'name' : planning_master[0].name}, 'from_date')
+	pm_to_date = frappe.db.get_value('Planning Master', {'name' : planning_master[0].name}, 'to_date')
 	bom_name = frappe.db.sql("""SELECT name, bom, amount from `tabPlanning Master Item` where planning_master_parent='{0}' and date>='{1}' and date<='{2}'""".format(planning_master[0].get('name'), planning_master[0].get('from_date'), planning_master[0].get('to_date')), as_dict=1)
 
 	unic_bom = []
@@ -96,7 +98,7 @@ def get_planing_master_details(filters=None):
 	#calculate pending po qty
 	po_data = []
 	for row in new_data:
-		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code,(b.qty-b.received_qty) as qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}'""".format(row.get('item_code')), as_dict=1,debug=1)
+		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code,(b.qty-b.received_qty) as qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}'""".format(row.get('item_code')), as_dict=1)
 
 		for po in po_details:
 			# accept_qty = frappe.db.get_values("Purchase Receipt Item", {'purchase_order':po.get('name'), 'item_code':po.get('item_code')}, ['item_code', 'actual_accepted_qty', 'parent', 'purchase_order'], as_dict=1)
@@ -150,7 +152,14 @@ def get_planing_master_details(filters=None):
 				row['consider_po_qty'] = flt((row.get('consider_po_qty')-pp.get('qty')),precision)
 				row['no_consider_po_qty'] = flt((row.get('no_consider_po_qty')-pp.get('qty')),precision)
 
-
+	
+	planning_data = dict()
+	planning_data['from_date'] = (pm_from_date).strftime('%d-%m-%Y') if pm_from_date else ''
+	
+	planning_data['to_date'] = (pm_to_date).strftime('%d-%m-%Y') if pm_to_date else ''
+	planning_data['description'] = planning_master[0].description if planning_master[0].description else ''
+	planning_data['planning_master'] = planning_master[0].name
+	new_data[0]['planning_data'] = planning_data
 	path = 'medtech_bpa/medtech_bpa/page/supplier_wise_rm_wis/supplier_wise_rm_wis.html'
 	html=frappe.render_template(path,{'data':new_data})
 	return {'html':html, 'data':new_data}
@@ -171,6 +180,8 @@ def custome_report_to_pdf(html, orientation="Landscape"):
 @frappe.whitelist()
 def make_xlsx_file(renderd_data):
 	data =json.loads(renderd_data)
+
+	
 	from_date = data[0].get('from_date')
 	to_date = data[0].get('to_date')
 
@@ -179,12 +190,66 @@ def make_xlsx_file(renderd_data):
 	
 	row = 1
 	col = 1
-	
+
 	cell = sheet.cell(row=row,column=col)
-	cell.value = 'MRP Supplier Wise Report'
+	cell.value = 'Planning Master'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=1, start_column=1, end_row=1, end_column=5)
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+1)
+	cell.value = data[0].get("planning_data").get("planning_master")
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+3)
+	cell.value = 'From Date'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+4)
+	cell.value =data[0].get("planning_data").get('from_date')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+
+	cell = sheet.cell(row=row,column=col+6)
+	cell.value = 'To Date'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+7)
+	cell.value = data[0].get("planning_data").get('to_date')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+
+	cell = sheet.cell(row=row,column=col+9)
+	cell.value = 'Description'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	cell = sheet.cell(row=row,column=col+10)
+	cell.value = data[0].get("planning_data").get('description')
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='ffff00', end_color='ffff00', fill_type = 'solid')
+
+	row = 2
+	col = 1
+	
+	cell = sheet.cell(row=row,column=col)
+	cell.value = 'RM & Supplier wise Report'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=2, start_column=1, end_row=2, end_column=6)
 
 
 	row+=1
@@ -193,64 +258,82 @@ def make_xlsx_file(renderd_data):
 	cell.value = 'Select Period for Planning'
 	cell.font = cell.font.copy(bold=True, center=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=2, start_column=1, end_row=2, end_column=5)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=3, start_column=1, end_row=3, end_column=6)
 
-	row=3
+	row=4
 	col = 1
 	cell = sheet.cell(row=row,column=col)
 	cell.value = 'From Date:{0}'.format(from_date)
 	cell.font = cell.font.copy(bold=True)
-	sheet.merge_cells(start_row=3, start_column=1, end_row=3, end_column=2)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=4, start_column=1, end_row=4, end_column=3)
 
 	col = 4
 	cell = sheet.cell(row=row,column=col)
 	cell.value = 'To Date'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=3, start_column=4, end_row=3, end_column=4)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=4, start_column=4, end_row=4, end_column=4)
 
 	col = 5
 	cell = sheet.cell(row=row,column=col)
 	cell.value =to_date
 	cell.font = cell.font.copy(bold=True)
-	sheet.merge_cells(start_row=3, start_column=5, end_row=3, end_column=5)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=4, start_column=5, end_row=4, end_column=6)
 
-	row = 4
+	row = 5
 	col = 1
 	cell = sheet.cell(row=row,column=col)
 	cell.value ='Item Name'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=4, start_column=1, end_row=5, end_column=1)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=5, start_column=1, end_row=6, end_column=1)
 
 	col = 2
 	cell = sheet.cell(row=row,column=col)
-	cell.value ='Supplier'
+	cell.value ='Total Pending PO'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=4, start_column=2, end_row=5, end_column=2)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=5, start_column=2, end_row=6, end_column=2)
 
 	col = 3
 	cell = sheet.cell(row=row,column=col)
 	cell.value ='Shortage/ Excess Qty'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=4, start_column=3, end_row=4, end_column=4)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=5, start_column=3, end_row=5, end_column=4)
 
 	col = 5
 	cell = sheet.cell(row=row,column=col)
-	cell.value ='Pending PO'
+	cell.value ='Supplier'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=4, start_column=5, end_row=5, end_column=5)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=5, start_column=5, end_row=6, end_column=5)
 
-	row = 5
+	col = 6
+	cell = sheet.cell(row=row,column=col)
+	cell.value ='PO Qty'
+	cell.font = cell.font.copy(bold=True)
+	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=5, start_column=6, end_row=6, end_column=6)
+
+
+	row = 6
 	col = 3
 	cell = sheet.cell(row=row,column=col)
 	cell.value ='Considered PO'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=5, start_column=3, end_row=5, end_column=3)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=6, start_column=3, end_row=6, end_column=3)
 
 
 	col = 4
@@ -258,7 +341,8 @@ def make_xlsx_file(renderd_data):
 	cell.value ='Not Considered PO'
 	cell.font = cell.font.copy(bold=True)
 	cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-	sheet.merge_cells(start_row=5, start_column=4, end_row=5, end_column=4)
+	cell.fill = PatternFill(start_color='1E90FF', end_color='1E90FF', fill_type = 'solid')
+	sheet.merge_cells(start_row=6, start_column=4, end_row=6, end_column=4)
 
 	row+=1
 	col = 1
@@ -266,26 +350,42 @@ def make_xlsx_file(renderd_data):
 		cell = sheet.cell(row=row,column=col)
 		cell.value = d.get("item_code")+':'+d.get("item_name")
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+		cell = sheet.cell(row=row,column=col+1)
+		cell.value = d.get("po_qty")
+		if d.get("po_qty") < 0 :
+			cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
+		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 		cell = sheet.cell(row=row,column=col+2)
 		cell.value = d.get("consider_po_qty")
+		if d.get("consider_po_qty") < 0:
+			cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 		cell = sheet.cell(row=row,column=col+3)
 		cell.value = d.get("no_consider_po_qty")
+		if d.get("no_consider_po_qty"):
+			cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-		cell = sheet.cell(row=row,column=col+4)
-		cell.value = d.get("po_qty")
-		cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-		row+=1
+		# row+=1
 		supplier_data=d.get('supplier')
 		if supplier_data:
 			for supplier in supplier_data:
-				cell = sheet.cell(row=row,column=col+1)
+				cell = sheet.cell(row=row,column=col+4)
 				cell.value = supplier.get('supplier')
 				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
-				cell = sheet.cell(row=row,column=col+4)
+				cell = sheet.cell(row=row,column=col+5)
 				cell.value = supplier.get('qty')
+				if supplier.get("qty") < 0 :
+					cell.fill = PatternFill(start_color='ff0000', end_color='ff0000', fill_type = 'solid')
 				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 				row+=1
+		else:
+			cell = sheet.cell(row=row,column=col+4)
+			cell.value = ''
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			cell = sheet.cell(row=row,column=col+5)
+			cell.value = ''
+			cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+			row+=1
 
 
 	file_path = frappe.utils.get_site_path("public")
