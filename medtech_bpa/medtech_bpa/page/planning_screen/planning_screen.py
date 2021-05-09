@@ -13,6 +13,15 @@ import pandas as pd
 from frappe import _
 from frappe.utils import now_datetime
 
+# import xlsxwriter
+# import csv
+# import openpyxl
+# from openpyxl import load_workbook
+# from xlsxwriter import Workbook
+# import io
+# import numpy as np
+# from io import BytesIO
+
 @frappe.whitelist()
 def send_naming_series():
     today = now_datetime()
@@ -118,21 +127,30 @@ def get_items_data(from_date, to_date,listview=None):
         data = dict()
         data['header_list'] = date_dict
 
+        ig_list = []
         fg_item_group = frappe.db.sql("select item_group from `tabFG Item Group`", as_dict = 1)
-    
+        for ig in fg_item_group:
+            child_ig = frappe.db.get_descendants('Item Group', ig.item_group)
+            if child_ig:
+                for row in child_ig:
+                    ig_list.append(row)
+            else:
+                ig_list.append(ig.item_group)
         if fg_item_group:
             fg_group_list = ["'" + row.item_group + "'" for row in fg_item_group]
             fg_item_group_list = ','.join(fg_group_list)
         else:
             fg_item_group_list = "' '"
 
-        item_detail = frappe.db.sql("select i.item_code,i.name, i.item_group, i.stock_uom from `tabItem` i join `tabBOM` b on i.item_code = b.item where b.docstatus = 1 and i.item_group in ({0}) group by i.item_code order by i.item_group, i.item_code".format(fg_item_group_list), as_dict=1)
-        bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = (select max(b2.is_default) from `tabBOM` b2 where b2.item = b.item and b.docstatus = 1)", as_dict = 1)
+        item_detail = frappe.db.sql("select i.item_code,i.item_name, i.item_group, i.stock_uom from `tabItem` i join `tabBOM` b on i.item_code = b.item where b.docstatus = 1 and i.item_group in {0} group by i.item_code order by i.item_group, i.item_code".format(tuple(ig_list)), as_dict=1)
+        # bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = (select max(b2.is_default) from `tabBOM` b2 where b2.item = b.item and b.docstatus = 1)", as_dict = 1)
+
+        bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = 1 and b.is_active = 1", as_dict = 1)
         bom_dict = {bom.get('item') : bom.get('name') for bom in bom_query}
         uom_dict={}
         
         for i in item_detail:
-            uom_dict[i.item_code]=[i.name,i.stock_uom]
+            uom_dict[i.item_code]=[i.item_name,i.stock_uom]
        
         for row in item_detail:
             row['bom'] = bom_dict.get(row.get('item_code'))
@@ -204,3 +222,131 @@ def return_list(item_detail):
     item_detail = [i[0] for i in frappe.db.sql("select b.name from `tabItem` i join `tabBOM` b on i.item_code = b.item where i.item_code='%s'"%(item_detail), as_list=1)]
     
     return item_detail
+
+
+
+
+
+# @frappe.whitelist()
+# def create_file(name= ""):
+
+#     data = fetch_data(name)
+
+#     file = str(time.time())
+#     now = datetime.now()
+#     fname = "Planning Master_" + now.strftime("%H:%M:%S") + ".xlsx"
+#     file_name = make_xlsx_csv(data, fname)
+#     return file_name
+
+# def make_xlsx_csv(data, fname):
+#     # Create a workbook and add a worksheet.
+#     heading_col1 = {'subject': 'Item_Code'}
+#     heading_col2 = {'subject': 'Item_Name   '}
+#     heading_col3 = {'subject': 'UOM '}
+#     heading_col4 = {'subject': 'BOM'}
+
+#     file = frappe.utils.get_site_path("public")+"/"+ fname
+#     workbook = xlsxwriter.Workbook(file)
+#     worksheet = workbook.add_worksheet()
+#     bold = workbook.add_format({'bold': True, 'bg_color': '#5e64ff','border':1,'border_color':'#000000','align':'center','font_color': 'fdfbfb'})
+#     bold.set_align('vcenter')
+#     bold.set_font_name('Times New Roman')
+#     bold1 = workbook.add_format({'border':1,'border_color':'#000000','align':'center'})
+#     worksheet.set_column('A:BE', 18)
+
+#     # header_list = data.get('header_list')
+#     header_list = []
+#     header_list.insert(0, heading_col1)
+#     header_list.insert(1, heading_col2)
+#     header_list.insert(2, heading_col3)
+#     header_list.insert(3, heading_col4)
+
+#     init_cnt = 4
+#     for row in data.get('header_list'):
+#         temp_dict = {'subject':row[0] }
+#         header_list.insert(init_cnt, temp_dict)
+#         init_cnt = init_cnt + 1
+
+#     cnt = 0
+#     for col in header_list:
+#         worksheet.write(1, cnt, col['subject'], bold)
+#         cnt = cnt + 1
+
+#     final_data_list = []
+#     for modify_data in data.get("item_data"):
+#         temp_list = []
+#         temp_list.append(modify_data["item_code"])
+#         temp_list.append(modify_data["item_name"])
+#         temp_list.append(modify_data["stock_uom"])
+#         temp_list.append(modify_data["bom"])
+#         for date_data in modify_data.get("amount"):
+#             temp_list.append(date_data)
+#         final_data_list.append(temp_list)
+
+#     row_cnt = 2
+#     col_cnt = 0
+#     index_list = [0,1,2,3]
+#     for details in final_data_list:
+#         col_cnt = 0
+#         for value in details:
+#             index = details.index(value)
+#             if (index in index_list):
+#                 cell_format = workbook.add_format({'border':1,'border_color':'#000000','align':'left'})
+#                 cell_format.set_align('vcenter')
+#                 cell_format.set_font_name('Times New Roman')
+#             else:
+#                 cell_format = workbook.add_format({'border':1,'border_color':'#000000','align':'right'})
+#                 cell_format.set_align('vcenter')
+#                 cell_format.set_font_name('Times New Roman')
+
+#             worksheet.write(row_cnt, col_cnt, value,cell_format)
+#             col_cnt += 1
+#         row_cnt += 1
+
+#     workbook.close()
+#     return fname
+
+
+# # ---------- Export Function API to Download created file
+# @frappe.whitelist()
+# def download_xlsx(name):
+#     import openpyxl
+#     file_path = frappe.utils.get_site_path("public")
+#     wb = openpyxl.load_workbook(file_path+'/'+name)
+#     xlsx_file = io.BytesIO()
+#     wb.save(xlsx_file)
+#     xlsx_file.seek(0)
+#     frappe.local.response.filecontent=xlsx_file.getvalue()
+#     frappe.local.response.type = "download"
+#     filename = name
+#     frappe.local.response.filename = filename
+#     return filename
+
+
+# @frappe.whitelist()
+# def import_data(filters):
+#     try:
+#         last_doc = frappe.get_last_doc('File')
+#         file = open(frappe.utils.get_site_path("private")+"/files/"+last_doc.file_name, "rb")
+#         df = pd.read_excel (file,header=1)
+#         d= df.to_dict(orient='records')
+
+#         # modify Dictonary
+#         for data in d:
+#             ss = list(data.items())
+#             date_data_dict = dict(ss[4:])
+#             temp_list = []
+#             temp_list.append(date_data_dict)
+#             data["Item_data"] = temp_list
+
+#         # Import/Update data
+#         for main_data in d:
+#             for date_data in main_data.get("Item_data")[0]:
+#                 today_date = date.today()
+#                 date_dt3 = datetime.strptime(date_data, '%d-%m-%Y').date()
+#                 if date_dt3 > today_date:
+#                     frappe.db.sql("""UPDATE `tabPlanning Master Item` set amount={0}
+#                                 where planning_master_parent='{1}' and date='{2}' and item_code='{3}' and bom='{4}'""".format(main_data.get(date_data),filters,date_dt3,main_data.get("Item_Code"),main_data.get("BOM")),debug=1)
+#         return "Data Import Done Successfully,Please Click on Reload button."
+#     except Exception as e:
+#         raise e

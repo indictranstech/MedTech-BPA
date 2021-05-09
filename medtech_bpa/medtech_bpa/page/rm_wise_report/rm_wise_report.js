@@ -18,6 +18,7 @@ frappe.rm_wise_report = Class.extend({
 		me.planning_master()
 		me.from_date()
 		me.to_date()
+		me.description()
 		// me.po()
 		// me.item()
 		// me.po_toc_status()
@@ -96,9 +97,9 @@ frappe.rm_wise_report = Class.extend({
 							planning_master : me.planning_master
 						},
 						callback:function(r){
-			
 							$("[data-fieldname=from_date]").val(r.message['from_date'])
 							$("[data-fieldname=to_date]").val(r.message['to_date'])
+							$("[data-fieldname=description]").val(r.message['description'])
 						}
 					})
 					$("#planning_master").val(planning_master.get_value())
@@ -145,6 +146,24 @@ frappe.rm_wise_report = Class.extend({
 	     	only_input: false,
    		});
 		to_date.refresh();
+	},
+	description:function(){
+		
+		var me= this;
+		var description = frappe.ui.form.make_control({
+		    parent: this.page.find(".description"),
+		    df: {
+				label: '<b>Description</b>',
+				fieldtype: "Data",
+				fieldname: "description",
+				placeholder: __("Description"),
+				change:function(){
+					me.description = $("#description").val(description.get_value())
+				}
+	     	},
+	     	only_input: false,
+   		});
+		description.refresh();
 	},
 	po:function(){
 		var me= this;

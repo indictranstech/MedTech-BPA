@@ -4,7 +4,7 @@
  "docstatus": 0,
  "doctype": "Page",
  "idx": 0,
- "modified": "2021-04-22 18:40:52.311622",
+ "modified": "2021-05-07 10:24:30.566916",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "supplier_wise_rm_wis",
@@ -16,6 +16,9 @@
   },
   {
    "role": "Administrator"
+  },
+  {
+   "role": "All"
   }
  ],
  "script": null,
