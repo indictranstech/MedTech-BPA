@@ -8,13 +8,29 @@ from frappe import _
 def after_insert(doc, method):
 	get_warehouse = frappe.get_single('MedTech Settings')
 	rm_warehouse_list = [item.warehouse for item in get_warehouse.rm_warehouse_list]
+	rm_child_warehouse_list = []
+	for warehouse in rm_warehouse_list:
+		child_warehouse = frappe.db.get_descendants('Warehouse', warehouse)
+		if child_warehouse:
+			for row in child_warehouse:
+				rm_child_warehouse_list.append(row)
+		else:
+			rm_child_warehouse_list.append(warehouse)
 	qc_warehouse_list = [item.warehouse for item in get_warehouse.qc_warehouse_list]
+	qc_child_warehouse_list = []
+	for warehouse in qc_warehouse_list:
+		child_warehouse = frappe.db.get_descendants('Warehouse', warehouse)
+		if child_warehouse:
+			for row in child_warehouse:
+				qc_child_warehouse_list.append(row)
+		else:
+			qc_child_warehouse_list.append(warehouse)
 	supplier = frappe.db.get_value('Purchase Receipt', doc.purchase_receipt, 'supplier')
 	qc_disable_items = get_qc_disable_items(supplier)
 	if doc.stock_entry_type == 'Material Transfer':
 		if doc.items:
 			for item in doc.items:
-				if item.item_code not in qc_disable_items and item.t_warehouse in rm_warehouse_list and  item.s_warehouse in qc_warehouse_list:
+				if item.item_code not in qc_disable_items and item.t_warehouse in rm_child_warehouse_list and  item.s_warehouse in qc_child_warehouse_list:
 						doc.inspection_required = 1
 
 
@@ -44,11 +60,27 @@ def get_items_from_production_plan(production_plan):
 def update_qc_reference_on_vir(doc):
 	get_warehouse = frappe.get_single('MedTech Settings')
 	rm_warehouse_list = [item.warehouse for item in get_warehouse.rm_warehouse_list]
+	rm_child_warehouse_list = []
+	for warehouse in rm_warehouse_list:
+		child_warehouse = frappe.db.get_descendants('Warehouse', warehouse)
+		if child_warehouse:
+			for row in child_warehouse:
+				rm_child_warehouse_list.append(row)
+		else:
+			rm_child_warehouse_list.append(warehouse)
 	qc_warehouse_list = [item.warehouse for item in get_warehouse.qc_warehouse_list]
+	qc_child_warehouse_list = []
+	for warehouse in qc_warehouse_list:
+		child_warehouse = frappe.db.get_descendants('Warehouse', warehouse)
+		if child_warehouse:
+			for row in child_warehouse:
+				qc_child_warehouse_list.append(row)
+		else:
+			qc_child_warehouse_list.append(warehouse)
 	if doc.stock_entry_type == 'Material Transfer':
 		if doc.items:
 			for item in doc.items:
-				if item.t_warehouse in rm_warehouse_list and  item.s_warehouse in qc_warehouse_list and item.quality_inspection:
+				if item.t_warehouse in rm_child_warehouse_list and  item.s_warehouse in qc_child_warehouse_list and item.quality_inspection:
 					rejected_qty = frappe.db.get_value('Quality Inspection', {'name' : item.quality_inspection}, 'rejected_quantity') or 0
 
 					if rejected_qty > 0:
