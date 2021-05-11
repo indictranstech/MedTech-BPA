@@ -1,0 +1,54 @@
+[
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Gate Pass Entry",
+  "enabled": 0,
+  "modified": "2021-04-02 13:50:19.203815",
+  "name": "Gate Pass Entry-Client",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "script": "frappe.ui.form.on('Gate Pass', {\r\nrefresh(frm) {\r\n   frm.set_query('transporter_name', () => {\r\n       return {\r\n           filters : {\r\n              'is_transporter': 1\r\n           }\r\n       }\r\n   });\r\n   \r\n   frm.set_query('supplier_name', () => {\r\n       return {\r\n           filters : {\r\n              'is_transporter': 0\r\n           }\r\n       }\r\n   });\r\n   \r\nif (frm.is_new()) {\r\n   frm.set_value('time_of_visit', frappe.datetime.now_time());\r\n}\r\n\r\nif (!frm.doc.__unsaved && !frm.is_new()) {\r\n   frm.add_custom_button('Vehicle Weighing', () => {\r\n      let doc = {\r\n          'gate_pass_no': frm.doc.name,\r\n          'vehicle_no': frm.doc.vehicle_no,\r\n          'visitor_name': frm.doc.visitor_name\r\n      }\r\n      frappe.new_doc('Vehicle Weighing', doc);\r\n   }, __('Create'));\r\n}\r\n},\r\n});",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Sales Order",
+  "enabled": 0,
+  "modified": "2021-04-02 13:50:02.327900",
+  "name": "Sales Order-Client",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "script": "frappe.ui.form.on('Sales Order', {\n\trefresh(frm) {\n\t  \n\t  frappe.ui.form.on('Sales Order', {\n   oredr_type:function(frm){\n       var data = cur_frm.doc.order_type\n       console.log(data);\n       if(cur_frm.doc.order_type == 'Sales'){\n           cur_frm.set_value(\"naming_series\",\"SO-D-DM2122-.####\")\n       }\n       else if(cur_frm.doc.order_type == 'Export'){\n           cur_frm.set_value(\"naming_series\",\"SAL-EXP-ORD-.YYYY.-\")\n       }\n       else if(cur_frm.doc.order_type == 'Repairing'){\n           cur_frm.set_value(\"naming_series\",\"SAL-REP-ORD-.YYYY.-\")\n       }\n   }\n})\n\t}\n})",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Payment Entry",
+  "enabled": 1,
+  "modified": "2021-04-19 18:40:05.118696",
+  "name": "Payment Entry-Client",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "script": "frappe.ui.form.on('Payment Entry', {\n\trefresh(frm)\n\t{\n\tif(fr.doc.payment_type == \"Pay\") {\n\tcur_frm.add_fetch(\"bank_account\", \"account\", \"paid_from\");\n\t}\n\telse if (fr.doc.payment_type == \"Receive\"){\n\tcur_frm.add_fetch(\"bank_account\", \"account\", \"paid_to\");\n\t}\n\t}\n})",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Stock Entry",
+  "enabled": 0,
+  "modified": "2021-04-19 18:40:57.169145",
+  "name": "Stock Entry-Client",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "script": "frappe.ui.form.on('Stock Entry', {\n\trefresh(frm)\n\t{\n\t    if(fr.doc.stock_entry_type == \"Manufacture\") {\n\t$('*[data-fieldname=\"items\"]').find('.grid-remove-rows').hide();\n\t}\n\t}\n})",
+  "view": "Form"
+ }
+]
