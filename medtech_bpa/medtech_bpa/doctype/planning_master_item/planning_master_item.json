@@ -11,6 +11,7 @@
   "item_name",
   "uom",
   "bom",
+  "include_exploded_bom",
   "date",
   "amount",
   "planning_master_parent"
@@ -71,11 +72,17 @@
    "fieldtype": "Float",
    "label": "Quantity",
    "precision": "3"
+  },
+  {
+   "default": "0",
+   "fieldname": "include_exploded_bom",
+   "fieldtype": "Check",
+   "label": "Include Exploded BOM"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-02-19 18:50:04.950865",
+ "modified": "2021-05-12 10:34:45.460175",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Planning Master Item",
