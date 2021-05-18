@@ -1830,6 +1830,7 @@ planning_master:function()
           fieldtype:'Link',
           fieldname: 'planning_master',
           options: 'Planning Master',
+          placeholder: __("Planning Master"),
           change:function(){
           if( Boolean(planning_master.get_value())){
             $(".export_data").show()
