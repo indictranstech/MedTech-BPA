@@ -18,7 +18,7 @@ frappe.ui.form.on("Payment Entry", {
 			"posting_date": frm.doc.posting_date,
 			"payment_entry": frm.doc.name
 		};
-		frappe.set_route("stock-allocation");
+		frappe.set_route("so_stock_allocation");
 	}	
 });
 

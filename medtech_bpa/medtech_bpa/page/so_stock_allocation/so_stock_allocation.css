@@ -1,0 +1,24 @@
+#header {
+	padding-left: 10px;
+}
+
+.action-sec {
+	padding-top: 20px;
+}
+
+.item_head {
+	background-color: #5e64ff;
+	color:#FFFFFF;
+	text-align: center;
+	border: 1px;
+}
+
+.check-item {
+	text-align: center;
+}
+
+.pa-remark {
+	height: 50px;
+	border-radius: 5px;
+	border: 1px solid black;
+}

@@ -91,7 +91,8 @@ frappe.rm_wise_report = Class.extend({
 				reqd : 1,
 				change:function(){
 					me.planning_master = this.value?this.value:null
-					frappe.call({
+					if(me.planning_master){
+						frappe.call({
 						method:"medtech_bpa.medtech_bpa.page.rm_wise_report.rm_wise_report.get_planning_dates",
 						args :{
 							planning_master : me.planning_master
@@ -102,6 +103,8 @@ frappe.rm_wise_report = Class.extend({
 							$("[data-fieldname=description]").val(r.message['description'])
 						}
 					})
+					}
+					
 					$("#planning_master").val(planning_master.get_value())
 					me.planning_master_list = planning_master.get_value()
 					me.base_data()
