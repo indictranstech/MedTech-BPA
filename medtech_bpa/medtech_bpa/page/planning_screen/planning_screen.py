@@ -245,10 +245,14 @@ def create_file(name= ""):
 
     data = fetch_data(name)
 
-    file = str(time.time())
     now = datetime.now()
+    dt_string = now.strftime("%d-%m-%Y_%H:%M:%S")
+
+    file = str(time.time())
+    # now = datetime.now()
     date_time = now.strftime("%m-%d-%Y")
-    fname = "Planning Master_" +date_time+"_"+ now.strftime("%H:%M:%S") + ".xlsx"
+    fname = "Planning Master_" +dt_string+ ".xlsx"
+    # fname = "Planning Master_" +date_time+"_"+ now.strftime("%H:%M:%S") + ".xlsx"
     file_name = make_xlsx_csv(data, fname)
     return file_name
 
@@ -421,7 +425,8 @@ def import_data(filters):
     try:
         last_doc = frappe.get_last_doc('File')
         file = open(frappe.utils.get_site_path("private")+"/files/"+last_doc.file_name, "rb")
-        df = pd.read_excel (file,header=0)
+        # df = pd.read_excel (file,header=0)
+        df = pd.read_excel(file,header=0, engine='openpyxl')
         d= df.to_dict(orient='records')
 
         # modify Dictonary
