@@ -74,27 +74,37 @@ def get_planing_master_details(filters=None):
 		row['po_qty']=0.0
 		row['consider_po_qty']=0.0
 		row['current_stock'] = 0.0
-
+		
+		warehouse_list = []
 		#current stock calculation of item
 		for wh in warehouse:
 			child_warehouse = frappe.db.get_descendants('Warehouse', wh.warehouse)
 			
 			if len(child_warehouse) > 0:
 				for ware in child_warehouse:
-					last_entry = get_previous_sle({
-						"item_code": row.get('item_code'),
-						"warehouse" : ware,
-						"posting_date": from_date,
-						"posting_time": posting_time })
-					row['current_stock'] += last_entry.qty_after_transaction if last_entry else 0.0
+					warehouse_list.append(ware)
+					# last_entry = get_previous_sle({
+					# 	"item_code": row.get('item_code'),
+					# 	"warehouse" : ware,
+					# 	"posting_date": from_date,
+					# 	"posting_time": posting_time })
+					# row['current_stock'] += last_entry.qty_after_transaction if last_entry else 0.0
 			else:
-				last_entry = get_previous_sle({
-						"item_code": row.get('item_code'),
-						"warehouse" :  wh.warehouse,
-						"posting_date": from_date,
-						"posting_time": posting_time })
-				row['current_stock'] += last_entry.qty_after_transaction if last_entry else 0.0
-	
+				warehouse_list.append(wh.warehouse)
+				# last_entry = get_previous_sle({
+				# 		"item_code": row.get('item_code'),
+				# 		"warehouse" :  wh.warehouse,
+				# 		"posting_date": from_date,
+				# 		"posting_time": posting_time })
+				# row['current_stock'] += last_entry.qty_after_transaction if last_entry else 0.0
+		if len(warehouse_list) > 0:
+			ohs_query = frappe.db.sql("SELECT item.item_code, sum(IFNULL (bin.actual_qty,0.0)) as ohs from `tabItem` item LEFT JOIN `tabBin` bin on item.item_code = bin.item_code  and item.disabled = 0 and bin.warehouse in {0} group by item.item_code".format(tuple(warehouse_list)), as_dict=1)
+			
+		else:
+			ohs_query = frappe.db.sql("SELECT item.item_code, sum(IFNULL (bin.actual_qty,0.0)) as ohs from `tabItem` item LEFT JOIN `tabBin` bin on item.item_code = bin.item_code  and item.disabled = 0 and bin.warehouse = {0} group by item.item_code".format(warehouse_list[0]), as_dict=1)
+		ohs_detail = {row.item_code : row.ohs for row in ohs_query}
+		row['current_stock'] += ohs_detail.get(row.get("item_code"))
+		
 	#calculate pending po qty
 	po_data = []
 	for row in new_data:
