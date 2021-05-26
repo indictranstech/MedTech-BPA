@@ -2990,5 +2990,22 @@
   "property_type": "Text",
   "row_name": null,
   "value": "\nDomestic Sales\nMaintenance\nShopping Cart\nExport\nDomestic\nAmazon\nURD Sales\nRepairing \nSample\nMerchant Export\nBranch Transfer"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Production Plan",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "download_materials_required",
+  "modified": "2021-05-26 09:57:36.122122",
+  "name": "Production Plan-download_materials_required-hidden",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "hidden",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
  }
 ]

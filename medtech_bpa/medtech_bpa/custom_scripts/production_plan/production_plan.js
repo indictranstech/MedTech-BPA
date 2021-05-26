@@ -127,6 +127,10 @@ frappe.ui.form.on("Production Plan", {
 				refresh_field('mr_items');
 			}
 		});
+	},
+	download_required_raw_materials:function(frm){
+		let get_template_url = 'medtech_bpa.medtech_bpa.custom_scripts.production_plan.production_plan.download_raw_materials';
+		open_url_post(frappe.request.url, { cmd: get_template_url, doc: frm.doc });
 	}
 });
 frappe.ui.form.on("Production Plan Item", {
