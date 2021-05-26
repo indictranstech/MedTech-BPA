@@ -65,7 +65,7 @@ def get_planning_master_data(filters=None):
 
 	# fetch raw materials data from BOM and stock data
 	for item in planning_data:
-		bom_data = get_bom_data(item.get('bom'))
+		bom_data = get_bom_data(item.get('bom'),item.get("include_exploded_bom"))
 		item.update({'bom_data':bom_data})
 
 	item_details = {item.item_code : item for item in planning_data}
@@ -132,7 +132,7 @@ def date_wise_planning_master(planning_master):
 
 # fetch FG data and it's details
 def get_planning_data(planning_master):
-	planning_data = frappe.db.sql(""" SELECT DISTINCT a.item_code,a.item_name, a.uom, sum(a.amount) as amount ,a.bom from `tabPlanning Master Item` a join `tabPlanning Master` b on a.planning_master_parent = b.name  where a.planning_master_parent= '{0}' group by a.item_code """.format(planning_master), as_dict=1)
+	planning_data = frappe.db.sql(""" SELECT DISTINCT a.item_code,a.item_name, a.uom, sum(a.amount) as amount ,a.bom ,a.include_exploded_bom from `tabPlanning Master Item` a join `tabPlanning Master` b on a.planning_master_parent = b.name  where a.planning_master_parent= '{0}' group by a.item_code """.format(planning_master), as_dict=1)
 	return planning_data
 
 # fetch warehouse from medtech settings
@@ -160,8 +160,11 @@ def get_warehouses():
 	# fg_warehouse_list = tuple([item.warehouse for item in fg_warehouse])
 	return fg_warehouse_list
 
-def get_bom_data(bom):
-	bom_data = frappe.db.sql("""SELECT b.item_code,b.stock_uom,b.stock_qty  from `tabBOM` a join `tabBOM Explosion Item` b on b.parent = a.name where a.name = '{0}'""".format(bom),as_dict=1)
+def get_bom_data(bom,include_exploded_bom):
+	if include_exploded_bom == 0:
+		bom_data = frappe.db.sql("""SELECT b.item_code,b.stock_uom,b.qty as stock_qty from `tabBOM` a join `tabBOM Item` b on b.parent = a.name where a.name = '{0}'""".format(bom),as_dict=1)
+	else:
+		bom_data = frappe.db.sql("""SELECT b.item_code,b.stock_uom,b.stock_qty  from `tabBOM` a join `tabBOM Explosion Item` b on b.parent = a.name where a.name = '{0}'""".format(bom),as_dict=1)
 	return bom_data
 
 def get_available_item_qty(item_code, warehouses, company):
@@ -189,7 +192,7 @@ def get_current_stock(fg_warehouse_list):
 
 
 def get_expected_stock(item,date):
-	stock_expected = frappe.db.sql("""SELECT i.item_code, ifnull(sum((i.qty-i.received_qty)),0) as qty from `tabPurchase Order Item` i join `tabPurchase Order` p on p.name = i.parent where i.item_code = '{0}' and i.expected_delivery_date between '{1}' and '{2}' """.format(item,nowdate(),date),as_dict=1)
+	stock_expected = frappe.db.sql("""SELECT i.item_code, ifnull(sum((i.qty-i.received_qty)),0) as qty from `tabPurchase Order Item` i join `tabPurchase Order` p on p.name = i.parent where i.item_code = '{0}' and i.expected_delivery_date between '{1}' and '{2}' and p.status != 'On Hold' and  p.status != 'Closed' """.format(item,nowdate(),date),as_dict=1)
 	return stock_expected
 
 
