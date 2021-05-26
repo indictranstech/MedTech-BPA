@@ -108,7 +108,7 @@ def get_planing_master_details(filters=None):
 	#calculate pending po qty
 	po_data = []
 	for row in new_data:
-		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code,(b.qty-b.received_qty) as qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}'""".format(row.get('item_code')), as_dict=1)
+		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code,(b.qty-b.received_qty) as qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}' and a.status != 'Closed' and a.status != 'On Hold' """.format(row.get('item_code')), as_dict=1)
 
 		for po in po_details:
 			# accept_qty = frappe.db.get_values("Purchase Receipt Item", {'purchase_order':po.get('name'), 'item_code':po.get('item_code')}, ['item_code', 'actual_accepted_qty', 'parent', 'purchase_order'], as_dict=1)
