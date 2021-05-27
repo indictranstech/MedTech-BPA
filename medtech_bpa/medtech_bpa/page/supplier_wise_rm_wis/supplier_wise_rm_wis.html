@@ -46,6 +46,72 @@
       </tr>
     </thead>
     <tbody>
+
+        {% for row in data %}
+        {% if row.supplier %}
+        <tr>
+          {% set length_of_s = row.supplier|length %}
+            <td class="center">{{row.item_code}} - {{row.item_name}}</td>
+            {% if row.po_qty > 0 %}
+             <td class="center" >{{ row.po_qty }}</td>
+            {% else %}
+             <td class="center" style="background-color:#ff0000" >{{ row.po_qty }}</td>
+            {% endif %}
+
+            {% if row.consider_po_qty > 0 %}
+            <td class="center" >{{ row.consider_po_qty }}</td>
+            {% else %}
+            <td class="center" style="background-color:#ff0000" >{{ row.consider_po_qty }}</td>
+            {% endif %}
+
+            {% if row.no_consider_po_qty > 0 %}
+            <td class="center" >{{ row.no_consider_po_qty }}</td>
+            {% else %}
+            <td class="center" style="background-color:#ff0000" >{{ row.no_consider_po_qty }}</td>
+            {% endif %}
+            <td class="center" >{{row.supplier[0].supplier}}</td>
+            <td class="center">{{row.supplier[0].qty}}</td>
+        </tr>
+        {% set length_of_s = row.supplier|length   %}
+        {% for po in range(length_of_s - 1) %}
+        <tr>
+          <td class="center" >{{row.item_name}}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="center" >{{row.supplier[po+1].supplier}}<br></td>
+          <td>{{row.supplier[po+1].qty}}</td>
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          {% set length_of_s = row.supplier|length %}
+            <td class="center" >{{row.item_code}} - {{row.item_name}}</td>
+            {% if row.po_qty > 0 %}
+             <td class="center" >{{ row.po_qty }}</td>
+            {% else %}
+             <td class="center" >{{ row.po_qty }}</td>
+            {% endif %}
+
+            {% if row.consider_po_qty > 0 %}
+            <td class="center" >{{ row.consider_po_qty }}</td>
+            {% else %}
+            <td class="center" style="background-color:#ff0000" >{{ row.consider_po_qty }}</td>
+            {% endif %}
+
+            {% if row.no_consider_po_qty > 0 %}
+            <td class="center" >{{ row.no_consider_po_qty }}</td>
+            {% else %}
+            <td class="center" style="background-color:#ff0000" >{{ row.no_consider_po_qty }}</td>
+            {% endif %}  
+            <td></td>
+            <td></td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        
+    
+      <!-- 
         {% for row in data %}
         {% if row.supplier %}
         <tr>
@@ -102,7 +168,7 @@
         </tr>
         {% endif %}
         {% endfor %}
-        
+         -->
         
     </tbody>
 </table>

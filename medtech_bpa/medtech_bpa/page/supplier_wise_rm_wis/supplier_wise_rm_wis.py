@@ -108,7 +108,7 @@ def get_planing_master_details(filters=None):
 	#calculate pending po qty
 	po_data = []
 	for row in new_data:
-		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code,(b.qty-b.received_qty) as qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}' and a.status != 'Closed' and a.status != 'On Hold' """.format(row.get('item_code')), as_dict=1)
+		po_details = frappe.db.sql("""SELECT a.name, a.supplier, b.item_code,(b.qty-b.received_qty) as qty from `tabPurchase Order` a join `tabPurchase Order Item` b on a.name=b.parent where a.docstatus=1  and b.item_code='{0}' and a.status != 'Closed' and a.status != 'On Hold' and (b.qty-b.received_qty) > 0 """.format(row.get('item_code')), as_dict=1)
 
 		for po in po_details:
 			# accept_qty = frappe.db.get_values("Purchase Receipt Item", {'purchase_order':po.get('name'), 'item_code':po.get('item_code')}, ['item_code', 'actual_accepted_qty', 'parent', 'purchase_order'], as_dict=1)
@@ -379,6 +379,11 @@ def make_xlsx_file(renderd_data):
 		supplier_data=d.get('supplier')
 		if supplier_data:
 			for supplier in supplier_data:
+				cell = sheet.cell(row=row,column=col)
+				cell.value = d.get('item_name')
+				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
+				
+
 				cell = sheet.cell(row=row,column=col+4)
 				cell.value = supplier.get('supplier')
 				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
