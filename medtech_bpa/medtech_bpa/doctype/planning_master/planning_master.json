@@ -43,7 +43,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2021-05-26 11:52:21.725745",
+ "modified": "2021-05-27 13:32:04.245379",
  "modified_by": "Administrator",
  "module": "MedTech-BPA",
  "name": "Planning Master",
@@ -87,6 +87,7 @@
   }
  ],
  "quick_entry": 1,
+ "search_fields": "description",
  "sort_field": "modified",
  "sort_order": "DESC",
  "track_changes": 1
