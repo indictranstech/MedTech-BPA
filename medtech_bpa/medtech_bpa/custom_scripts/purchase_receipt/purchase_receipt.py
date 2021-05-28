@@ -48,7 +48,7 @@ def validate(doc, method):
 
 				item.actual_accepted_qty = accepted_qty
 	
-
+			
 def before_submit(doc, method):
 	qc_disable_items = get_qc_disable_items(doc.supplier)
 	get_warehouse = frappe.get_single('MedTech Settings')
@@ -75,20 +75,21 @@ def set_po_item_rate(doc):
 
 
 def before_save(doc,method):
-	po_ref = 0
-	for item in doc.items:
-		if item.purchase_order:
-			po_ref = 1
-			break;
+	# po_ref = 0
+	# for item in doc.items:
+	# 	if item.purchase_order:
+	# 		po_ref = 1
+	# 		break;
 
-	if doc.is_return != 1 and doc.get('__islocal') and po_ref == 0:
+	# if doc.is_return != 1 and doc.get('__islocal') and po_ref == 0:
+	# 	map_pr_qty_to_po_qty(doc)
+	if doc.is_return != 1:
 		map_pr_qty_to_po_qty(doc)
 
-		
+
 @frappe.whitelist()
 def map_pr_qty_to_po_qty(doc):
 	po_list_data = get_purchase_order(doc.supplier)
-
 	item_list = []
 	for item in doc.items:
 		item_temp_qty = item.qty
@@ -139,8 +140,10 @@ def map_pr_qty_to_po_qty(doc):
 						'purchase_order_item' : po.get('pi_name'),
 						'warehouse' : po.get('warehouse')
 					}
-					item_temp_qty = item_temp_qty  - item_temp_qty
+					
 					po_temp_qty = po_temp_qty - item_temp_qty
+					# item_temp_qty = item_temp_qty  - item_temp_qty
+					item_temp_qty = 0
 					item_list.append(temp)
 					po['remaining_qty'] = po_temp_qty
 
@@ -197,7 +200,7 @@ def get_purchase_order(supplier):
 			from `tabPurchase Order Item` pi join `tabPurchase Order` po on pi.parent = po.name 
 			where po.supplier = '{0}' and ((pi.qty - pi.received_qty) - pi.returned_qty) > 0 and po.docstatus = 1 and po.status not in ('Closed', 'Completed', 'To Bill') 
 			order by po.transaction_date,po.modified asc'''.format(supplier)
-	po_list = frappe.db.sql(query, as_dict=1)
+	po_list = frappe.db.sql(query, as_dict=1,debug=1)
 	return po_list
 
 

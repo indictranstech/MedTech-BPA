@@ -1686,7 +1686,7 @@
   "home_page": null,
   "is_custom": 0,
   "list_sidebar": 0,
-  "modified": "2021-03-17 10:35:05.661654",
+  "modified": "2021-05-26 11:50:09.368843",
   "name": "Distributor",
   "notifications": 0,
   "parent": null,
@@ -1694,7 +1694,7 @@
   "parenttype": null,
   "restrict_to_domain": null,
   "role_name": "Distributor",
-  "search_bar": 0,
+  "search_bar": 1,
   "timeline": 0,
   "two_factor_auth": 0,
   "view_switcher": 0
