@@ -75,6 +75,7 @@ def set_po_item_rate(doc):
 
 
 def before_save(doc,method):
+	
 	# po_ref = 0
 	# for item in doc.items:
 	# 	if item.purchase_order:
@@ -97,6 +98,7 @@ def map_pr_qty_to_po_qty(doc):
 			po_temp_qty = po.get("remaining_qty")
 			if po.get("item_code") == item.item_code and po_temp_qty > 0 and item_temp_qty > 0:
 				if item_temp_qty > po_temp_qty:
+					qc_name = frappe.db.get_value("Quality Inspection",{'reference_name':doc.name,'item_code':item.item_code},'name')
 					temp = {
 						'item_code': item.item_code,
 						'item_name': item.item_name,
@@ -113,7 +115,8 @@ def map_pr_qty_to_po_qty(doc):
 						'received_qty':po_temp_qty,
 						'purchase_order' : po.get('name'),
 						'purchase_order_item' : po.get('pi_name'),
-						'warehouse' : po.get('warehouse')
+						'warehouse' : po.get('warehouse'),
+						'quality_inspection' : qc_name
 					}
 					item_temp_qty = item_temp_qty  - po_temp_qty
 					po_temp_qty = po_temp_qty -item_temp_qty
@@ -121,7 +124,7 @@ def map_pr_qty_to_po_qty(doc):
 					item_list.append(temp)
 
 				elif item_temp_qty <= po_temp_qty:
-
+					qc_name = frappe.db.get_value("Quality Inspection",{'reference_name':doc.name,'item_code':item.item_code},'name')
 					temp = {
 						'item_code': item.item_code,
 						'item_name': item.item_name,
@@ -138,7 +141,8 @@ def map_pr_qty_to_po_qty(doc):
 						'received_qty':item_temp_qty,
 						'purchase_order' : po.get('name'),
 						'purchase_order_item' : po.get('pi_name'),
-						'warehouse' : po.get('warehouse')
+						'warehouse' : po.get('warehouse'),
+						'quality_inspection' : qc_name
 					}
 					
 					po_temp_qty = po_temp_qty - item_temp_qty
@@ -148,7 +152,7 @@ def map_pr_qty_to_po_qty(doc):
 					po['remaining_qty'] = po_temp_qty
 
 		if item_temp_qty > 0:
-
+			qc_name = frappe.db.get_value("Quality Inspection",{'reference_name':doc.name,'item_code':item.item_code},'name')
 			temp = {
 				'item_code': item.item_code,
 				'item_name': item.item_name,
@@ -163,7 +167,8 @@ def map_pr_qty_to_po_qty(doc):
 				'qty':  item_temp_qty,
 				'physically_verified_quantity':item_temp_qty,
 				'received_qty':item_temp_qty,
-				'warehouse':item.warehouse
+				'warehouse':item.warehouse,
+				'quality_inspection':qc_name
 			}
 			item_list.append(temp)
 
@@ -190,7 +195,8 @@ def map_pr_qty_to_po_qty(doc):
 			'received_qty':item.get('received_qty'),
 			'purchase_order' : item.get('purchase_order'),
 			'purchase_order_item' : item.get('purchase_order_item'),
-			'warehouse' : item.get('warehouse')
+			'warehouse' : item.get('warehouse'),
+			'quality_inspection' : item.get('quality_inspection')
 		})
 
 
