@@ -24,7 +24,7 @@
 			<tr row>
 				<th class="tb-th soi-code-th" rowspan="2">{{ __("Item Name") }}
 				</th>
-				<th class="tb-th soi-qty-th" rowspan="2">{{ __("Qty in Cartons") }}</th>
+				<th class="tb-th soi-qty-th" rowspan="2">{{ __("Qty") }}</th>
 				<th class="tb-th so-name-th" rowspan="2">
 					{{ __("Sales Order No.") }}
 				</th>
@@ -33,7 +33,7 @@
 				<th class="tb-th status-th" rowspan="2">{{ __("Status") }}</th>
 				<th class="tb-th soi-rate-th" rowspan="2">{{ __("Rate") }}</th>
 				<th class="tb-th soi-amt-th" rowspan="2">{{ __("Amount with GST") }}</th>
-				<th class="tb-th pa-qty-th" rowspan="2">{{ __("Qty in Cartons") }}</th>
+				<th class="tb-th pa-qty-th" rowspan="2">{{ __("Qty") }}</th>
 				<th class="tb-th pa-amt-th" rowspan="2">
 					{{ __("Amount as Per Revised Qty") }}
 				</th>
@@ -47,7 +47,7 @@
 			{% for item in data.items %}
 			<tr>
 				<td class="tb-td soi-code" data-soi-code="{{item.item_code}}">
-					{{item.item_name}}
+					{{item.item_code}}-{{item.item_name}}
 				</td>
 				<td class="tb-td soi-qty" data-soi-qty="{{item.qty}}">
 					{{item.qty}}

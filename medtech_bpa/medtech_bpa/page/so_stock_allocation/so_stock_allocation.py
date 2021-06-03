@@ -103,10 +103,13 @@ def get_pending_so(**kwargs):
 				{}
 				where
 					so.customer = '{}'
-					and so.delivery_status in ('Not Delivered', 'Partly Delivered')
-					and so.workflow_state = 'PI Pending'
+					and (soi.qty - soi.delivered_qty) > 0
+					and so.status != 'Closed'
+					
 					and so.docstatus = 1
 			""".format(warehouse_cond, customer)
+			# and so.delivery_status in ('Not Delivered', 'Partly Delivered')
+			# and so.workflow_state = 'PI Pending'
 			so_data = frappe.db.sql(query, as_dict=True)
 
 			# existing stock allocation data merge
@@ -238,7 +241,7 @@ def submit_stock_allocation(data):
 			dn.is_allocated = True
 			dn.set_missing_values()
 			dn.save()
-			dn.submit()
+			# dn.submit()
 			return {"stock_allocation": sa.name, "delivery_note": dn.name}
 	except Exception as e:
 		print("################################", str(e))
