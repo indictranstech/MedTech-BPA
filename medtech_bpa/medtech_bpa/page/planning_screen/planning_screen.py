@@ -159,7 +159,8 @@ def get_items_data(from_date, to_date,listview=None):
         item_detail = frappe.db.sql("select i.item_code,i.item_name, i.item_group, i.stock_uom from `tabItem` i join `tabBOM` b on i.item_code = b.item where b.docstatus = 1 and i.item_group in {0} group by i.item_code order by i.item_group, i.item_code".format(tuple(ig_list)), as_dict=1)
         # bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = (select max(b2.is_default) from `tabBOM` b2 where b2.item = b.item and b.docstatus = 1)", as_dict = 1)
 
-        bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_default = 1 and b.is_active = 1", as_dict = 1)
+        bom_query = frappe.db.sql("select b.item, b.name  from `tabBOM` b where b.docstatus = 1 and b.is_active = 1", as_dict = 1)
+    
         bom_dict = {bom.get('item') : bom.get('name') for bom in bom_query}
         uom_dict={}
         
@@ -179,7 +180,7 @@ def get_items_data(from_date, to_date,listview=None):
 @frappe.whitelist()
 def get_bom_based_on_item_code(item_code):
    
-    bom_list = [ i[0] for i in frappe.db.sql("select b.name from `tabItem` i join `tabBOM` b on i.item_code = b.item where i.item_code='%s'"%(item_code), as_list=1)]
+    bom_list = [ i[0] for i in frappe.db.sql("select b.name from `tabItem` i join `tabBOM` b on i.item_code = b.item where i.item_code='%s' and b.is_active = 1"%(item_code), as_list=1)]
     
     return bom_list
 @frappe.whitelist()
