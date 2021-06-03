@@ -12,8 +12,10 @@ frappe.planning_screen = Class.extend({
     
                 var me = this;
                 var update_values=[]
+                var update_ie_bom_values=[]
                 me.render_list=[]
                 me.update_values = update_values
+                me.update_ie_bom_values = update_ie_bom_values
     me.wrapper_page = wrapper.page
                 me.delete_name = ''
                 me.sr_no = 0
@@ -910,6 +912,7 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                 $(".update_view").click(function()
                 {
                   me.update_values=[]
+                  me.update_ie_bom_values=[]
                   $('.planning_screen').html($(frappe.render_template('create_new')));
                   $('label[for="from_date"]').hide()
                   $(".export_data").hide()
@@ -964,7 +967,32 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                  me.update_values.push([$(this).attr("class").split(' ')[1],$(this)[0].innerHTML,$(this).data().initial])
                 }}
                 });
-                
+
+                $(document).on('focusout', '.check2' ,function()
+                {   
+                  if ($('.create').is(':hidden'))
+                  {
+                    if($(this)[0].innerHTML != $(this).data().initial)
+                    {
+                      /*console.log("*******************************************8800000000000000000000",[$(this).attr("class").split(' ')[1]] )*/
+                      $('table:first tbody tr').find('.check2').each(function(i,el)
+                        {
+                          if (el.checked == true)
+                          {
+                            me.update_ie_bom_values.push([$(this).attr("class").split(' ')[1],1])
+                            /*console.log("checked..............",[$(this).attr("class").split(' ')[1]])*/
+                          }
+                          else
+                          {
+                            me.update_ie_bom_values.push([$(this).attr("class").split(' ')[1],0])
+                            /*console.log("not check...............",[$(this).attr("class").split(' ')[1]])*/
+                          }
+                        })
+                    }
+                  }
+                /*console.log("Final date...........................",me.update_ie_bom_values)*/
+                });
+
                 $(".update").click(function(){
                 me.update_data()
                 })
@@ -1165,6 +1193,7 @@ if (that.$tableWrapper.scrollLeft() > 0) {
                     $(".save_new").click(function(){
                       if (me.new_project_from_date != undefined &&  me.new_project_to_date != undefined)
                     {      $(this).hide()}
+      
                           me.save_data()
                         });
                     });
@@ -1379,7 +1408,8 @@ update_data:function(){
                   method:"medtech_bpa.medtech_bpa.page.planning_screen.planning_screen.update_data",
                   async:false,
                   args:{
-                    update_data:me.update_values
+                    update_data:me.update_values,
+                    update_ie_bom:me.update_ie_bom_values
                   },
                   callback: function(r){
                   me.update_values.forEach(function(element){
@@ -1446,7 +1476,7 @@ save_data:function(){
                  row_id.forEach(function(element){
 
                   var values= [];
-                  if (element != "bom" && element != "item_code" && element != "uom" && element !="item_name"){
+                  if (element != "bom" && element != "item_code" && element != "uom" && element !="item_name" && element !="ie_bom"){
                   $('tr td[id*= '+element+'  ]').each(function(i,el){
                       if (el.innerHTML=="<br>" || el.innerHTML == ".<br>"){
                      
@@ -1468,6 +1498,16 @@ save_data:function(){
                   frappe.throw("Please fill empty values.")
                   }
                   })}
+
+                  if (element == "ie_bom"){
+                    $('table:first tbody tr').find('.check1').each(function(i,el){
+                      if (el.checked == true){
+                        values.push(1)
+                      }else{
+                        values.push(0)
+                      }
+                    })
+                  } 
                   
                   if (element == "uom"){
                 
@@ -1478,7 +1518,6 @@ save_data:function(){
                       $(this).html(0)
                       
                       }
-                      
                       values.push(el.innerHTML)
                   })}
                   if (element == "item_name"){
@@ -1712,7 +1751,6 @@ fetch_data : function(elem)
           },
           callback:function(r){
           data=r.message
-          
           $('.create_new_table').html($(frappe.render_template('create_new_table'),{"data":data}));
           $(".ablet > tbody:last-child").append($(frappe.render_template('button'),{"data":data}));
           $(".add_row").hide()
