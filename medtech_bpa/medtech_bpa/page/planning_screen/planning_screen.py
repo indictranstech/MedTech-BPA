@@ -88,6 +88,7 @@ def save_items_data(description,from_date,to_date,data):
             except Exception as e:
                 frappe.throw("Error in saving data at column %s and row %s"%(j,i+1))
             doc_child.uom = data["uom"][i]
+            doc_child.include_exploded_bom = data["ie_bom"][i]
             doc_child.bom = data["bom"][i]
             doc_child.planning_master_parent = doc.name
             doc_child.save()
@@ -187,7 +188,7 @@ def fetch_data(name):
         send_data={}
         date_range = pd.date_range(frappe.get_value('Planning Master',name,'from_date'),frappe.get_value('Planning Master',name,'to_date'))
         date_range= [[(i).strftime("%d-%m-%Y"),0 if pd.Timestamp(date.today()) >= i else 1] for i in  date_range]
-        data = frappe.db.sql("""select GROUP_CONCAT(name) as name,item_code ,item_name, uom as stock_uom,bom ,GROUP_CONCAT(amount) as amount from `tabPlanning Master Item` where planning_master_parent = '%s' group by bom  order by creation"""%(name),as_dict=1)
+        data = frappe.db.sql("""SELECT GROUP_CONCAT(name) as name,item_code ,item_name, uom as stock_uom,include_exploded_bom as ie_bom,bom ,GROUP_CONCAT(amount) as amount from `tabPlanning Master Item` where planning_master_parent = '%s' group by bom  order by creation"""%(name),as_dict=1)
         for i in data:
             i['name'] = i['name'].split(',')
             i['amount']= [float(i) for i in i['amount'].split(',')]
@@ -200,31 +201,60 @@ def fetch_data(name):
         frappe.throw("Error in fetching data {}".format(frappe.utils.get_link_to_form("Error Log",error_log.name)))
 
 @frappe.whitelist()
-def update_data(update_data):
+def update_data(update_data,update_ie_bom):
     try :
 
         update_data = json.loads(update_data)
+        update_ie_bom = json.loads(update_ie_bom)
+        final_ie_bom_data = []
+        for up_ie_bom in update_ie_bom:
+            x = up_ie_bom[0].split(",")
+            for j in x:
+                final_ie_bom_data.append([j,up_ie_bom[1]])
+
+        if  len(final_ie_bom_data) ==0:
+            a = False
+        else:    
+            for ie_bom in final_ie_bom_data:
+                doc = frappe.get_doc("Planning Master Item" ,ie_bom[0])
+                try:
+                    doc.include_exploded_bom=ie_bom[1]
+                except Exception as e:
+                    return ["0","Please check if the values changed  are correct"]
+                doc.save()
+            # return ["1",doc.planning_master_parent]  
+            a = True
+
+
         if  len(update_data) ==0:
-            return ["0"]
-        #update_data = json.loads(update_data)
-        for i in update_data:
-            for values in range(len(i)):
-                if type(i[values]) == str:
-                    if '<br>' in i[values]:
-                        i[values]=i[values][0:-4]
-                        i[values] = 0 if i[values] == '' else i[values]
-                    if '.' == i[values]:
-                        i[values]=0
-            doc = frappe.get_doc("Planning Master Item" ,i[0])
-            #if doc.amount== int(i[2]):
-            try:
-                doc.amount=float(i[1])
-            except Exception as e:
-                return ["0","Please check if the values changed  are correct"]
-            doc.save()
-            #else:
-                #frappe.throw("The old amount does not match for planning master item %s and amount %s"%(update_data[1],int(i[2])))
-        return ["1",doc.planning_master_parent]
+            # return ["0"]
+            b = False
+        else:    
+            #update_data = json.loads(update_data)
+            for i in update_data:
+                for values in range(len(i)):
+                    if type(i[values]) == str:
+                        if '<br>' in i[values]:
+                            i[values]=i[values][0:-4]
+                            i[values] = 0 if i[values] == '' else i[values]
+                        if '.' == i[values]:
+                            i[values]=0
+                doc = frappe.get_doc("Planning Master Item" ,i[0])
+                #if doc.amount== int(i[2]):
+                try:
+                    doc.amount=float(i[1])
+                except Exception as e:
+                    return ["0","Please check if the values changed  are correct"]
+                doc.save()
+                #else:
+                    #frappe.throw("The old amount does not match for planning master item %s and amount %s"%(update_data[1],int(i[2])))
+            # return ["1",doc.planning_master_parent]
+            b = True
+        if a == True or b == True:
+            return ["1",doc.planning_master_parent]
+        elif a == False and b == False:
+            return ["0"]    
+           
     except Exception as e:
         error_log= frappe.log_error(message=frappe.get_traceback(), title=str(e))
         frappe.throw("Error in updating data {}".format(frappe.utils.get_link_to_form("Error Log",error_log.name)))
@@ -331,15 +361,17 @@ def make_xlsx_csv(data, fname):
     heading_col1 = {'subject': 'Item_Code'}
     heading_col2 = {'subject': 'Item_Name'}
     heading_col3 = {'subject': 'UOM'}
-    heading_col4 = {'subject': 'BOM'}
+    heading_col4 = {'subject': 'Include_Exploded_BOM'}
+    heading_col5 = {'subject': 'BOM'}
 
     header_list = []
     header_list.insert(0, heading_col1)
     header_list.insert(1, heading_col2)
     header_list.insert(2, heading_col3)
     header_list.insert(3, heading_col4)
+    header_list.insert(4, heading_col5)
 
-    init_cnt = 4
+    init_cnt = 5
     for row in data.get('header_list'):
         temp_dict = {'subject':row[0] }
         header_list.insert(init_cnt, temp_dict)
@@ -348,7 +380,7 @@ def make_xlsx_csv(data, fname):
     column_width = ['E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','AA','AB','AC','AD','AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ','BA','BB','BC','BD','BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BK', 'BL', 'BM', 'BN', 'BO', 'BP', 'BQ', 'BR', 'BS', 'BT', 'BU', 'BV', 'BW', 'BX', 'BY', 'BZ']
     sheet.column_dimensions['A'].width = 14
     sheet.column_dimensions['B'].width = 30
-    sheet.column_dimensions['D'].width = 18
+    sheet.column_dimensions['D'].width = 23
     for i in column_width:
         sheet.column_dimensions[i].width = 15
 
@@ -371,6 +403,7 @@ def make_xlsx_csv(data, fname):
         temp_list.append(modify_data["item_code"])
         temp_list.append(modify_data["item_name"])
         temp_list.append(modify_data["stock_uom"])
+        temp_list.append(modify_data["ie_bom"])
         temp_list.append(modify_data["bom"])
         for date_data in modify_data.get("amount"):
             temp_list.append(date_data)
@@ -378,7 +411,7 @@ def make_xlsx_csv(data, fname):
 
     row_cnt = 2
     col_cnt = 1
-    index_list = [0,1,2,3]
+    index_list = [0,1,2,4]
     for details in final_data_list:
         col_cnt = 1
         for value in details:
@@ -432,7 +465,7 @@ def import_data(filters):
         # modify Dictonary
         for data in d:
             ss = list(data.items())
-            date_data_dict = dict(ss[4:])
+            date_data_dict = dict(ss[5:])
             temp_list = []
             temp_list.append(date_data_dict)
             data["Item_data"] = temp_list
@@ -443,8 +476,8 @@ def import_data(filters):
                 today_date = date.today()
                 date_dt3 = datetime.strptime(date_data, '%d-%m-%Y').date()
                 if date_dt3 > today_date:
-                    frappe.db.sql("""UPDATE `tabPlanning Master Item` set amount={0}
-                                where planning_master_parent='{1}' and date='{2}' and item_code='{3}' and bom='{4}'""".format(main_data.get(date_data),filters,date_dt3,main_data.get("Item_Code"),main_data.get("BOM")),debug=1)
+                    frappe.db.sql("""UPDATE `tabPlanning Master Item` set amount={0},include_exploded_bom={5}
+                                where planning_master_parent='{1}' and date='{2}' and item_code='{3}' and bom='{4}'""".format(main_data.get(date_data),filters,date_dt3,main_data.get("Item_Code"),main_data.get("BOM"),main_data.get('Include_Exploded_BOM')),debug=1)
         return "Data Import Done Successfully,Please Click on Reload button."
     except Exception as e:
         raise e
