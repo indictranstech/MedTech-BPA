@@ -7,6 +7,9 @@
                             <td style="color:black;" align="left"id="item_code"  class="item_code" ><input data-initial="" style="width:150px" type="text" class="item_code_inner" id="item_code_{{data.sr_no}}" value=""/></td>
                             <td style="color:black;width:150px;overflow:hidden;" align="left" id ="item_name_{{data.sr_no}}" class ="item_name"><input data-initial="" style="width:150px" type="text" class="item_name_inner" id="item_name_inner{{data.sr_no}}" value=""/> </td>
                             <td style="color:black;" align="left" id ="uom_{{data.sr_no}}" class ="uom"> </td>
+
+                            <td style="color:black;" align="center" id="ie_bom" class="ie_bom" ><input style = "width:auto;" class="check1" type="checkbox" name="chk1[]"   id="ie_bom_{{data.sr_no}}" value=""/></td>
+
                             <td style="color:black;"  align="left"id="bom" class="bom"> <input data-initial="" style = "width:150px" type="text" class="bom_inner" id="lmk_{{data.sr_no}}" value="" /></td>
                         
                             {% count1 = 1 %}
@@ -32,6 +35,13 @@
                               <td style="color:black;" align="left" id="item_code">{{ tbl_data["item_code"] }}</td>
                               <td style="color:black;" align="left" id ="item_name">{{ tbl_data["item_name"] }}</td>
                               <td style="color:black;" align="left" id ="uom">{{ tbl_data["stock_uom"] }}</td>
+                              <td style="color:black;" align="center" id ="ie_bom"><!-- {{ tbl_data["ie_bom"] }} -->
+                                {% if tbl_data["ie_bom"] == 1 %}
+                                  <input style = "width:auto;" class="check2 {{tbl_data.name}}" type="checkbox" name="chk2[]"   id="ie_bom_{{data.sr_no}}" value="" checked/>
+                                {% else %}
+                                <input style = "width:auto;" class="check2 {{tbl_data.name}}" type="checkbox" name="chk2[]"   id="ie_bom_{{data.sr_no}}" value=""/>
+                                {% endif %}
+                              </td>
                               <td style="color:black;" align="left"  contenteditable="false" id="bom">{{ tbl_data["bom"] }}</td>
                                   {% inner_count = 0 %}                            
                                   {% for date in data.header_list%}

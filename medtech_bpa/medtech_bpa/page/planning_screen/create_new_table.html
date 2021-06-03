@@ -59,12 +59,13 @@ input[type="checkbox"]{
     
             <table  id="updates" style="margin-top:0px;"class="table ablet css-serial" >
  <thead>
-                    <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center; border: 1px border-color: #ffffff">
-                        <th class="po_report_row" >Sr No</th>
-                        <th class="po_report_row" id="item_code" style="text-align:center;" >Item Code</th>
-                        <th class="po_report_row" id="item_name">Item Name</th>
-                        <th class="po_report_row" id="uom">UOM</th>
-                        <th class="po_report_row" id="bom" style="text-align:center;">BOM</th>
+                    <tr class="po_report" style="background-color: #5e64ff; color:#FFFFFF;text-align: center; border: 1px border-color: #000000">
+                        <th class="po_report_row" style="vertical-align: middle;" >Sr No</th>
+                        <th class="po_report_row" id="item_code" style="text-align:center;vertical-align: middle;" >Item Code</th>
+                        <th class="po_report_row" id="item_name" style="vertical-align: middle;">Item Name</th>
+                        <th class="po_report_row" id="uom" style="vertical-align: middle;">UOM</th>
+                        <th class="po_report_row" id="ie_bom" style="vertical-align: middle;">Include Exploded BOM</th>
+                        <th class="po_report_row" id="bom" style="text-align:center;vertical-align: middle;">BOM</th>
 
                         
                           {% for key in data.header_list %}
