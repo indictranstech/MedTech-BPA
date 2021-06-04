@@ -35,6 +35,7 @@ def get_pending_so(**kwargs):
 
 			# warehouse
 			warehouse = frappe.db.get_singles_value("MedTech Settings", "rm_warehouse")
+	
 			warehouse_cond = ''
 			if warehouse:
 				warehouse_cond += "and b.warehouse = '{}'".format(warehouse)
@@ -103,10 +104,13 @@ def get_pending_so(**kwargs):
 				{}
 				where
 					so.customer = '{}'
-					and so.delivery_status in ('Not Delivered', 'Partly Delivered')
-					and so.workflow_state = 'PI Pending'
+					and (soi.qty - soi.delivered_qty) > 0
+					and so.status != 'Closed'
+					
 					and so.docstatus = 1
 			""".format(warehouse_cond, customer)
+			# and so.delivery_status in ('Not Delivered', 'Partly Delivered')
+			# and so.workflow_state = 'PI Pending'
 			so_data = frappe.db.sql(query, as_dict=True)
 
 			# existing stock allocation data merge
@@ -136,7 +140,11 @@ def get_pending_so(**kwargs):
 							sa_total_amt += sa_items[r.item_code][2]
 
 					sa_data["total_amount"] = sa_total_amt
-
+			# get on hand stock
+			ohs_detail = get_ohs_qty()
+			for row in so_data:
+				if row.item_code in ohs_detail:
+					row['actual_stock_qty'] = ohs_detail.get(row.item_code)
 			data["sa_items"] = sa_items
 			data["sa_total_amt"] = sa_total_amt
 			data["items"] = so_data
@@ -145,6 +153,7 @@ def get_pending_so(**kwargs):
 			data["closing_bal"] = closing_bal * -1
 			data["ledger_bal"] = ledger_bal * -1
 			data["unpaid_dn_amt"] = unpaid_dn_amt
+	
 		return data
 	except Exception as e:
 		print("#################### Error:", str(e))
@@ -221,11 +230,13 @@ def submit_stock_allocation(data):
 					"parent": so,
 					"item_code": data.get("item_code")
 				})
+				so_rate = frappe.db.get_value("Sales Order Item",{"parent":so,"item_code":data.get("item_code")},'rate')
+		
 				row_data = {
 					"item_code": data.get("item_code"),
 					"item_name": data.get("item_name"),
 					"qty": data.get("qty"),
-					"rate": data.get("rate"),
+					"rate": so_rate,
 					"amount": data.get("amount"),
 					"description": data.get("remarks") or  data.get("item_code"),
 					"against_sales_order": so,
@@ -238,8 +249,33 @@ def submit_stock_allocation(data):
 			dn.is_allocated = True
 			dn.set_missing_values()
 			dn.save()
-			dn.submit()
+			# dn.submit()
 			return {"stock_allocation": sa.name, "delivery_note": dn.name}
 	except Exception as e:
 		print("################################", str(e))
 		frappe.msgprint(_("Something went wrong, while submitting the document"))
+
+@frappe.whitelist()		
+def get_ohs_qty():
+	# warehouse list
+	fg_warehouse = frappe.db.sql("select warehouse from `tabFG Warehouse Group`", as_dict = 1)
+	from_warehouses = []
+
+	if fg_warehouse:
+		# fg_warehouse_ll = ["'" + row.warehouse + "'" for row in fg_warehouse]
+		# fg_warehouse_list = ','.join(fg_warehouse_ll)
+		for row in fg_warehouse:
+			warehouse_list = frappe.db.get_descendants('Warehouse', row.warehouse)
+			if warehouse_list:
+				for item in warehouse_list:
+					from_warehouses.append(item)
+			else:
+				from_warehouses.append(row.warehouse)
+		fg_warehouse_ll = ["'" + row + "'" for row in from_warehouses]
+		fg_warehouse_list = ','.join(fg_warehouse_ll)
+	else:
+	    fg_warehouse_list = "' '"
+
+	ohs_query = frappe.db.sql("SELECT item.item_code, sum(IFNULL (bin.actual_qty,0.0)) as ohs from `tabItem` item LEFT JOIN `tabBin` bin on item.item_code = bin.item_code  and item.disabled = 0 and bin.warehouse in ({0}) group by item.item_code".format(fg_warehouse_list), as_dict=1)
+	ohs_detail = {row.item_code : row.ohs for row in ohs_query}
+	return ohs_detail
