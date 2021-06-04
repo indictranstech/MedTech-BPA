@@ -60,7 +60,7 @@
 				<td class="tb-td rate" data-soi-rate="{{item.rate}}">
 					{{item.rate}}
 				</td>	
-				<td class="tb-td amont">{{item.amount}}</td>
+				<td class="tb-td amont">{{item.qty*item.rate}}</td>
 				<td class="tb-td">
 					<input class="pa-qty" type="number" name="", value="{{ item.carton_qty }}">
 				</td>
@@ -70,8 +70,8 @@
 							data-item="{{ item.item_code }}"
 							{% if cint(item.approval) %} checked {% endif %}>
 				</td>
-				<td class="tb-td stock_qty" data-stock-qty="{{ item.stock_qty }}">
-					{{ item.stock_qty }}
+				<td class="tb-td stock_qty" data-stock-qty="{{ item.actual_stock_qty }}">
+					{{ item.actual_stock_qty }}
 				</td>
 				<td class="tb-td">
 					<input type="text" name="" class="pa-remark" value="{{ item.remark }}">
