@@ -133,11 +133,11 @@ def get_pending_so(**kwargs):
 						if r.item_code in sa_items and \
 						r.name == sa_items[r.item_code][3]:
 							r["carton_qty"] = sa_items[r.item_code][0]
-							r["rate"] = sa_items[r.item_code][1]
-							r["revised_amt"] = sa_items[r.item_code][2]
+							r["rate"] = flt(sa_items[r.item_code][1],2)
+							r["revised_amt"] = flt(sa_items[r.item_code][2],2)
 							r["approval"] = sa_items[r.item_code][4]
 							r["remark"] = sa_items[r.item_code][5]
-							sa_total_amt += sa_items[r.item_code][2]
+							sa_total_amt += flt(sa_items[r.item_code][2],2)
 
 					sa_data["total_amount"] = sa_total_amt
 			# get on hand stock
@@ -149,10 +149,10 @@ def get_pending_so(**kwargs):
 			data["sa_total_amt"] = sa_total_amt
 			data["items"] = so_data
 			data["customer"] = customer
-			data["pending_bal"] = (closing_bal * -1) - (unpaid_dn_amt + sa_total_amt)
-			data["closing_bal"] = closing_bal * -1
-			data["ledger_bal"] = ledger_bal * -1
-			data["unpaid_dn_amt"] = unpaid_dn_amt
+			data["pending_bal"] = flt((closing_bal * -1) - (unpaid_dn_amt + sa_total_amt),2)
+			data["closing_bal"] = flt(closing_bal * -1,2)
+			data["ledger_bal"] = flt(ledger_bal * -1,2)
+			data["unpaid_dn_amt"] = flt(unpaid_dn_amt,2)
 	
 		return data
 	except Exception as e:

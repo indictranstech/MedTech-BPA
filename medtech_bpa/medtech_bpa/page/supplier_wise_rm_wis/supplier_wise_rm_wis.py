@@ -380,7 +380,7 @@ def make_xlsx_file(renderd_data):
 		if supplier_data:
 			for supplier in supplier_data:
 				cell = sheet.cell(row=row,column=col)
-				cell.value = d.get('item_name')
+				cell.value = d.get('item_code')+':'+d.get('item_name')
 				cell.alignment = cell.alignment.copy(horizontal="center", vertical="center")
 				
 
