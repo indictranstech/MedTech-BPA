@@ -1,6 +1,40 @@
 [
  {
   "default_value": null,
+  "doc_type": "Purchase Receipt Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "warehouse",
+  "modified": "2021-05-31 10:56:52.876704",
+  "name": "Purchase Receipt Item-warehouse-in_list_view",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "in_list_view",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "0"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Purchase Receipt Item",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "quality_inspection",
+  "modified": "2021-05-31 10:57:05.057162",
+  "name": "Purchase Receipt Item-quality_inspection-in_list_view",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "in_list_view",
+  "property_type": "Check",
+  "row_name": null,
+  "value": "1"
+ },
+ {
+  "default_value": null,
   "doc_type": "Customer",
   "docstatus": 0,
   "doctype": "Property Setter",
@@ -168,23 +202,6 @@
   "property_type": "Text",
   "row_name": null,
   "value": "ACC-JV-.YYYY.-"
- },
- {
-  "default_value": null,
-  "doc_type": "Payment Entry",
-  "docstatus": 0,
-  "doctype": "Property Setter",
-  "doctype_or_field": "DocField",
-  "field_name": "naming_series",
-  "modified": "2020-12-29 03:08:42.547050",
-  "name": "Payment Entry-naming_series-options",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "property": "options",
-  "property_type": "Text",
-  "row_name": null,
-  "value": "ACC-PAY-.YYYY.-"
  },
  {
   "default_value": null,
@@ -1273,23 +1290,6 @@
   "property_type": "Text",
   "row_name": null,
   "value": "Company\nIndividual\nProprietorship\nPartnership Firm\nLLP\nPrivate Limited\nPublic Limited\n\n"
- },
- {
-  "default_value": null,
-  "doc_type": "Sales Invoice",
-  "docstatus": 0,
-  "doctype": "Property Setter",
-  "doctype_or_field": "DocField",
-  "field_name": "naming_series",
-  "modified": "2021-02-06 01:03:54.833994",
-  "name": "Sales Invoice-naming_series-options",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "property": "options",
-  "property_type": "Text",
-  "row_name": null,
-  "value": "ACC-SINV-.YYYY.-\nACC-SINV-RET-.YYYY.-"
  },
  {
   "default_value": null,
@@ -3007,5 +3007,39 @@
   "property_type": "Check",
   "row_name": null,
   "value": "1"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Payment Entry",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "naming_series",
+  "modified": "2021-06-10 11:57:10.634015",
+  "name": "Payment Entry-naming_series-options",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "options",
+  "property_type": "Text",
+  "row_name": null,
+  "value": "ACC-PAY-.YYYY.-\nOPEN-PAY-.YYYY.-"
+ },
+ {
+  "default_value": null,
+  "doc_type": "Sales Invoice",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "naming_series",
+  "modified": "2021-06-10 11:58:33.428741",
+  "name": "Sales Invoice-naming_series-options",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "property": "options",
+  "property_type": "Text",
+  "row_name": null,
+  "value": "ACC-SINV-.YYYY.-\nACC-SINV-RET-.YYYY.-\nD-DN2122-.####"
  }
 ]
