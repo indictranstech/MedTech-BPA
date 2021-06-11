@@ -83,6 +83,7 @@ def get_data(filters):
 		order by pr.creation
 			""".format(validate_filters(filters)), as_dict = 1)
 	
+
 	final_data = []
 	for row in query_data:
 		row_data = []
@@ -92,6 +93,7 @@ def get_data(filters):
 		row_data.append(row.get('vir_no'))
 		row_data.append(row.get('supplier_bill_no'))
 		row_data.append(row.get('po_qty'))
+		row_data.append(row.get('po_qty') - row.get('billed_qty'))
 		row_data.append(row.get('po_date'))
 		row_data.append(row.get('req_by_date'))
 		row_data.append(row.get('exp_deli_date'))
@@ -161,6 +163,12 @@ def get_columns():
 			"label": _("PO Qty"),
 			"fieldtype": "Float",
 			"width": 80
+		},
+		{
+			"fieldname": "pending_qty",
+			"label": _("Pending Qty"),
+			"fieldtype": "Float",
+			"width": 100
 		},
 		{
 			"fieldname": "po_date",

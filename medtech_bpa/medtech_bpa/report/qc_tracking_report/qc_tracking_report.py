@@ -16,7 +16,7 @@ def execute(filters=None):
 def get_data(filters):
 	if filters:
 		purchase_receipt = filters.get("purchase_receipt")
-		query ='''SELECT pr.name as pr_name,pri.item_code,pri.qty, pri.name,pri.received_qty,pri.custom_rejected_qty, pr.posting_date, 
+		query ='''SELECT pr.name as pr_name,pri.item_code,pri.qty,pri.item_name, pri.name,pri.received_qty,pri.custom_rejected_qty, pr.posting_date, 
 			CASE
 				WHEN  pri.quality_inspection IS NULL  THEN  'Pending'
 				WHEN  pri.quality_inspection IS NOT NULL  
@@ -41,13 +41,13 @@ def get_data(filters):
 				# print((getdate(data.get('posting_date')) - getdate(data.get('days'))).days)
 				data['days'] = abs((getdate(data.get('posting_date')) - getdate(data.get('days'))).days)
 			temp = [ 
-					data.get('pr_name'),data.get('item_code'),data.get('qty'),data.get('received_qty'),
+					data.get('pr_name'),data.get('item_code'),data.get('item_name'),data.get('qty'),data.get('received_qty'),
 					data.get('custom_rejected_qty'),data.get('posting_date'),data.get('status'),data.get('days')
 			]
 			result_list.append(temp)
 		return result_list
 	else:
-		query ='''SELECT pr.name as pr_name,pri.item_code,pri.qty,pri.received_qty,pri.custom_rejected_qty, pr.posting_date, 
+		query ='''SELECT pr.name as pr_name,pri.item_code,pri.item_name,pri.qty,pri.received_qty,pri.custom_rejected_qty, pr.posting_date, 
 			CASE
 				WHEN  pri.quality_inspection IS NULL  THEN  'Pending'
 				WHEN  pri.quality_inspection IS NOT NULL  
@@ -72,7 +72,7 @@ def get_data(filters):
 				# print((getdate(data.get('posting_date')) - getdate(data.get('days'))).days)
 				data['days'] = abs((getdate(data.get('posting_date')) - getdate(data.get('days'))).days)
 			temp = [ 
-					data.get('pr_name'),data.get('item_code'),data.get('qty'),data.get('received_qty'),
+					data.get('pr_name'),data.get('item_code'),data.get('item_name'),data.get('qty'),data.get('received_qty'),
 					data.get('custom_rejected_qty'),data.get('posting_date'),data.get('status'),data.get('days')
 			]
 			result_list.append(temp)
@@ -91,6 +91,12 @@ def get_columns():
 		{
 			"fieldname": "item_code",
 			"label": _("Item Code"),
+			"fieldtype": "Data",
+			"width": 250
+		},
+		{
+			"fieldname": "item_name",
+			"label": _("Item Name"),
 			"fieldtype": "Data",
 			"width": 250
 		},
