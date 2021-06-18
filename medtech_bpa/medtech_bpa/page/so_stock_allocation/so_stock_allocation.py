@@ -112,6 +112,9 @@ def get_pending_so(**kwargs):
 			# and so.delivery_status in ('Not Delivered', 'Partly Delivered')
 			# and so.workflow_state = 'PI Pending'
 			so_data = frappe.db.sql(query, as_dict=True)
+			for rate in so_data:
+				if rate['rate']:
+					rate['rate'] = format(float(rate['rate']),".2f")
 
 			# existing stock allocation data merge
 			if int(kwargs.get("fetch_existing", 0)):
