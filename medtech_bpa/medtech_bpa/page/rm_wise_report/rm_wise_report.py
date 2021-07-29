@@ -181,7 +181,7 @@ def get_po_qty_detail(item_list, pm_from_date):
 	# query = frappe.db.sql("select pi.parent, pi.name, pi.item_code, case when pi.expected_delivery_date < '{0}' then (pi.qty - pi.received_qty) end as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100  and pmi.planning_master_parent = '{1}' group by pi.item_code, pi.parent order by pi.name".format(pm_from_date, planning_master), as_dict =1)
 	item_tuple = tuple(item_list)
 	if len(item_tuple):
-		query = frappe.db.sql("SELECT pi.parent, pi.name, pi.item_code, case when pi.expected_delivery_date < '{0}' then (pi.qty - pi.received_qty) end as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  where po.docstatus = 1  and po.per_received < 100  and pi.item_code in {1} group by pi.item_code, pi.parent order by pi.name".format(pm_from_date, item_tuple), as_dict =1)
+		query = frappe.db.sql("SELECT pi.parent, pi.name, pi.item_code, case when pi.expected_delivery_date < '{0}' then (pi.qty - pi.received_qty) end as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  where po.docstatus = 1  and po.per_received < 100  and pi.item_code in {1} and po.status != 'Closed' and po.status != 'On Hold' group by pi.item_code, pi.parent order by pi.name".format(pm_from_date, item_tuple), as_dict =1)
 		item_dict = dict()
 		for item in query:
 			if item.item_code in item_dict:
@@ -259,24 +259,30 @@ def get_required_qty_date_wise(planning_master):
 
 
 def get_po_qty_date_wise(planning_master):
+	item_list_data = get_item_list(planning_master)
+	item_list = list(dict.fromkeys(item_list_data))
 	bom_name = frappe.db.sql("""SELECT name, bom, amount,include_exploded_bom from `tabPlanning Master Item` where planning_master_parent='{0}'""".format(planning_master), as_dict=1)
 
 	final_list = []
-	for row in bom_name:
-		if row.include_exploded_bom == 1:
+	query = frappe.db.sql("SELECT pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join  `tabPlanning Master Item` pmi on pmi.date = pi.expected_delivery_date where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1)
+	for item in query:
+		final_list.append(item)
+	
+	# for row in bom_name:
+	# 	if row.include_exploded_bom == 1:
 			
-			query = frappe.db.sql("SELECT pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1)
-			for item in query:
-				final_list.append(item)
-		else:
-			query = frappe.db.sql("SELECT pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1)
-			for item in query:
-				final_list.append(item)
+	# 		query = frappe.db.sql("SELECT pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Explosion Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1)
+	# 		# print("------------------query------",query)
+	# 		for item in query:
+	# 			final_list.append(item)
+	# 	else:
+	# 		query = frappe.db.sql("SELECT pi.parent, pi.expected_delivery_date as schedule_date, pi.item_code, (pi.qty - pi.received_qty) as quantity from `tabPurchase Order` po join `tabPurchase Order Item` pi on pi.parent = po.name  join `tabBOM Item` bi on bi.item_code = pi.item_code join `tabBOM` b on b.name = bi.parent  join `tabPlanning Master Item` pmi on pmi.bom = b.name where po.docstatus = 1  and po.per_received < 100 and pmi.date = pi.expected_delivery_date and pmi.planning_master_parent = '{0}' group by pi.expected_delivery_date, pi.item_code, pi.parent order by pi.item_code".format(planning_master), as_dict =1)
+	# 		for item in query:
+	# 			final_list.append(item)
 
 	
 
 	req_dict = dict()
-
 	item_list = get_item_details(planning_master)
 	for item in final_list:
 		if item.item_code in req_dict:

@@ -37,7 +37,7 @@ def get_planing_master_details(filters=None):
 	pm_from_date = frappe.db.get_value('Planning Master', {'name' : planning_master[0].name}, 'from_date')
 	pm_to_date = frappe.db.get_value('Planning Master', {'name' : planning_master[0].name}, 'to_date')
 	bom_name = frappe.db.sql("""SELECT name, bom, amount,include_exploded_bom from `tabPlanning Master Item` where planning_master_parent='{0}' and date>='{1}' and date<='{2}'""".format(planning_master[0].get('name'), planning_master[0].get('from_date'), planning_master[0].get('to_date')), as_dict=1)
-	print("--------------------------bom_name--------",bom_name)
+	
 	unic_bom = []
 	bom_items=[]
 	for row in bom_name:
