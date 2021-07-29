@@ -81,9 +81,18 @@ class ProductionPickList(Document):
 			for row in locations:
 				location = item_doc.as_dict()
 				qty_to_be_issued = frappe.db.get_value("Work Order Item",{'parent':self.work_order,'item_code':location.get("item_code")},'qty_to_be_issued')
+				bom = frappe.db.get_value("Work Order",{'name':self.work_order},'bom_no')
+				uom = frappe.db.get_value("BOM Item",{'parent':bom,'item_code':location.get("item_code")},'uom')
+				stock_uom = frappe.db.get_value("BOM Item",{'parent':bom,'item_code':location.get("item_code")},'stock_uom')
+				# uom_explod = frappe.db.get_value("BOM Explosion Item",{'name':bom,'item_code':location.get("item_code")},'uom')
+				stock_uom_explod = frappe.db.get_value("BOM Explosion Item",{'parent':bom,'item_code':location.get("item_code")},'stock_uom')
+				# uom = frappe.db.get_value("Item",{'name':location.get("item_code")},'stock_uom')
 				row.update({
 					'qty': qty_to_be_issued,
-					'balance_qty':qty_to_be_issued
+					'balance_qty':qty_to_be_issued,
+					'uom' : uom if uom else stock_uom_explod,
+					'stock_uom' : stock_uom if stock_uom else stock_uom_explod
+
 				})
 				location.update(row)
 				self.append('locations', location)
