@@ -2,6 +2,19 @@
  {
   "docstatus": 0,
   "doctype": "Client Script",
+  "dt": "Payment Reconciliation",
+  "enabled": 0,
+  "modified": "2021-10-04 10:33:27.655565",
+  "name": "Payment Reconciliation-Form",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "script": "frappe.ui.form.on('Payment Reconciliation', {\n\trefresh(frm) {\n\t}\n})\nfrappe.ui.form.on('Payment Reconciliation Invoice', {\n\trefresh(frm) {\n\t{\n\tcur_frm.add_fetch(\"purchase_invoice\", \"bill_no\", \"bill_no\");\n\t}\n\t}\n})",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
   "dt": "Gate Pass Entry",
   "enabled": 0,
   "modified": "2021-04-02 13:50:19.203815",
@@ -16,13 +29,13 @@
   "docstatus": 0,
   "doctype": "Client Script",
   "dt": "Sales Order",
-  "enabled": 0,
-  "modified": "2021-04-02 13:50:02.327900",
+  "enabled": 1,
+  "modified": "2022-02-03 17:35:29.277233",
   "name": "Sales Order-Client",
   "parent": null,
   "parentfield": null,
   "parenttype": null,
-  "script": "frappe.ui.form.on('Sales Order', {\n\trefresh(frm) {\n\t  \n\t  frappe.ui.form.on('Sales Order', {\n   oredr_type:function(frm){\n       var data = cur_frm.doc.order_type\n       console.log(data);\n       if(cur_frm.doc.order_type == 'Sales'){\n           cur_frm.set_value(\"naming_series\",\"SO-D-DM2122-.####\")\n       }\n       else if(cur_frm.doc.order_type == 'Export'){\n           cur_frm.set_value(\"naming_series\",\"SAL-EXP-ORD-.YYYY.-\")\n       }\n       else if(cur_frm.doc.order_type == 'Repairing'){\n           cur_frm.set_value(\"naming_series\",\"SAL-REP-ORD-.YYYY.-\")\n       }\n   }\n})\n\t}\n})",
+  "script": "frappe.ui.form.on('Sales Order', {\n\trefresh(frm) {\n\t  \n\t  frappe.ui.form.on('Sales Order', {\n   order_type:function(frm){\n       var data = cur_frm.doc.order_type\n       console.log(data);\n       if(cur_frm.doc.order_type == 'Sales'){\n           cur_frm.set_value(\"naming_series\",\"SO-D-DM2122-.####\")\n       }\n       else if(cur_frm.doc.order_type == 'Export'){\n           cur_frm.set_value(\"naming_series\",\"SAL-EXP-ORD-2021-\")\n       }\n       else if(cur_frm.doc.order_type == 'Repairing'){\n           cur_frm.set_value(\"naming_series\",\"SAL-REP-ORD-2021-\")\n       }\n       else if(cur_frm.doc.order_type == 'Merchant Export'){\n           cur_frm.set_value(\"naming_series\",\"SO-M-DN2122-\")\n       }\n   }\n})\n\t}\n})",
   "view": "Form"
  },
  {
@@ -49,6 +62,19 @@
   "parentfield": null,
   "parenttype": null,
   "script": "frappe.ui.form.on('Stock Entry', {\n\trefresh(frm)\n\t{\n\t    if(fr.doc.stock_entry_type == \"Manufacture\") {\n\t$('*[data-fieldname=\"items\"]').find('.grid-remove-rows').hide();\n\t}\n\t}\n})",
+  "view": "Form"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Client Script",
+  "dt": "Delivery Note",
+  "enabled": 1,
+  "modified": "2022-02-03 18:15:35.400220",
+  "name": "Delivery Note-Form",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "script": "// frappe.ui.form.on('Delivery Note', {\n// \trefresh(frm) {\n// \t\t// your code here\n// \t}\n// })\nfrappe.ui.form.on('Delivery Note', {\n\trefresh(frm) {\n\t  \n\t  frappe.ui.form.on('Delivery Note', {\n   order_type:function(frm){\n       var data = cur_frm.doc.order_type\n       console.log(data);\n       if(cur_frm.doc.order_type == 'Merchant Export'){\n           cur_frm.set_value(\"naming_series\",\"DN-M-DN2122-\")\n       }\n       \n   }\n})\n\t}\n})",
   "view": "Form"
  }
 ]

@@ -42,11 +42,11 @@
   "standard": 1
  },
  {
-  "css": ".print-heading {\n\ttext-align: right;\n\ttext-transform: uppercase;\n\tcolor: #666;\n\tpadding-bottom: 20px;\n\tmargin-bottom: 20px;\n\tborder-bottom: 1px solid #d1d8dd;\n}\n\n.print-heading h2 {\n\tfont-size: 24px;\n}\n\n.print-format th {\n\tbackground-color: #eee !important;\n\tborder-bottom: 0px !important;\n}\n\n/* modern format: for-test */",
+  "css": ".print-heading {\n\ttext-align: right;\n\ttext-transform: uppercase;\n\tcolor: #666;\n\tpadding-bottom: 20px;\n\tmargin-bottom: 20px;\n\tborder-bottom: 1px solid #d1d8dd;\n}\n\n.print-heading h2 {\n\tfont-size: 24px;\n}\n\n.print-format th {\n\tbackground-color: #eee !important;\n\tborder-bottom: 0px !important;\n}\n\n.print-format .primary.compact-item {\n    font-weight: bold;\n}\n\n/* modern format: for-test */",
   "disabled": 0,
   "docstatus": 0,
   "doctype": "Print Style",
-  "modified": "2017-08-18 00:44:07.438147",
+  "modified": "2020-11-10 13:59:09.976381",
   "name": "Modern",
   "parent": null,
   "parentfield": null,
