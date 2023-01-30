@@ -2,6 +2,30 @@
  {
   "docstatus": 0,
   "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-07-30 14:16:14.122029",
+  "name": "Stock Transfer",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "Stock Transfer"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-05-20 09:52:37.417799",
+  "name": "AKSHAY",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "",
+  "workflow_state_name": "AKSHAY"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
   "icon": "question-sign",
   "modified": "2021-01-04 17:07:35.313429",
   "name": "Pending",
@@ -46,18 +70,6 @@
   "parenttype": null,
   "style": "",
   "workflow_state_name": "Send for QC"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "",
-  "modified": "2021-01-14 17:35:33.073623",
-  "name": "For Receipt",
-  "parent": null,
-  "parentfield": null,
-  "parenttype": null,
-  "style": "Info",
-  "workflow_state_name": "For Receipt"
  },
  {
   "docstatus": 0,
@@ -214,5 +226,17 @@
   "parenttype": null,
   "style": "",
   "workflow_state_name": "Modified"
+ },
+ {
+  "docstatus": 0,
+  "doctype": "Workflow State",
+  "icon": "",
+  "modified": "2021-01-14 17:35:33.073623",
+  "name": "For Receipt",
+  "parent": null,
+  "parentfield": null,
+  "parenttype": null,
+  "style": "Info",
+  "workflow_state_name": "For Receipt"
  }
 ]
