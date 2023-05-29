@@ -90,23 +90,23 @@ app_license = "MIT"
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-	# "all": [
-	# 	"medtech_bpa.tasks.all"
-	# ],
-	"daily": [
-		"medtech_bpa.medtech_bpa.doc_events.email_queue.delete_email_queues"
-	],
-	# "hourly": [
-	# 	"medtech_bpa.tasks.hourly"
-	# ],
-	# "weekly": [
-	# 	"medtech_bpa.tasks.weekly"
-	# ]
-	# "monthly": [
-	# 	"medtech_bpa.tasks.monthly"
-	# ]
-}
+# scheduler_events = {
+# 	"all": [
+# 		"medtech_bpa.tasks.all"
+# 	],
+# 	"daily": [
+# 		"medtech_bpa.tasks.daily"
+# 	],
+# 	"hourly": [
+# 		"medtech_bpa.tasks.hourly"
+# 	],
+# 	"weekly": [
+# 		"medtech_bpa.tasks.weekly"
+# 	]
+# 	"monthly": [
+# 		"medtech_bpa.tasks.monthly"
+# 	]
+# }
 
 # Testing
 # -------
